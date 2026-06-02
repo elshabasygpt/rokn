@@ -1,0 +1,21 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Databases
+local_pg_data/
+.data/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+public/uploads/*
+!public/uploads/.gitkeep

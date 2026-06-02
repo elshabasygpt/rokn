@@ -1,0 +1,41 @@
+2026-04-08 23:35:19.549 EET [20644] LOG:  starting PostgreSQL 18.3 on x86_64-windows, compiled by msvc-19.44.35222, 64-bit
+2026-04-08 23:35:19.577 EET [20644] LOG:  listening on IPv6 address "::1", port 5433
+2026-04-08 23:35:19.578 EET [20644] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-04-08 23:35:19.699 EET [10540] LOG:  database system was shut down at 2026-04-08 23:34:48 EET
+2026-04-08 23:35:19.729 EET [20644] LOG:  database system is ready to accept connections
+2026-04-08 23:40:19.693 EET [16612] LOG:  checkpoint starting: time
+2026-04-08 23:42:09.824 EET [16612] LOG:  checkpoint complete: wrote 1052 buffers (6.4%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=105.365 s, sync=4.097 s, total=110.132 s; sync files=341, longest=0.056 s, average=0.013 s; distance=5152 kB, estimate=5152 kB; lsn=0/1CEE910, redo lsn=0/1CEE128
+2026-04-08 23:45:19.829 EET [16612] LOG:  checkpoint starting: time
+2026-04-08 23:45:20.432 EET [16612] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.102 s, sync=0.033 s, total=0.604 s; sync files=2, longest=0.021 s, average=0.017 s; distance=3 kB, estimate=4637 kB; lsn=0/1CEEEB0, redo lsn=0/1CEEE58
+2026-04-08 23:50:19.433 EET [16612] LOG:  checkpoint starting: time
+2026-04-08 23:50:20.140 EET [16612] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.021 s, total=0.708 s; sync files=2, longest=0.021 s, average=0.011 s; distance=4 kB, estimate=4174 kB; lsn=0/1CEFF98, redo lsn=0/1CEFF40
+2026-04-09 02:00:19.153 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:00:24.582 EET [16612] LOG:  checkpoint complete: wrote 44 buffers (0.3%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.456 s, sync=0.869 s, total=5.430 s; sync files=36, longest=0.055 s, average=0.025 s; distance=194 kB, estimate=3776 kB; lsn=0/1D20808, redo lsn=0/1D20778
+2026-04-09 02:05:19.583 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:05:20.227 EET [16612] LOG:  checkpoint complete: wrote 4 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.402 s, sync=0.110 s, total=0.644 s; sync files=5, longest=0.029 s, average=0.022 s; distance=7 kB, estimate=3399 kB; lsn=0/1D225E0, redo lsn=0/1D22588
+2026-04-09 02:10:19.227 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:10:20.007 EET [16612] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.202 s, sync=0.043 s, total=0.780 s; sync files=3, longest=0.019 s, average=0.015 s; distance=5 kB, estimate=3060 kB; lsn=0/1D23A08, redo lsn=0/1D239B0
+2026-04-09 02:15:19.008 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:15:19.664 EET [16612] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.022 s, total=0.657 s; sync files=2, longest=0.013 s, average=0.011 s; distance=6 kB, estimate=2754 kB; lsn=0/1D25308, redo lsn=0/1D252B0
+2026-04-09 02:25:25.351 EET [11960] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-04-09 02:30:19.666 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:30:24.596 EET [16612] LOG:  checkpoint complete: wrote 37 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=3.719 s, sync=0.743 s, total=4.931 s; sync files=34, longest=0.031 s, average=0.022 s; distance=163 kB, estimate=2495 kB; lsn=0/1D4DF40, redo lsn=0/1D4DEB0
+2026-04-09 02:33:31.174 EET [888] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-04-09 02:33:46.427 EET [20648] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-04-09 02:35:19.597 EET [16612] LOG:  checkpoint starting: time
+2026-04-09 02:35:20.298 EET [16612] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.024 s, total=0.702 s; sync files=1, longest=0.024 s, average=0.024 s; distance=2 kB, estimate=2246 kB; lsn=0/1D4E8C0, redo lsn=0/1D4E868
+2026-04-09 02:39:23.552 EET [10848] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-04-09 02:39:23.552 EET [13952] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-04-09 03:11:37.788 EET [20644] LOG:  autovacuum worker (PID 19300) was terminated by exception 0xC000026B
+2026-04-09 03:11:37.788 EET [20644] HINT:  See C include file "ntstatus.h" for a description of the hexadecimal value.
+2026-04-09 03:11:37.788 EET [20644] LOG:  terminating any other active server processes
+2026-04-09 03:11:37.826 EET [20644] LOG:  all server processes terminated; reinitializing
+2026-04-09 03:11:37.900 EET [20644] LOG:  startup process (PID 14036) was terminated by exception 0xC000026B
+2026-04-09 03:11:37.900 EET [20644] HINT:  See C include file "ntstatus.h" for a description of the hexadecimal value.
+2026-04-09 03:11:37.900 EET [20644] LOG:  aborting startup due to startup process failure
+2026-04-09 03:11:37.901 EET [20644] LOG:  database system is shut down

@@ -1,0 +1,369 @@
+{
+  "layout": {
+    "promoBanner": "20% off on monthly refrigerated truck rentals this week!",
+    "promoBtn": "Close",
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "fleet": "Our Fleet",
+      "gallery": "Gallery",
+      "about": "About Us",
+      "contact": "Contact Us"
+    },
+    "cta": {
+      "book": "Book a Truck",
+      "whatsapp": "WhatsApp",
+      "call": "Call"
+    },
+    "logo": {
+      "alt": "Rokn Elryan Refrigerated Transport Logo",
+      "title": "Rokn Elryan",
+      "subtitle": "Refrigerated Transport"
+    },
+    "footer": {
+      "about": "The leading company in refrigerated and frozen transport services in Jeddah and Saudi Arabia, serving you with professionalism and safety to preserve your products.",
+      "quickLinks": "Quick Links",
+      "areas": "Service Areas",
+      "abha": "Jeddah",
+      "khamis": "Makkah",
+      "allKsa": "All cities of Saudi Arabia",
+      "copyright": "Copyright © {{year}} Rokn Elryan Refrigerated Transport. All rights reserved."
+    },
+    "floating": {
+      "whatsappAlt": "Contact us via WhatsApp",
+      "whatsappText": "Contact us now"
+    }
+  },
+  "home": {
+    "faqs": [
+      {
+        "q": "What temperature ranges are available in your refrigerated trucks?",
+        "a": "Our trucks are equipped with advanced cooling and freezing units that allow temperature control down to deep freezing, depending on the type of goods (food, medicine, etc.)."
+      },
+      {
+        "q": "Do you provide monthly rental services for companies?",
+        "a": "Yes, we provide refrigerated truck (Truck) rentals on monthly and annual contracts for companies, factories, and restaurants with professional drivers."
+      },
+      {
+        "q": "Do you transport outside Jeddah?",
+        "a": "Absolutely, we provide refrigerated and frozen transport services from Jeddah to all regions and cities of Saudi Arabia."
+      },
+      {
+        "q": "How is the safety of products ensured during transport?",
+        "a": "Our trucks undergo periodic inspections of cooling units, and temperatures are monitored throughout the journey to ensure goods arrive in high quality without any spoilage."
+      }
+    ],
+    "hero": {
+      "badge": "Rokn Elryan Certified & Reliable Company",
+      "title1": "Rokn Elryan",
+      "title2": "The First Choice for Refrigerated Transport",
+      "desc": "We offer top-quality refrigerated and frozen transport services in Jeddah and all cities of the Kingdom, with precise temperature control to keep your products fresh and safe.",
+      "callNow": "Request Corporate Quote",
+      "bookNow": "Request Annual Contract"
+    },
+    "trust": [
+      "Precise Temperature Control",
+      "Kingdom-wide Coverage",
+      "Modern Refrigerated Trucks",
+      "Highly Experienced Drivers"
+    ],
+    "partnersTitle": "Proud of our partners' trust in the food sector",
+    "services": {
+      "title": "Refrigeration and Freezing Services",
+      "desc": "We offer a complete range of refrigerated logistics services to meet all food and pharmaceutical distribution needs.",
+      "viewAll": "View All Services",
+      "items": [
+        {
+          "title": "Refrigerated & Frozen Transport",
+          "desc": "Transporting all types of food, meat, and medicines at controlled temperatures."
+        },
+        {
+          "title": "Refrigerated Truck Rental",
+          "desc": "Flexible truck rental contracts with a driver for restaurants and companies."
+        },
+        {
+          "title": "Logistics Distribution",
+          "desc": "Product distribution inside and outside Jeddah with regular and precise routes."
+        }
+      ]
+    },
+    "estimator": {
+      "badge": "Quote Request",
+      "title": "Commercial Transport Calculator",
+      "desc": "Use the form to find the approximate cost of transporting your refrigerated goods. The cost depends on the distance, truck load, and required temperature.",
+      "fromCity": "From City",
+      "toCity": "To City",
+      "rooms": "Truck Type (Load Capacity)",
+      "btn": "Calculate Cost",
+      "estimateStart": "Approximate cost starts from",
+      "currency": "SAR",
+      "estimateNote": "This is an approximate cost depending on the type of goods and the actual trip distance.",
+      "bookNow": "Confirm Order",
+      "cities": {
+        "جدة": "Jeddah",
+        "مكة المكرمة": "Makkah",
+        "الرياض": "Riyadh",
+        "الدمام": "Dammam",
+        "المدينة المنورة": "Madinah",
+        "أبها": "Abha",
+        "خميس مشيط": "Khamis Mushait",
+        "جازان": "Jazan",
+        "تبوك": "Tabuk"
+      },
+      "roomOptions": {
+        "1": "Truck (Up to 4 Tons)",
+        "2": "Medium Truck (Jumbo)",
+        "3": "Refrigerated Trailer (Heavy Loads)",
+        "4": "Monthly Rental (Truck)"
+      }
+    },
+    "whyUs": {
+      "title1": "Why Choose ",
+      "title2": "Rokn Elryan?",
+      "desc": "We don't just transport goods; we transport our commitment to high quality. We excel at providing refrigerated logistics solutions that exceed expectations.",
+      "items": [
+        {
+          "title": "Precise Temperatures",
+          "desc": "Modern refrigerators that guarantee maintaining the required temperature."
+        },
+        {
+          "title": "Comprehensive Coverage",
+          "desc": "Our fleet covers all cities and regions of the Kingdom."
+        },
+        {
+          "title": "Flexible Contracts",
+          "desc": "We offer daily, monthly, and annual rentals for companies."
+        },
+        {
+          "title": "Competitive Prices",
+          "desc": "We offer the best competitive price quotes in the market."
+        }
+      ],
+      "yearsExp": "Years of Excellence",
+      "happyClients": "Strategic Partners"
+    },
+    "howItWorks": {
+      "title": "How It Works?",
+      "desc": "Simple steps to ensure your products arrive in their ideal condition and with complete safety.",
+      "items": [
+        {
+          "title": "Contact & Book",
+          "desc": "Call us to determine the type of goods, temperature, and transport date."
+        },
+        {
+          "title": "Prepare the Truck",
+          "desc": "Pre-set the refrigerator temperature and prepare it to receive the load."
+        },
+        {
+          "title": "Safe Loading & Transport",
+          "desc": "Stack and unload goods in a way that ensures cooling distribution and careful transport."
+        },
+        {
+          "title": "On-Time Delivery",
+          "desc": "Deliver the goods to the final destination with the required temperature and quality."
+        }
+      ]
+    },
+    "faqSect": {
+      "title": "Frequently Asked Questions",
+      "desc": "Answers to our customers' most common questions regarding refrigeration services."
+    },
+    "reviews": {
+      "title1": "Success",
+      "title2": "Partners' Reviews",
+      "desc": "We take pride in our customers' trust in the food and restaurant sector, and we always strive to provide the best."
+    },
+    "cta": {
+      "title": "Ready to transport your products safely?",
+      "desc": "Do not hesitate, request your refrigerated truck now. Our team is ready to serve you 24/7 with a fully equipped fleet.",
+      "bookBtn": "Book a Truck Now",
+      "waBtn": "Contact via WhatsApp"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Rokn Elryan Refrigerated Transport: Your strategic partner in managing and securing cold supply chains for factories and major corporations in Saudi Arabia.",
+    "story": {
+      "title": "Our Story & Journey",
+      "p1": "Rokn Elryan began with a modest fleet and a clear strategic vision: to elevate the level of refrigerated logistics services to meet the strict requirements of major companies and factories.",
+      "p2": "Today, we are proud to manage one of the most modern refrigerated fleets in the Kingdom, equipped with the latest cooling and temperature tracking devices (Data Loggers), becoming the first choice for the food, pharmaceutical, and catering sectors.",
+      "p3": "We don't just transport goods; we manage an integrated supply chain and commit to providing Service Level Agreements (SLAs) that ensure the continuity of our clients' business with the highest efficiency."
+    },
+    "vision": {
+      "title": "Our Vision 2030",
+      "desc": "To be the strongest logistics pillar in the cold chain across the Kingdom, directly contributing to the realization of Saudi Vision 2030 to enhance the Kingdom's position as a global logistics hub."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "desc": "Providing safe, precise refrigerated transport solutions compliant with SFDA requirements, ensuring product quality and protection on every journey."
+    },
+    "values": {
+      "title": "Corporate Values",
+      "desc": "Strict compliance with storage standards, reliability and punctuality in distribution schedules, innovation in tracking technologies, and building long-term strategic partnerships."
+    },
+    "stats": {
+      "years": "Years of Excellence",
+      "success": "Successful Logistics Contracts",
+      "trucks": "Ready Refrigerated Trucks",
+      "quality": "Quality & Safety Guarantee"
+    }
+  },
+  "fleet": {
+    "title": "Our Refrigerated Fleet",
+    "subtitle": "We own a comprehensive fleet of refrigerated trucks equipped with the latest technologies to meet all distribution and inter-city transport needs, guaranteeing temperatures from -18°C to +4°C.",
+    "features": {
+      "dataLogger": "Real-time Temperature Monitoring (Data Logger)",
+      "gps": "Satellite Vehicle Tracking (GPS)",
+      "sanitized": "Periodic Sanitization per SFDA Standards",
+      "thermoKing": "Ultra-efficient Cooling Units (Thermo King/Carrier)"
+    },
+    "vehicles": {
+      "dyna": {
+        "title": "Refrigerated Dyna (4 Ton)",
+        "desc": "Ideal for daily inner-city distribution, catering deliveries, medical warehouses, and commercial branches.",
+        "capacity": "Load Capacity: Up to 4 Tons / 6 Pallets"
+      },
+      "jumbo": {
+        "title": "Refrigerated Jumbo (6-8 Ton)",
+        "desc": "The perfect choice for medium requirements and transporting food and medicines in commercial quantities to feed retail chains.",
+        "capacity": "Load Capacity: Up to 8 Tons / 12 Pallets"
+      },
+      "trailer": {
+        "title": "Refrigerated Trailer (25 Ton)",
+        "desc": "Dedicated for factories and strategic linking between major cities and regional warehouses (Linehaul Logistics).",
+        "capacity": "Load Capacity: Up to 25 Tons / 24 Pallets"
+      }
+    }
+  },
+  "servicesPage": {
+    "title": "Refrigeration Services",
+    "desc": "At Rokn Elryan, we provide comprehensive solutions for transporting your goods at controlled temperatures, to cover all your logistics needs.",
+    "imageAlt": "View image",
+    "items": [
+      {
+        "id": "refrigerated",
+        "title": "Refrigerated & Frozen Transport",
+        "desc": "Transporting all types of fresh and frozen food, as well as medicines, using trucks equipped with high-quality cooling systems.",
+        "features": [
+          "Freezing and cooling to precise degrees",
+          "Transporting meat, poultry, and fish",
+          "Transporting vegetables and fruits",
+          "Transporting medicines and medical supplies"
+        ]
+      },
+      {
+        "id": "truck_rental",
+        "title": "Refrigerated Truck Rental",
+        "desc": "Refrigerated truck rental services to meet the needs of companies, factories, and restaurants, whether for daily trips or monthly contracts.",
+        "features": [
+          "Daily, monthly, and annual rentals",
+          "Drivers experienced in distribution",
+          "Periodic maintenance of refrigerators",
+          "Special rates for companies"
+        ]
+      },
+      {
+        "id": "distribution",
+        "title": "Food Product Distribution",
+        "desc": "Taking charge of daily routes for distributing food products to supermarkets and restaurants with precision and strict punctuality.",
+        "features": [
+          "Distribution inside and outside Jeddah",
+          "Professional team in loading and unloading",
+          "Precise tracking of routes",
+          "Maintaining the cold chain"
+        ]
+      },
+      {
+        "id": "intercity",
+        "title": "Intercity Refrigerated Transport",
+        "desc": "Transporting goods with different load capacities (Truck, Jumbo, Trailer) from Jeddah to Riyadh, Dammam, the Southern Region, and all regions of the Kingdom.",
+        "features": [
+          "Comprehensive coverage of the Kingdom",
+          "Speed in delivery",
+          "Insurance on goods",
+          "Continuous trip tracking"
+        ]
+      }
+    ],
+    "cta": {
+      "title": "Ready to transport your goods with confidence?",
+      "desc": "Contact us now to get a customized quote and price offer. Our team is ready to serve you 24/7.",
+      "book": "Request Your Truck Now",
+      "call": "Contact Us"
+    }
+  },
+  "gallery": {
+    "title": "Our Gallery",
+    "desc": "Browse photos of our refrigerated truck fleet and see our readiness to meet all your logistics needs.",
+    "categories": {
+      "all": "All",
+      "moving": "Refrigerated Trucks",
+      "packing": "Loading Operations",
+      "assembly": "Internal Distribution"
+    },
+    "items": {
+      "1": "Modern Refrigerated Truck",
+      "2": "Loading Food Materials",
+      "3": "Intercity Refrigerated Trailer",
+      "4": "Distribution Operations in Jeddah",
+      "5": "Preparing Refrigerators",
+      "6": "Transporting Frozen Goods & Meat"
+    },
+    "mediaParams": {
+      "video": "Video",
+      "image": "Image"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "desc": "We are here to serve you around the clock. Contact us now to request a refrigerated truck or inquire about corporate contracts.",
+    "info": {
+      "title": "Contact Information",
+      "p1Label": "First Unified Number",
+      "p2Label": "Customer Service",
+      "waLabel": "Orders WhatsApp",
+      "waText": "Instant Messaging",
+      "hqLabel": "Headquarters",
+      "hqText": "Jeddah, Saudi Arabia",
+      "hoursLabel": "Working Hours",
+      "hoursText": "Available 24/7 for orders"
+    },
+    "form": {
+      "title": "Request a Refrigerated Truck Now",
+      "desc": "Complete the following information and our team will contact you immediately to confirm the booking.",
+      "successTitle": "Your request has been sent successfully!",
+      "successDesc": "Thank you for contacting us. A customer service representative will call you shortly to confirm the order.",
+      "steps": {
+        "s1": "Route",
+        "s2": "Goods",
+        "s3": "Contact"
+      },
+      "fields": {
+        "fromCity": "From City",
+        "fromPlaceholder": "Select Loading City",
+        "toCity": "To City",
+        "toPlaceholder": "Select Unloading City",
+        "volume": "Required Truck Type",
+        "volumePlaceholder": "Select Truck Size",
+        "options": {
+          "1": "Refrigerated Truck (Truck)",
+          "2": "Jumbo Truck",
+          "3": "Trailer",
+          "4": "Monthly Rental",
+          "office": "Annual Contracts"
+        },
+        "notes": "Goods Details (Type, Required Temperature)",
+        "notesPlaceholder": "Example: Frozen meat - Minus 18 degrees...",
+        "name": "Company Name / Customer",
+        "namePlaceholder": "Enter your name",
+        "phone": "Mobile Number",
+        "phonePlaceholder": "05x xxx xxxx"
+      },
+      "actions": {
+        "prev": "Previous",
+        "next": "Next",
+        "submit": "Submit Order"
+      }
+    }
+  }
+}
