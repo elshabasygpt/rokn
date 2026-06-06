@@ -75,6 +75,15 @@ export default function Layout() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const trackWhatsAppClick = () => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'click_whatsapp', {
+        event_category: 'Contact',
+        event_label: 'WhatsApp Button'
+      });
+    }
+  };
+
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -141,6 +150,20 @@ export default function Layout() {
               `}
             </script>
           )}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": i18n.language === 'en' ? 'Rokn Elryan' : 'ركن الريان للنقل المبرد',
+              "url": "https://www.roknelryan.com",
+              "logo": "https://www.roknelryan.com/logo.png",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": `+${settings.phone1 || '966502375887'}`,
+                "contactType": "customer service"
+              }
+            })}
+          </script>
         </Helmet>
       ) : null}
 
@@ -411,7 +434,7 @@ export default function Layout() {
                   </a>
                 </li>
                 <li>
-                  <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
+                  <a href={`https://wa.me/${settings.whatsapp || ''}`} onClick={trackWhatsAppClick} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
                     <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-green-400 shrink-0"><MessageCircle className="w-4 h-4" /></div>
                     <span className="text-base text-slate-300">WhatsApp Support</span>
                   </a>

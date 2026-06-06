@@ -41,6 +41,14 @@ export default function EnterpriseQuote() {
     // Simulate API call
     setTimeout(() => {
       setSubmitted(true);
+      
+      // Track Conversion Events
+      if (typeof window !== 'undefined') {
+        if ((window as any).gtag) (window as any).gtag('event', 'generate_lead', { currency: 'SAR', value: 500 }); // Enterprise lead is higher value
+        if ((window as any).fbq) (window as any).fbq('track', 'Lead');
+        if ((window as any).snaptr) (window as any).snaptr('track', 'SIGN_UP');
+        if ((window as any).ttq) (window as any).ttq.track('SubmitForm');
+      }
     }, 1000);
   };
 

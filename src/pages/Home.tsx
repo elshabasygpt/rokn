@@ -230,9 +230,22 @@ export default function Home() {
     }
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": dsFaqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
+
   return (
     <>
-      <SEO title={`${homeTitle} | ${isEn ? 'Rokn Elryan Refrigerated Transport' : 'ركن الريان للنقل المبرد'}`} description={homeDesc} schema={localBusinessSchema} />
+      <SEO title={`${homeTitle} | ${isEn ? 'Rokn Elryan Refrigerated Transport' : 'ركن الريان للنقل المبرد'}`} description={homeDesc} schema={[localBusinessSchema, faqSchema]} />
       {/* Hero Section */}
       <section className="relative pt-24 pb-32 md:pt-32 md:pb-40 min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0 bg-slate-950">
@@ -1419,7 +1432,7 @@ export default function Home() {
                     <div className="flex items-center gap-5 mb-8 border-b border-slate-700/60 pb-8">
                       {review.logo ? (
                         <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl p-2 shadow-lg flex-shrink-0 flex items-center justify-center border border-slate-600">
-                          <img src={review.logo} alt={review.name_ar} className="max-w-full max-h-full object-contain" />
+                          <img src={review.logo} alt={review.name_ar} loading="lazy" className="max-w-full max-h-full object-contain" />
                         </div>
                       ) : (
                         <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-700 border border-slate-600 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
@@ -1520,6 +1533,7 @@ export default function Home() {
                     <img 
                       src={article.image ? (article.image.startsWith('/') ? article.image : article.image) : 'https://images.unsplash.com/photo-1519003722824-194d4455aeb7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'} 
                       alt={article[`title_${i18n.language}`] || article.title_ar} 
+                      loading="lazy"
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out" 
                     />
                     {article.category && (

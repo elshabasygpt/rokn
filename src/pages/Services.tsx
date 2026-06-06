@@ -46,6 +46,7 @@ const ImageSlider = ({ images, alt, t }: { images: string[], alt: string, t: any
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
           referrerPolicy="no-referrer"
         />
       </AnimatePresence>

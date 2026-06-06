@@ -61,6 +61,15 @@ export default function Contact() {
           body: JSON.stringify(formData)
         });
         setIsSubmitted(true);
+        
+        // Track Conversion Events
+        if (typeof window !== 'undefined') {
+          if ((window as any).gtag) (window as any).gtag('event', 'generate_lead', { currency: 'SAR', value: 100 });
+          if ((window as any).fbq) (window as any).fbq('track', 'Lead');
+          if ((window as any).snaptr) (window as any).snaptr('track', 'SIGN_UP');
+          if ((window as any).ttq) (window as any).ttq.track('SubmitForm');
+        }
+
         setTimeout(() => {
           setIsSubmitted(false);
           setCurrentStep(1);
