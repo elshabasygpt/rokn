@@ -57,6 +57,27 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.roknelryan.com/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/faq"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/faq"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.roknelryan.com/case-studies</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/case-studies"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/case-studies"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.roknelryan.com/compliance</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/compliance"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/compliance"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.roknelryan.com/calculator</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/calculator"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/calculator"/>
