@@ -24,6 +24,7 @@ const Fleet = lazy(() => import('./pages/Fleet'));
 const Careers = lazy(() => import('./pages/Careers'));
 const CityPage = lazy(() => import('./pages/CityPage'));
 const IndustryPage = lazy(() => import('./pages/IndustryPage'));
+const PayloadCalculator = lazy(() => import('./pages/PayloadCalculator'));
 
 // Admin imports
 import { AuthProvider, useAuth } from './admin/context/AuthContext';
@@ -117,6 +118,7 @@ export default function App() {
               <Route path="careers" element={<Careers />} />
               <Route path="locations/:city" element={<CityPage />} />
               <Route path="industries/:industry" element={<IndustryPage />} />
+              <Route path="calculator" element={<PayloadCalculator />} />
             </Route>
 
             {/* Public Site - English Language */}
@@ -135,6 +137,7 @@ export default function App() {
               <Route path="careers" element={<Careers />} />
               <Route path="locations/:city" element={<CityPage />} />
               <Route path="industries/:industry" element={<IndustryPage />} />
+              <Route path="calculator" element={<PayloadCalculator />} />
             </Route>
 
             {/* Admin */}
