@@ -370,7 +370,7 @@ export default function Layout() {
           </div>
 
           {/* 2. Main Footer Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
             
             {/* Company Overview */}
             <div className="lg:col-span-2">
@@ -403,6 +403,20 @@ export default function Layout() {
                 <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Frozen Transport' : 'النقل المجمد'}</Link></li>
                 <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Dry Transport' : 'النقل الجاف'}</Link></li>
                 <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Logistics Contracts' : 'العقود اللوجستية'}</Link></li>
+              </ul>
+            </div>
+
+            {/* Coverage Areas */}
+            <div>
+              <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-amber-500" />
+                {i18n.language === 'en' ? 'Coverage' : 'تغطيتنا'}
+              </h4>
+              <ul className="space-y-4 font-semibold">
+                <li><Link to={i18n.language === 'en' ? '/en/locations/qassim' : '/locations/qassim'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group text-amber-500"><ChevronRight className="w-4 h-4 text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Qassim (Headquarters)' : 'القصيم (المركز الرئيسي)'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/locations/riyadh' : '/locations/riyadh'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Riyadh' : 'الرياض'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/locations/jeddah' : '/locations/jeddah'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Jeddah' : 'جدة'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/locations/dammam' : '/locations/dammam'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Dammam' : 'الدمام'}</Link></li>
               </ul>
             </div>
 

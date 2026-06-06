@@ -22,6 +22,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const EnterpriseQuote = lazy(() => import('./pages/EnterpriseQuote'));
 const Fleet = lazy(() => import('./pages/Fleet'));
 const Careers = lazy(() => import('./pages/Careers'));
+const CityPage = lazy(() => import('./pages/CityPage'));
 
 // Admin imports
 import { AuthProvider, useAuth } from './admin/context/AuthContext';
@@ -113,6 +114,7 @@ export default function App() {
               <Route path="enterprise-quote" element={<EnterpriseQuote />} />
               <Route path="fleet" element={<Fleet />} />
               <Route path="careers" element={<Careers />} />
+              <Route path="locations/:city" element={<CityPage />} />
             </Route>
 
             {/* Public Site - English Language */}
@@ -129,6 +131,7 @@ export default function App() {
               <Route path="enterprise-quote" element={<EnterpriseQuote />} />
               <Route path="fleet" element={<Fleet />} />
               <Route path="careers" element={<Careers />} />
+              <Route path="locations/:city" element={<CityPage />} />
             </Route>
 
             {/* Admin */}
