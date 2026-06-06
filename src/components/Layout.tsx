@@ -404,6 +404,16 @@ export default function Layout() {
                 <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Dry Transport' : 'النقل الجاف'}</Link></li>
                 <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Logistics Contracts' : 'العقود اللوجستية'}</Link></li>
               </ul>
+              
+              <h4 className="text-white font-black text-lg mt-8 mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-amber-500" />
+                {i18n.language === 'en' ? 'Industries' : 'القطاعات'}
+              </h4>
+              <ul className="space-y-4 font-semibold">
+                <li><Link to={i18n.language === 'en' ? '/en/industries/pharma' : '/industries/pharma'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Pharmaceuticals' : 'قطاع الأدوية'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/industries/food' : '/industries/food'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Food Manufacturing' : 'المصانع الغذائية'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/industries/retail' : '/industries/retail'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Retail & Restaurants' : 'التجزئة والمطاعم'}</Link></li>
+              </ul>
             </div>
 
             {/* Coverage Areas */}
