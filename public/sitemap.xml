@@ -57,6 +57,13 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.roknelryan.com/checker</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/checker"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/checker"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.roknelryan.com/faq</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://www.roknelryan.com/en/faq"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.roknelryan.com/faq"/>

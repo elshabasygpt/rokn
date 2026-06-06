@@ -28,6 +28,7 @@ const PayloadCalculator = lazy(() => import('./pages/PayloadCalculator'));
 const OperationalStandards = lazy(() => import('./pages/OperationalStandards'));
 const CaseStudies = lazy(() => import('./pages/CaseStudies'));
 const FAQ = lazy(() => import('./pages/FAQ'));
+const ComplianceChecker = lazy(() => import('./pages/ComplianceChecker'));
 
 // Admin imports
 import { AuthProvider, useAuth } from './admin/context/AuthContext';
@@ -125,6 +126,7 @@ export default function App() {
               <Route path="compliance" element={<OperationalStandards />} />
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="faq" element={<FAQ />} />
+              <Route path="checker" element={<ComplianceChecker />} />
             </Route>
 
             {/* Public Site - English Language */}
@@ -147,6 +149,7 @@ export default function App() {
               <Route path="compliance" element={<OperationalStandards />} />
               <Route path="case-studies" element={<CaseStudies />} />
               <Route path="faq" element={<FAQ />} />
+              <Route path="checker" element={<ComplianceChecker />} />
             </Route>
 
             {/* Admin */}
