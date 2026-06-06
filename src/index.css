@@ -32,8 +32,10 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   font-family: "Cairo", sans-serif;
+  overflow-x: hidden;
 }

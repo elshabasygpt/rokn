@@ -4,6 +4,7 @@ import { Edit, Save, X, FileText, Bold, Italic, List } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useApi } from './useApi';
 
+
 interface Page {
   id: number;
   slug: string;
@@ -32,7 +33,7 @@ export default function PagesManager() {
   const fetchPages = async () => {
     try {
       const res = await api.get('/api/pages');
-      setPages(res.data);
+      setPages(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -44,8 +45,8 @@ export default function PagesManager() {
     try {
       setIsLoading(true);
       const res = await api.get(`/api/pages/${slug}`);
-      setEditingPage(res.data);
-      setFormData(res.data);
+      setEditingPage(res);
+      setFormData(res);
     } catch (err) {
       console.error(err);
       const newPage = { slug, title_ar: '', title_en: '', content_ar: '', content_en: '', seo_desc_ar: '', seo_desc_en: '' };
@@ -72,33 +73,30 @@ export default function PagesManager() {
     }
   };
 
-  const insertHtml = (tagStart: string, tagEnd: string) => {
-    const textarea = document.getElementById('content-editor') as HTMLTextAreaElement;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    const field = activeTab === 'ar' ? 'content_ar' : 'content_en';
-    const newText = text.substring(0, start) + tagStart + text.substring(start, end) + tagEnd + text.substring(end);
-    setFormData(prev => ({ ...prev, [field]: newText }));
-    
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + tagStart.length, end + tagStart.length);
-    }, 0);
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }, { 'align': [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ],
   };
 
   const pageNames: Record<string, string> = {
+    'about': 'من نحن (About Us)',
     'terms': 'الشروط والأحكام (Terms)',
     'privacy': 'سياسة الخصوصية (Privacy Policy)'
   };
 
   const availablePages = [
+    { slug: 'about', title_ar: 'من نحن' },
     { slug: 'terms', title_ar: 'الشروط والأحكام' },
     { slug: 'privacy', title_ar: 'سياسة الخصوصية' }
   ];
 
-  if (isLoading && pages.length === 0) {
+  if (isLoading && (!pages || pages.length === 0)) {
     return <div className="p-8 text-center">جاري التحميل...</div>;
   }
 
@@ -171,22 +169,17 @@ export default function PagesManager() {
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-bold text-slate-700">المحتوى النصي (Rich Text)</label>
-                    <div className="flex gap-2">
-                       <button onClick={() => insertHtml('<b>', '</b>')} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700" title="عريض"><Bold className="w-4 h-4" /></button>
-                       <button onClick={() => insertHtml('<i>', '</i>')} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700" title="مائل"><Italic className="w-4 h-4" /></button>
-                       <button onClick={() => insertHtml('<ul><li>', '</li></ul>')} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700" title="قائمة نقطية"><List className="w-4 h-4" /></button>
-                       <button onClick={() => insertHtml('<p>', '</p>')} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold text-xs" title="فقرة جديدة">P</button>
-                       <button onClick={() => insertHtml('<br/>', '')} className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold text-xs" title="سطر جديد">BR</button>
-                    </div>
+                    <label className="block text-sm font-bold text-slate-700">المحتوى (Rich Text)</label>
                   </div>
-                  <textarea 
-                    id="content-editor"
-                    value={activeTab === 'ar' ? formData.content_ar || '' : formData.content_en || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, [activeTab === 'ar' ? 'content_ar' : 'content_en']: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 h-[400px] focus:ring-2 focus:ring-amber-500 outline-none leading-loose text-lg"
-                    dir={activeTab === 'ar' ? 'rtl' : 'ltr'}
-                  />
+                  <div className="bg-white" dir={activeTab === 'ar' ? 'rtl' : 'ltr'}>
+                    <textarea 
+                      value={activeTab === 'ar' ? formData.content_ar || '' : formData.content_en || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, [activeTab === 'ar' ? 'content_ar' : 'content_en']: e.target.value }))}
+                      className="w-full h-[400px] bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-500 outline-none resize-y font-mono text-left"
+                      dir="ltr"
+                      placeholder="أدخل محتوى HTML هنا (Enter HTML content here)"
+                    />
+                  </div>
                 </div>
 
                 <div>

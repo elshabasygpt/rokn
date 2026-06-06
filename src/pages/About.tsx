@@ -20,6 +20,7 @@ export default function About() {
   const [settings, setSettings] = useState<any>(null);
   const [meta, setMeta] = useState<any>(null);
   const [pagesMeta, setPagesMeta] = useState<any>(null);
+  const [dynamicPage, setDynamicPage] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/settings')
@@ -28,6 +29,13 @@ export default function About() {
         if (data.general) setSettings(data.general);
         if (data.aboutMeta) setMeta(data.aboutMeta);
         if (data.pagesMeta) setPagesMeta(data.pagesMeta);
+      })
+      .catch(console.error);
+
+    fetch('/api/pages/about')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setDynamicPage(data);
       })
       .catch(console.error);
   }, []);
@@ -90,53 +98,62 @@ export default function About() {
         </div>
       </section>
 
-      {/* 🌟 The Story Split Section */}
+      {/* 🌟 Dynamic Rich Text OR The Story Split Section */}
       <section className="py-20 md:py-32">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: i18n.language === 'en' ? -50 : 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="lg:w-1/2 text-start relative"
-            >
-              <div className="absolute -top-10 -start-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
-              <h2 className="text-sm font-bold text-amber-500 tracking-widest uppercase mb-2">{tLang('title', 'about.title')}</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 leading-tight">{tLang('story_title', 'about.story.title')}</h3>
+          {dynamicPage?.content_ar ? (
+             <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100 mb-16 max-w-5xl mx-auto">
+               <div 
+                 className={`prose prose-lg max-w-none ${i18n.language === 'en' ? 'text-left' : 'text-right'}`} 
+                 dangerouslySetInnerHTML={{ __html: i18n.language === 'en' ? dynamicPage.content_en : dynamicPage.content_ar }} 
+               />
+             </div>
+          ) : (
+            <div className="flex flex-col lg:flex-row gap-16 items-center">
+              <motion.div 
+                initial={{ opacity: 0, x: i18n.language === 'en' ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8 }}
+                className="lg:w-1/2 text-start relative"
+              >
+                <div className="absolute -top-10 -start-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
+                <h2 className="text-sm font-bold text-amber-500 tracking-widest uppercase mb-2">{tLang('title', 'about.title')}</h2>
+                <h3 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 leading-tight">{tLang('story_title', 'about.story.title')}</h3>
+                
+                <div className="space-y-6 text-slate-600 text-lg md:text-xl leading-relaxed relative z-10 border-s-4 border-amber-500 ps-6">
+                  <p className="font-medium text-slate-800">{tLang('story_p1', 'about.story.p1')}</p>
+                  <p>{tLang('story_p2', 'about.story.p2')}</p>
+                  <p>{tLang('story_p3', 'about.story.p3')}</p>
+                </div>
+              </motion.div>
               
-              <div className="space-y-6 text-slate-600 text-lg md:text-xl leading-relaxed relative z-10 border-s-4 border-amber-500 ps-6">
-                <p className="font-medium text-slate-800">{tLang('story_p1', 'about.story.p1')}</p>
-                <p>{tLang('story_p2', 'about.story.p2')}</p>
-                <p>{tLang('story_p3', 'about.story.p3')}</p>
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="lg:w-1/2 relative"
-            >
-              <div className="absolute -inset-4 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-[2.5rem] transform rotate-3 opacity-20 blur-lg"></div>
-              <img 
-                src={meta?.story_image?.startsWith('/') ? meta.story_image : meta?.story_image || "https://images.unsplash.com/photo-1580674292641-8e01768651c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"} 
-                alt="Our Team" 
-                className="rounded-[2rem] shadow-2xl object-cover h-[500px] md:h-[600px] w-full relative z-10"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute bottom-10 start-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl z-20 flex items-center gap-4">
-                <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-white">
-                  <Clock className="w-6 h-6" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8 }}
+                className="lg:w-1/2 relative"
+              >
+                <div className="absolute -inset-4 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-[2.5rem] transform rotate-3 opacity-20 blur-lg"></div>
+                <img 
+                  src={meta?.story_image?.startsWith('/') ? meta.story_image : meta?.story_image || "https://images.unsplash.com/photo-1580674292641-8e01768651c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"} 
+                  alt="Our Team" 
+                  className="rounded-[2rem] shadow-2xl object-cover h-[500px] md:h-[600px] w-full relative z-10"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute bottom-10 start-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl z-20 flex items-center gap-4">
+                  <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-white">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="font-black text-2xl text-slate-900">+<AnimatedCounter end={meta?.stat_years || 15} /></div>
+                    <div className="text-sm font-bold text-slate-600">{t('about.stats.years')}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-black text-2xl text-slate-900">+<AnimatedCounter end={meta?.stat_years || 15} /></div>
-                  <div className="text-sm font-bold text-slate-600">{t('about.stats.years')}</div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+              </motion.div>
+            </div>
+          )}
         </div>
       </section>
 

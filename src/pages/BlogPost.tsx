@@ -36,7 +36,7 @@ export default function BlogPost() {
     setIsLoading(true);
     window.scrollTo(0, 0);
     
-    fetch('/api/articles/${slug}')
+    fetch(`/api/articles/${slug}`)
       .then(res => {
         if (!res.ok) throw new Error('Not found');
         return res.json();

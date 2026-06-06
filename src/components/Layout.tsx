@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck } from 'lucide-react';
+import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck, Snowflake, MapPin, Activity, CheckCircle2, ChevronRight, Home, Package, Image as ImageIcon, Info, FileText, Briefcase, PhoneCall } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
@@ -21,14 +21,26 @@ export default function Layout() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPromoVisible, setIsPromoVisible] = useState(true);
-  const [settings, setSettings] = useState<any>({});
+  
+  // Initialize settings from localStorage to prevent "flash of old data"
+  const [settings, setSettings] = useState<any>(() => {
+    try {
+      const cached = localStorage.getItem('siteSettings');
+      return cached ? JSON.parse(cached) : {};
+    } catch {
+      return {};
+    }
+  });
   const location = useLocation();
 
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
-        setSettings({ ...data.general, promo: data.promo });
+        const newSettings = { ...data.general, promo: data.promo };
+        setSettings(newSettings);
+        // Cache settings to eliminate loading flicker on next visits
+        localStorage.setItem('siteSettings', JSON.stringify(newSettings));
       })
       .catch(console.error);
   }, []);
@@ -36,7 +48,7 @@ export default function Layout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isEn = location.pathname.startsWith('/en');
+    const isEn = location.pathname === '/en' || location.pathname.startsWith('/en/');
     if (isEn && i18n.language !== 'en') i18n.changeLanguage('en');
     if (!isEn && i18n.language !== 'ar') i18n.changeLanguage('ar');
   }, [location.pathname, i18n]);
@@ -47,8 +59,9 @@ export default function Layout() {
   }, [i18n.language]);
 
   const toggleLanguage = () => {
-    if (location.pathname.startsWith('/en')) {
-      navigate(location.pathname.replace('/en', '') || '/');
+    const isEn = location.pathname === '/en' || location.pathname.startsWith('/en/');
+    if (isEn) {
+      navigate(location.pathname.replace(/^\/en/, '') || '/');
     } else {
       navigate('/en' + (location.pathname === '/' ? '' : location.pathname));
     }
@@ -86,12 +99,12 @@ export default function Layout() {
     const headerLogoUrl = headerLogoRaw ? (headerLogoRaw.startsWith('/') ? headerLogoRaw : headerLogoRaw) : "/logo.png";
     
     return (
-    <Link to={i18n.language === 'en' ? '/en' : '/'} className="flex items-center gap-3 group shrink-0">
+    <Link to={i18n.language === 'en' ? '/en' : '/'} className="flex items-center gap-3 group shrink-0" aria-label="Home">
       <div className="relative flex items-center justify-center">
         <img 
           src={headerLogoUrl} 
           alt={t('layout.logo.alt')} 
-          className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${isScrolled ? 'h-16 md:h-20' : 'h-20 md:h-24'}`} 
+          className={`w-auto object-contain transition-all duration-300 group-hover:scale-[1.02] ${isScrolled ? 'h-20 md:h-24 lg:h-28' : 'h-32 md:h-[140px] lg:h-[160px] 2xl:h-[180px]'}`} 
           onError={(e) => {
             e.currentTarget.style.display = 'none';
             e.currentTarget.parentElement?.querySelector('.fallback-logo')?.classList.remove('hidden');
@@ -100,7 +113,7 @@ export default function Layout() {
         {/* Fallback Logo if image missing */}
         <div className="hidden fallback-logo items-center gap-2">
           <div className={`bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 transition-all ${isScrolled ? 'w-10 h-10' : 'w-12 h-12'}`}>
-            <Truck className={`${isScrolled ? 'w-5 h-5' : 'w-7 h-7'} text-slate-900`} />
+            <Truck className={`${isScrolled ? 'w-5 h-5' : 'w-6 h-6'} text-slate-900`} />
           </div>
           <div className="flex flex-col">
             <span className={`font-black tracking-tight text-slate-900 leading-none ${isScrolled ? 'text-lg' : 'text-xl'}`}>{t('layout.logo.title')}</span>
@@ -138,19 +151,39 @@ export default function Layout() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-gradient-to-r from-amber-600 to-amber-500 text-white overflow-hidden relative z-50"
+            className="bg-slate-900 border-b border-amber-500/30 text-white overflow-hidden relative z-50 group"
           >
-            <div className="container mx-auto px-4 py-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm md:text-base font-bold mx-auto">
-                <Percent className="w-4 h-4 md:w-5 md:h-5" />
-                <span>{settings.promo[`text_${i18n.language}` as 'text_ar'|'text_en'] || settings.promo.text_ar || t('layout.promoBanner')}</span>
+            {/* Background Texture & Animated Gradients */}
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+
+            <div className="container mx-auto px-4 py-3 md:py-4 grid grid-cols-[1fr_auto] gap-2 md:gap-4 items-center min-h-[60px]">
+              {/* Content Column */}
+              <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[15px] md:text-[18px] font-bold text-center w-full">
+                <span className="hidden md:flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.6)] animate-pulse shrink-0">
+                  <Percent className="w-5 h-5 md:w-6 md:h-6" />
+                </span>
+                <span className="text-slate-200 tracking-wide flex flex-wrap items-center justify-center gap-3">
+                  <span className="text-amber-400 font-black tracking-widest text-sm md:text-base bg-amber-500/10 px-3 py-1 rounded border border-amber-500/20 flex items-center gap-1.5 shrink-0">
+                    <span className="md:hidden"><Percent className="w-4 h-4" /></span>
+                    {i18n.language === 'en' ? 'SPECIAL OFFER' : 'عرض خاص'}
+                  </span>
+                  <span>{settings.promo[`text_${i18n.language}` as 'text_ar'|'text_en'] || settings.promo.text_ar || t('layout.promoBanner')}</span>
+                </span>
+                
+                <Link to={i18n.language === 'en' ? "/en/contact" : "/contact"} className="hidden lg:flex items-center gap-2 text-base bg-amber-500 text-slate-900 px-6 py-2.5 rounded-xl hover:bg-amber-400 transition-all hover:scale-105 shadow-md font-black border border-amber-400 shrink-0">
+                  {i18n.language === 'en' ? 'Claim Offer Now' : 'احجز واستفد من العرض'}
+                  <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+                </Link>
               </div>
+              
+              {/* Close Button Column */}
               <button 
                 onClick={() => setIsPromoVisible(false)}
-                className="text-white/80 hover:text-white transition-colors absolute start-4"
+                className="text-slate-400 hover:text-white hover:bg-slate-800 p-2 rounded-full transition-colors flex items-center justify-center self-start md:self-center shrink-0"
                 aria-label={t('layout.promoBtn')}
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
           </motion.div>
@@ -158,78 +191,117 @@ export default function Layout() {
       </AnimatePresence>
 
       {/* Navbar */}
-      <nav className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-2 border-b border-slate-100' : 'bg-white/70 backdrop-blur-md py-4 border-b border-slate-200/50'}`}>
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-4">
-          <Logo />
+      <nav className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white/90 backdrop-blur-lg border-b border-slate-200/50'}`}>
+        <div className={`w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 flex items-center justify-between gap-4 2xl:gap-8 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5 md:py-6'}`}>
+          <div className="shrink-0 flex items-center">
+            <Logo />
+          </div>
           
-          {/* Desktop Nav - Pill Design */}
-          <div className="hidden lg:flex items-center gap-1 bg-white/60 p-1.5 rounded-2xl border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] backdrop-blur-xl">
+          {/* Desktop Nav - Clean Enterprise Layout */}
+          <div className="hidden xl:flex flex-1 items-center justify-center gap-1.5 2xl:gap-4 px-2">
             {[
-              { path: '', label: t('layout.nav.home') },
-              { path: 'services', label: t('layout.nav.services') },
-              { path: 'fleet', label: t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا') },
-              { path: 'gallery', label: t('layout.nav.gallery') },
-              { path: 'about', label: t('layout.nav.about') },
-              { path: 'blog', label: i18n.language === 'en' ? 'Blog' : 'المقالات' },
-              { path: 'careers', label: i18n.language === 'en' ? 'Careers' : 'التوظيف' },
-              { path: 'contact', label: t('layout.nav.contact') },
+              { path: '', label: t('layout.nav.home'), icon: Home },
+              { path: 'services', label: t('layout.nav.services'), icon: Package },
+              { path: 'fleet', label: t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا'), icon: Truck },
+              { path: 'gallery', label: t('layout.nav.gallery'), icon: ImageIcon },
+              { path: 'about', label: t('layout.nav.about'), icon: Info },
+              { path: 'blog', label: i18n.language === 'en' ? 'Blog' : 'المقالات', icon: FileText },
+              { path: 'careers', label: i18n.language === 'en' ? 'Careers' : 'التوظيف', icon: Briefcase },
+              { path: 'contact', label: t('layout.nav.contact'), icon: PhoneCall },
             ].map(link => {
+              const Icon = link.icon;
               const fullPath = i18n.language === 'en' ? `/en${link.path ? `/${link.path}` : ''}` : `/${link.path}`;
               const isActive = link.path === '' ? (location.pathname === '/' || location.pathname === '/en') : location.pathname.includes(`/${link.path}`);
               return (
                 <Link 
                   key={link.path}
                   to={fullPath} 
-                  className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActive ? 'bg-white text-amber-600 shadow-sm ring-1 ring-slate-100' : 'text-slate-600 hover:text-amber-600 hover:bg-white/50'}`}
+                  className={`flex items-center gap-1.5 2xl:gap-2.5 px-2.5 2xl:px-5 py-2.5 2xl:py-3.5 rounded-2xl text-[14px] 2xl:text-[18px] font-bold whitespace-nowrap transition-all duration-300 relative group overflow-hidden ${isActive ? 'text-amber-700 bg-gradient-to-br from-amber-50/80 to-amber-100/80 shadow-[inset_0_2px_10px_rgba(251,191,36,0.15)] border border-amber-300/60 drop-shadow-sm' : 'text-slate-600 hover:text-amber-600 hover:bg-slate-50 border border-transparent'}`}
                 >
-                  {link.label}
+                  <Icon className={`w-4 h-4 2xl:w-[22px] 2xl:h-[22px] transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md text-amber-600' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100 text-slate-400 group-hover:text-amber-500'}`} />
+                  <span className="relative z-10 pt-0.5">{link.label}</span>
+                  {isActive && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[4px] bg-amber-500 rounded-t-full shadow-[0_-2px_10px_rgba(245,158,11,0.6)]"></div>}
                 </Link>
               );
             })}
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="hidden md:flex items-center gap-3">
-              <button onClick={toggleLanguage} className="flex items-center gap-2 text-slate-700 font-bold hover:text-slate-900 bg-white shadow-sm border border-slate-200 hover:border-slate-300 px-3 py-2.5 rounded-xl transition-all" title={i18n.language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}>
-                <Globe className="w-4 h-4 text-amber-500" />
-                <span className="text-sm">{i18n.language === 'ar' ? 'EN' : 'عربي'}</span>
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="hidden lg:flex items-center gap-3 2xl:gap-6">
+              <button onClick={toggleLanguage} className="flex items-center justify-center text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 p-2.5 2xl:p-3.5 rounded-xl transition-all border border-slate-200/60" title={i18n.language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}>
+                <Globe className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-500" />
+                <span className="sr-only">{i18n.language === 'ar' ? 'EN' : 'عربي'}</span>
               </button>
-              <a href={`tel:${settings.phone1 || ''}`} className="hidden xl:flex items-center gap-2 text-slate-800 font-bold hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/50 px-4 py-2.5 rounded-xl transition-all shadow-sm" dir="ltr">
-                <Phone className="w-4 h-4 text-amber-600" />
-                <span className="text-sm">{settings.phone1 || '050 237 5887'}</span>
+              
+              <a href={`tel:${settings.phone1 || ''}`} className="hidden xl:flex items-center gap-3 2xl:gap-4 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 px-4 2xl:px-6 py-2.5 2xl:py-3 rounded-xl transition-all group" dir="ltr">
+                <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-amber-100 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Phone className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-600" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[11px] 2xl:text-[13px] font-bold text-slate-500 uppercase tracking-wider leading-none mb-1 2xl:mb-1.5">{i18n.language === 'en' ? 'Available 24/7' : 'متاح 24/7'}</span>
+                  <span className="text-[16px] 2xl:text-[22px] font-black text-slate-900 leading-none">{settings.phone1 || '050 237 5887'}</span>
+                </div>
               </a>
-              <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 text-sm flex items-center gap-2 group border border-slate-800 hover:border-slate-700">
-                {t('layout.cta.book')}
-                <Truck className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+              
+              <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="bg-amber-500 text-slate-900 px-6 2xl:px-10 py-3 2xl:py-4 rounded-xl font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 text-[15px] 2xl:text-[18px] flex items-center gap-2 2xl:gap-3 group border border-amber-400 hover:border-amber-300 whitespace-nowrap shrink-0">
+                {i18n.language === 'en' ? 'Get a Quote in Minutes' : 'احصل على عرض سعر خلال دقائق'}
+                <Truck className="w-5 h-5 2xl:w-6 2xl:h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
             {/* Mobile Menu Toggle */}
-            <button className="lg:hidden text-slate-900 p-1" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            <button className="xl:hidden text-slate-900 p-2 bg-slate-50 rounded-xl" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+          </div>
+        </div>
+
+        {/* Trust Bar below navigation */}
+        <div className={`hidden lg:block border-t border-slate-100/60 bg-slate-50/50 transition-all duration-300 overflow-hidden ${isScrolled ? 'h-0 opacity-0' : 'h-14 opacity-100'}`}>
+          <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 h-full flex justify-center items-center text-[14px] 2xl:text-[17px] font-bold text-slate-600">
+             <div className="flex items-center justify-center gap-4 xl:gap-16 w-full px-2">
+               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><MapPin className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Nationwide Coverage' : 'تغطية جميع مدن المملكة'}</span><span className="xl:hidden">{i18n.language === 'en' ? 'Nationwide' : 'تغطية شاملة'}</span></span>
+               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><Activity className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '24/7 Temp Monitoring' : 'مراقبة حرارة 24/7'}</span><span className="xl:hidden">24/7</span></span>
+               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><CheckCircle2 className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '5000+ Successful Trips' : 'أكثر من 5000 رحلة ناجحة'}</span><span className="xl:hidden">+5000 رحلة</span></span>
+               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><Snowflake className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Full Cold Chain Compliance' : 'التزام كامل بسلسلة التبريد'}</span><span className="xl:hidden">سلسلة التبريد</span></span>
+             </div>
           </div>
         </div>
 
         {/* Mobile Nav */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-xl border-t border-slate-100 flex flex-col p-4 gap-4 font-semibold text-slate-700">
-            <button onClick={toggleLanguage} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg text-amber-600">
+          <div className="xl:hidden absolute top-full left-0 right-0 bg-white shadow-2xl border-t border-slate-100 flex flex-col p-4 gap-2 font-semibold text-slate-700 max-h-[80vh] overflow-y-auto">
+            <button onClick={toggleLanguage} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl text-amber-600 bg-amber-50/50">
               <Globe className="w-5 h-5" />
               {i18n.language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}
             </button>
-            <Link to={i18n.language === 'en' ? '/en' : '/'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.home')}</Link>
-            <Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.services')}</Link>
-            <Link to={i18n.language === 'en' ? '/en/fleet' : '/fleet'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا')}</Link>
-            <Link to={i18n.language === 'en' ? '/en/gallery' : '/gallery'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.gallery')}</Link>
-            <Link to={i18n.language === 'en' ? '/en/about' : '/about'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.about')}</Link>
-            <Link to={i18n.language === 'en' ? '/en/blog' : '/blog'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{i18n.language === 'en' ? 'Blog' : 'المقالات'}</Link>
-            <Link to={i18n.language === 'en' ? '/en/careers' : '/careers'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{i18n.language === 'en' ? 'Careers' : 'التوظيف'}</Link>
-            <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="p-2 hover:bg-slate-50 rounded-lg text-start">{t('layout.nav.contact')}</Link>
+            <div className="h-px bg-slate-100 my-1"></div>
+            {[
+              { path: '', label: t('layout.nav.home'), icon: Home },
+              { path: 'services', label: t('layout.nav.services'), icon: Package },
+              { path: 'fleet', label: t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا'), icon: Truck },
+              { path: 'gallery', label: t('layout.nav.gallery'), icon: ImageIcon },
+              { path: 'about', label: t('layout.nav.about'), icon: Info },
+              { path: 'blog', label: i18n.language === 'en' ? 'Blog' : 'المقالات', icon: FileText },
+              { path: 'careers', label: i18n.language === 'en' ? 'Careers' : 'التوظيف', icon: Briefcase },
+              { path: 'contact', label: t('layout.nav.contact'), icon: PhoneCall },
+            ].map(link => {
+              const Icon = link.icon;
+              const isActive = link.path === '' ? (location.pathname === '/' || location.pathname === '/en') : location.pathname.includes(`/${link.path}`);
+              return (
+               <Link key={link.path} to={i18n.language === 'en' ? `/en/${link.path}` : (link.path ? `/${link.path}` : '/')} className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[18px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'hover:bg-slate-50 text-slate-700 border border-transparent'}`} onClick={() => setIsMobileMenuOpen(false)}>
+                 <Icon className={`w-6 h-6 ${isActive ? 'text-amber-600 drop-shadow-sm' : 'text-slate-400'}`} />
+                 {link.label}
+               </Link>
+              );
+            })}
             <div className="h-px bg-slate-100 my-2"></div>
-            <a href={`tel:${settings.phone1 || ''}`} className="flex items-center justify-center gap-2 bg-slate-100 text-slate-900 p-3 rounded-lg font-bold" dir="ltr">
+            <a href={`tel:${settings.phone1 || ''}`} className="flex items-center justify-center gap-3 bg-amber-50 text-amber-700 p-4 rounded-xl font-bold text-[16px]" dir="ltr">
               <Phone className="w-5 h-5" />
-              {settings.phone1 || ''}
+              <div className="flex flex-col text-left">
+                 <span className="text-[10px] text-amber-600/80 uppercase">{i18n.language === 'en' ? 'Available 24/7' : 'متاح 24/7'}</span>
+                 <span>{settings.phone1 || '050 237 5887'}</span>
+              </div>
             </a>
           </div>
         )}
@@ -240,92 +312,162 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-12 border-t border-white/10 mt-auto">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div>
-              <div className="mb-6 inline-block">
+      {/* Premium Enterprise Footer */}
+      <footer className="bg-slate-950 text-slate-400 relative overflow-hidden mt-auto pt-20">
+        {/* Decorative Background */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>
+        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
+        <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
+          
+          {/* 1. Pre-Footer CTA Section */}
+          <div className="bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-8 mb-20 shadow-2xl relative overflow-hidden group">
+            {/* Inner glow effect */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] group-hover:bg-amber-500/20 transition-colors duration-700"></div>
+            
+            <div className="text-start lg:w-7/12 relative z-10">
+              <h3 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight">
+                {i18n.language === 'en' ? 'Ready to elevate your logistics?' : 'مستعد للارتقاء بخدماتك اللوجستية؟'}
+              </h3>
+              <p className="text-slate-400 text-lg">
+                {i18n.language === 'en' ? 'Join hundreds of major companies relying on Rokn Elryan for secure and efficient refrigerated transport across the Kingdom.' : 'انضم إلى مئات الشركات الكبرى التي تعتمد على ركن الريان للنقل المبرد الآمن والفعال في جميع أنحاء المملكة.'}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-4 relative z-10 shrink-0">
+              <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="bg-amber-500 text-slate-900 px-8 py-4 rounded-xl font-black text-lg hover:bg-amber-400 transition-colors flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(245,158,11,0.2)]">
+                {i18n.language === 'en' ? 'Request a Quote' : 'اطلب تسعيرة الآن'}
+                <Truck className="w-5 h-5" />
+              </Link>
+              <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noopener noreferrer" className="bg-slate-800/80 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600">
+                <MessageCircle className="w-5 h-5 text-green-400" />
+                {i18n.language === 'en' ? 'WhatsApp Contact' : 'تواصل عبر واتساب'}
+              </a>
+            </div>
+          </div>
+
+          {/* 2. Main Footer Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
+            
+            {/* Company Overview */}
+            <div className="lg:col-span-2">
+              <div className="mb-8 inline-block bg-white/5 p-4 rounded-2xl border border-white/10">
                 {(() => {
                   const currentLang = i18n.language;
                   let footerLogoRaw = currentLang === 'en' ? settings.logo_footer_en : settings.logo_footer_ar;
                   if (!footerLogoRaw) footerLogoRaw = settings.logo;
                   const footerLogoUrl = footerLogoRaw ? (footerLogoRaw.startsWith('/') ? footerLogoRaw : footerLogoRaw) : "/logo.png";
                   return (
-                    <img src={footerLogoUrl} alt={t('layout.logo.alt')} className="h-36 md:h-44 w-auto object-contain max-w-[280px] drop-shadow-2xl hover:scale-105 transition-transform duration-500" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <img src={footerLogoUrl} alt={t('layout.logo.alt')} className="h-28 w-auto object-contain max-w-[240px]" onError={(e) => e.currentTarget.style.display = 'none'} />
                   );
                 })()}
               </div>
-              <p className="text-sm leading-relaxed max-w-xs" style={{ whiteSpace: 'pre-wrap' }}>
+              <p className="text-slate-400 text-base leading-loose max-w-sm font-medium">
                 {i18n.language === 'en' 
                   ? (settings.footerMeta?.about_en || t('layout.footer.about'))
                   : (settings.footerMeta?.about_ar || t('layout.footer.about'))}
               </p>
             </div>
+
+            {/* Services */}
             <div>
-              <h4 className="text-white font-bold mb-4">{t('layout.footer.quickLinks')}</h4>
-              <ul className="space-y-2">
-                <li><Link to={i18n.language === 'en' ? '/en' : '/'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.home')}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.services')}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/fleet' : '/fleet'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا')}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/gallery' : '/gallery'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.gallery')}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/about' : '/about'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.about')}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/blog' : '/blog'} className="hover:text-amber-500 transition-colors text-start block">{i18n.language === 'en' ? 'Blog' : 'المقالات'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/careers' : '/careers'} className="hover:text-amber-500 transition-colors text-start block">{i18n.language === 'en' ? 'Careers' : 'التوظيف'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="hover:text-amber-500 transition-colors text-start block">{t('layout.nav.contact')}</Link></li>
+              <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
+                <Snowflake className="w-5 h-5 text-amber-500" />
+                {i18n.language === 'en' ? 'Services' : 'خدماتنا'}
+              </h4>
+              <ul className="space-y-4 font-semibold">
+                <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Refrigerated Transport' : 'النقل المبرد'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Frozen Transport' : 'النقل المجمد'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Dry Transport' : 'النقل الجاف'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/services' : '/services'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Logistics Contracts' : 'العقود اللوجستية'}</Link></li>
               </ul>
             </div>
+
+            {/* Company Links */}
             <div>
-              <h4 className="text-white font-bold mb-4">{i18n.language === 'en' ? 'Legal' : 'قانوني'}</h4>
-              <ul className="space-y-2">
-                <li><Link to={i18n.language === 'en' ? '/en/privacy' : '/privacy'} className="hover:text-amber-500 transition-colors text-start block">{i18n.language === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/terms' : '/terms'} className="hover:text-amber-500 transition-colors text-start block">{i18n.language === 'en' ? 'Terms of Service' : 'الشروط والأحكام'}</Link></li>
+              <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-amber-500" />
+                {i18n.language === 'en' ? 'Company' : 'الشركة'}
+              </h4>
+              <ul className="space-y-4 font-semibold">
+                <li><Link to={i18n.language === 'en' ? '/en/about' : '/about'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {t('layout.nav.about')}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/fleet' : '/fleet'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا')}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/blog' : '/blog'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Knowledge Center' : 'مركز المعرفة'}</Link></li>
+                <li><Link to={i18n.language === 'en' ? '/en/careers' : '/careers'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Careers' : 'التوظيف'}</Link></li>
               </ul>
             </div>
+
+            {/* Contact & Support */}
             <div>
-              <h4 className="text-white font-bold mb-4">{t('layout.footer.areas')}</h4>
-              <ul className="space-y-2">
-                {(() => {
-                  const areasText = i18n.language === 'en' ? settings.footerMeta?.areas_en : settings.footerMeta?.areas_ar;
-                  if (areasText) {
-                    return areasText.split('\n').filter((l: string) => l.trim()).map((area: string, i: number) => (
-                      <li key={i} className="text-start">{area}</li>
-                    ));
-                  }
-                  return (
-                    <>
-                      <li className="text-start">{t('layout.footer.abha')}</li>
-                      <li className="text-start">{t('layout.footer.khamis')}</li>
-                      <li className="text-start">{t('layout.footer.allKsa')}</li>
-                    </>
-                  );
-                })()}
+              <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
+                <Phone className="w-5 h-5 text-amber-500" />
+                {i18n.language === 'en' ? 'Contact Us' : 'تواصل معنا'}
+              </h4>
+              <ul className="space-y-6 font-semibold">
+                <li>
+                  <a href={`tel:${settings.phone1 || '0502375887'}`} className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
+                    <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-amber-500 shrink-0"><Phone className="w-4 h-4" /></div>
+                    <span className="text-lg text-white font-bold tracking-wide">{settings.phone1 || '050 237 5887'}</span>
+                  </a>
+                </li>
+                <li>
+                  <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
+                    <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-green-400 shrink-0"><MessageCircle className="w-4 h-4" /></div>
+                    <span className="text-base text-slate-300">WhatsApp Support</span>
+                  </a>
+                </li>
+                <li>
+                  <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="text-sm text-slate-500 hover:text-amber-500 transition-colors underline underline-offset-4">
+                    {i18n.language === 'en' ? 'View all contact options' : 'عرض كافة خيارات التواصل'}
+                  </Link>
+                </li>
               </ul>
             </div>
+
           </div>
-          <div className="border-t border-white/10 pt-8 pb-4 flex flex-wrap justify-between items-center gap-6 text-xs text-slate-500">
-            <div className="flex flex-wrap items-center gap-4">
-               <span className="flex items-center gap-1 font-bold"><span className="text-amber-500">{i18n.language === 'en' ? 'CR:' : 'سجل تجاري:'}</span> 1010123456</span>
-               <span className="hidden md:inline text-slate-700">|</span>
-               <span className="flex items-center gap-1 font-bold"><span className="text-amber-500">{i18n.language === 'en' ? 'VAT:' : 'الرقم الضريبي:'}</span> 300123456700003</span>
-               <span className="hidden md:inline text-slate-700">|</span>
-               <span className="flex items-center gap-1 font-bold"><span className="text-amber-500">{i18n.language === 'en' ? 'TGA License:' : 'ترخيص هيئة النقل (TGA):'}</span> 040112</span>
-            </div>
-            <div className="flex items-center gap-2 font-bold text-slate-400">
-               <ShieldCheck className="w-4 h-4 text-emerald-500" /> {i18n.language === 'en' ? 'Certified Saudi Logistics Company' : 'شركة سعودية لوجستية معتمدة'}
-            </div>
+
+          {/* 3. Trust Statistics Section */}
+          <div className="py-10 border-y border-slate-800/60 grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 text-center bg-slate-900/30 rounded-[2rem] backdrop-blur-sm">
+             <div className="flex flex-col items-center justify-center">
+               <div className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">5000+</div>
+               <div className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-wider">{i18n.language === 'en' ? 'Successful Deliveries' : 'رحلة نقل ناجحة'}</div>
+             </div>
+             <div className="flex flex-col items-center justify-center">
+               <div className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">24/7</div>
+               <div className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-wider">{i18n.language === 'en' ? 'Live Monitoring' : 'مراقبة حية ودعم'}</div>
+             </div>
+             <div className="flex flex-col items-center justify-center">
+               <div className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">100%</div>
+               <div className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-wider">{i18n.language === 'en' ? 'Nationwide Coverage' : 'تغطية للمملكة'}</div>
+             </div>
+             <div className="flex flex-col items-center justify-center">
+               <div className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">-18°C</div>
+               <div className="text-amber-500 text-xs md:text-sm font-bold uppercase tracking-wider">{i18n.language === 'en' ? 'Temp Compliance' : 'تجميد مستمر'}</div>
+             </div>
           </div>
-          <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm">
-              {i18n.language === 'en' 
-                ? (settings.footerMeta?.copyright_en || t('layout.footer.copyright', { year: new Date().getFullYear() }))
-                : (settings.footerMeta?.copyright_ar || t('layout.footer.copyright', { year: new Date().getFullYear() }))}
-            </p>
-            <div className="flex gap-4" dir="ltr">
-              <span className="font-bold">{settings.phone1 || '050 237 5887'}</span>
-              <span className="text-slate-600">|</span>
-              <span className="font-bold">{settings.phone2 || '053 453 2962'}</span>
-            </div>
+
+          {/* 4. Bottom Legal Bar */}
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-10 text-xs md:text-sm text-slate-500 font-semibold">
+             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5 bg-slate-900 px-6 py-3 rounded-full border border-slate-800">
+                <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-500" /> <span className="text-slate-300">{i18n.language === 'en' ? 'Certified Logistics' : 'لوجستيات معتمدة'}</span></span>
+                <span className="hidden md:inline text-slate-700">|</span>
+                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'CR:' : 'س.ت:'}</span> <span className="text-slate-300">1010123456</span></span>
+                <span className="hidden md:inline text-slate-700">|</span>
+                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'VAT:' : 'ض.ق.م:'}</span> <span className="text-slate-300">300123456700003</span></span>
+                <span className="hidden lg:inline text-slate-700">|</span>
+                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'TGA:' : 'هيئة النقل:'}</span> <span className="text-slate-300">040112</span></span>
+             </div>
+             
+             <div className="flex flex-col items-center lg:items-end gap-2">
+               <div className="flex items-center gap-4 text-slate-400">
+                 <Link to={i18n.language === 'en' ? '/en/privacy' : '/privacy'} className="hover:text-amber-500 transition-colors">{i18n.language === 'en' ? 'Privacy Policy' : 'سياسة الخصوصية'}</Link>
+                 <span className="text-slate-700">•</span>
+                 <Link to={i18n.language === 'en' ? '/en/terms' : '/terms'} className="hover:text-amber-500 transition-colors">{i18n.language === 'en' ? 'Terms of Service' : 'الشروط والأحكام'}</Link>
+               </div>
+               <div className="text-slate-600">
+                  © {new Date().getFullYear()} {i18n.language === 'en' ? 'Rokn Elryan Logistics. All rights reserved.' : 'ركن الريان للنقل المبرد والمجمد. جميع الحقوق محفوظة.'}
+               </div>
+             </div>
           </div>
         </div>
       </footer>

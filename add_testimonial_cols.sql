@@ -1,0 +1,7 @@
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS industry_ar TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS industry_en TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS duration_ar TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS duration_en TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS volume_ar TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS volume_en TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS logo TEXT;

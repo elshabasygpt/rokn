@@ -68,6 +68,13 @@ export async function initDB() {
         text_en TEXT NOT NULL,
         rating INTEGER DEFAULT 5,
         active BOOLEAN DEFAULT true,
+        industry_ar VARCHAR(255),
+        industry_en VARCHAR(255),
+        duration_ar VARCHAR(255),
+        duration_en VARCHAR(255),
+        volume_ar VARCHAR(255),
+        volume_en VARCHAR(255),
+        logo VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -165,6 +172,19 @@ export async function initDB() {
     
     // Execute all table creations
     await pool.query(schema);
+
+    // Add missing columns to testimonials if they don't exist
+    try {
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS industry_ar VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS industry_en VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS duration_ar VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS duration_en VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS volume_ar VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS volume_en VARCHAR(255);');
+      await pool.query('ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS logo VARCHAR(255);');
+    } catch (err) {
+      console.log('Note: Some columns might already exist or could not be added', err);
+    }
 
     // Insert default admin if none exists
     const adminCheck = await pool.query('SELECT id FROM admin WHERE username = $1', ['admin']);

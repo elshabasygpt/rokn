@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from './useApi';
-import { Plus, Pencil, Trash2, X, Save, Star } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Star, Upload } from 'lucide-react';
 
 interface Testimonial {
   id?: number;
@@ -12,10 +12,17 @@ interface Testimonial {
   text_en: string;
   rating: number;
   active: boolean;
+  industry_ar?: string;
+  industry_en?: string;
+  duration_ar?: string;
+  duration_en?: string;
+  volume_ar?: string;
+  volume_en?: string;
+  logo?: string;
 }
 
 const empty: Testimonial = {
-  name_ar: '', name_en: '', role_ar: '', role_en: '', text_ar: '', text_en: '', rating: 5, active: true
+  name_ar: '', name_en: '', role_ar: '', role_en: '', text_ar: '', text_en: '', rating: 5, active: true, industry_ar: '', industry_en: '', duration_ar: '', duration_en: '', volume_ar: '', volume_en: '', logo: ''
 };
 
 export default function TestimonialsManager() {
@@ -89,6 +96,69 @@ export default function TestimonialsManager() {
             <label className="block text-sm font-bold text-slate-700 mb-2">Review Text (English) *</label>
             <textarea rows={3} value={editing.text_en} onChange={e => setEditing({...editing, text_en: e.target.value})} dir="ltr"
               className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 resize-none" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* New Enterprise Fields */}
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">القطاع (عربي)</label>
+            <input value={editing.industry_ar || ''} onChange={e => setEditing({...editing, industry_ar: e.target.value})} placeholder="مثال: قطاع الأغذية"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Industry (English)</label>
+            <input value={editing.industry_en || ''} onChange={e => setEditing({...editing, industry_en: e.target.value})} dir="ltr" placeholder="e.g. Food Sector"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">مدة الشراكة (عربي)</label>
+            <input value={editing.duration_ar || ''} onChange={e => setEditing({...editing, duration_ar: e.target.value})} placeholder="مثال: +3 سنوات"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Duration (English)</label>
+            <input value={editing.duration_en || ''} onChange={e => setEditing({...editing, duration_en: e.target.value})} dir="ltr" placeholder="e.g. +3 Years"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">حجم العمليات (عربي)</label>
+            <input value={editing.volume_ar || ''} onChange={e => setEditing({...editing, volume_ar: e.target.value})} placeholder="مثال: 500+ رحلة شهرياً"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">Volume (English)</label>
+            <input value={editing.volume_en || ''} onChange={e => setEditing({...editing, volume_en: e.target.value})} dir="ltr" placeholder="e.g. 500+ Trips/Mo"
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+          
+          <div className="md:col-span-2">
+            <label className="block text-sm font-bold text-slate-700 mb-2">شعار الشركة (Logo) - رابط أو رفع صورة</label>
+            <div className="flex gap-3">
+              <input value={editing.logo || ''} onChange={e => setEditing({...editing, logo: e.target.value})} dir="ltr" placeholder="https://example.com/logo.png"
+                className="flex-1 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+              <label className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 rounded-xl cursor-pointer font-bold transition-colors border border-slate-200 shadow-sm">
+                <Upload className="w-5 h-5" />
+                <span className="hidden sm:inline">رفع صورة</span>
+                <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    try {
+                      const res = await api.upload(e.target.files[0]);
+                      setEditing({ ...editing!, logo: res.url });
+                    } catch(err) {
+                      alert('فشل رفع الصورة. يرجى المحاولة مرة أخرى.');
+                    }
+                  }
+                }} />
+              </label>
+            </div>
+            {editing.logo && (
+              <div className="mt-3 w-20 h-20 bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-center">
+                <img src={editing.logo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+              </div>
+            )}
           </div>
         </div>
         <div>

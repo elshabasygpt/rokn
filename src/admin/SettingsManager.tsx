@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from './useApi';
-import { Save, Image as ImageIcon, MapPin, Calculator, Mail, MessageCircle, Bell, CheckCircle2, Phone, ClipboardList, Megaphone, Clock, Trash2, Plus, BarChart, LayoutDashboard, Download, Upload } from 'lucide-react';
+import { ShieldCheck, Users, Briefcase, Calculator, CheckCircle2, ChevronRight, Contact, Globe, MapPin, Search, Server, Settings, Star, Trash2, Upload, AlertTriangle, AlertCircle, FileText, Image as ImageIcon, PenTool, LayoutTemplate, Layers, MessageSquare, HelpCircle, Phone, Calendar, Download, Building, Plane, Truck, Activity, Plus, Save, FileBox, X, MessageCircle, BarChart3, Database, HardDrive, RefreshCw, ClipboardList, Megaphone, LayoutDashboard, Bell, Mail, Clock, BarChart } from 'lucide-react';
 import { availableIcons, getIcon } from '../lib/iconMap';
+
+
 
 export default function SettingsManager() {
   const api = useApi();
@@ -71,13 +73,33 @@ export default function SettingsManager() {
     } catch (err) { console.error(err); }
   };
 
-  const handleEstimatorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEstimatorImageAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
     try {
       const result = await api.upload(file);
-      update('estimator', 'image', result.url);
+      const currentImages = settings.estimator?.images || (settings.estimator?.image ? [settings.estimator.image] : []);
+      setSettings(prev => ({
+        ...prev,
+        estimator: {
+          ...prev.estimator,
+          images: [...currentImages, result.url],
+          image: '' // Clear legacy
+        }
+      }));
     } catch (err) { console.error(err); }
+  };
+
+  const handleEstimatorImageRemove = (indexToRemove: number) => {
+    const currentImages = settings.estimator?.images || (settings.estimator?.image ? [settings.estimator.image] : []);
+    setSettings(prev => ({
+      ...prev,
+      estimator: {
+        ...prev.estimator,
+        images: currentImages.filter((_, idx) => idx !== indexToRemove),
+        image: '' // Clear legacy
+      }
+    }));
   };
 
   const handleUploadWhyUsImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -342,6 +364,28 @@ export default function SettingsManager() {
                 className="w-5 h-5 accent-amber-500 rounded cursor-pointer" 
               />
               <span className="font-bold text-slate-700">تفعيل قسم الشركاء (نعتز بثقتهم وشركاء في نجاحهم)</span>
+            </label>
+          </div>
+          <div className="mb-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={settings.general?.articles_enabled !== false} 
+                onChange={e => update('general', 'articles_enabled', e.target.checked)}
+                className="w-5 h-5 accent-amber-500 rounded cursor-pointer" 
+              />
+              <span className="font-bold text-slate-700">تفعيل قسم المقالات (مقالات ونصائح حول نقل العفش)</span>
+            </label>
+          </div>
+          <div className="mb-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={settings.general?.profile_download_enabled !== false} 
+                onChange={e => update('general', 'profile_download_enabled', e.target.checked)}
+                className="w-5 h-5 accent-amber-500 rounded cursor-pointer" 
+              />
+              <span className="font-bold text-slate-700">إظهار زر تحميل الملف التعريفي (Download Company Profile)</span>
             </label>
           </div>
           <div className="mt-4 flex items-center gap-3">
@@ -646,78 +690,211 @@ export default function SettingsManager() {
                 className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 resize-none h-24" placeholder="Use our smart calculator..." />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-bold text-slate-700 mb-2">الصورة الجانبية للحاسبة</label>
-              <div className="flex items-center gap-4">
-                <div className="w-32 h-32 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden relative group">
-                  {settings.estimator?.image ? (
-                    <>
-                      <img src={settings.estimator.image.startsWith('/') ? settings.estimator.image : settings.estimator.image} alt="Estimator" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <label className="text-white text-sm font-bold cursor-pointer">تغيير الصورة<input type="file" accept="image/*" onChange={handleEstimatorImageUpload} className="hidden" /></label>
-                      </div>
-                    </>
-                  ) : (
-                    <label className="text-slate-400 text-sm cursor-pointer flex flex-col items-center gap-2">
-                      <ImageIcon className="w-6 h-6" />
-                      رفع صورة
-                      <input type="file" accept="image/*" onChange={handleEstimatorImageUpload} className="hidden" />
-                    </label>
-                  )}
-                </div>
-                <div className="text-xs text-slate-500 space-y-1">
-                  <p>يفضل رفع صورة بأبعاد عمودية (Portrait) مثل 800x1200.</p>
-                  <p>الصورة الافتراضية ستظهر إذا لم تقم برفع صورة جديدة.</p>
+              <label className="block text-sm font-bold text-slate-700 mb-2">صور سلايدر الحاسبة (يمكنك رفع أكثر من صورة)</label>
+              <div className="flex flex-wrap items-center gap-4">
+                {(settings.estimator?.images || (settings.estimator?.image ? [settings.estimator.image] : [])).map((imgUrl: string, idx: number) => (
+                  <div key={idx} className="w-32 h-32 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden relative group">
+                    <img src={imgUrl} alt={`Estimator ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <button onClick={() => handleEstimatorImageRemove(idx)} className="text-white p-2 bg-red-500/80 rounded-lg hover:bg-red-500 transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="w-32 h-32 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center hover:bg-slate-100 hover:border-amber-400 transition-all">
+                  <label className="text-slate-500 hover:text-amber-600 text-xs font-bold cursor-pointer flex flex-col items-center gap-2 w-full h-full justify-center">
+                    <Plus className="w-6 h-6" />
+                    إضافة صورة
+                    <input type="file" accept="image/*" onChange={handleEstimatorImageAdd} className="hidden" />
+                  </label>
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-3">يفضل رفع صور بأبعاد عمودية (Portrait) مثل 800x1200. إذا تم رفع أكثر من صورة، ستعمل كنظام سلايدر متنقل.</p>
             </div>
 
             <div className="md:col-span-2 pt-6 border-t border-slate-100">
               <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Calculator className="w-4 h-4 text-amber-500" /> تسعيرة النقل والمعادلة الرياضية</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">المدن المتاحة في الحاسبة (مفصولة بفاصلة)</label>
-                  <input value={settings.estimator?.cities?.join('، ') || 'أبها، خميس مشيط'} 
-                    onChange={e => update('estimator', 'cities', e.target.value.split('،').map(s=>s.trim()).filter(Boolean))}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="أبها، خميس مشيط، الرياض، جدة" />
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">المدن "المحلية" التي تنطبق عليها تسعيرة النقل الداخلي القصيرة</label>
-                  <input value={settings.estimator?.local_cities?.join('، ') || 'أبها، خميس مشيط'} 
-                    onChange={e => update('estimator', 'local_cities', e.target.value.split('،').map(s=>s.trim()).filter(Boolean))}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="أبها، خميس مشيط" />
-                </div>
 
-                <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
-                  <h4 className="font-bold text-amber-900 mb-3 text-sm">التسعيرة الداخلية (محلية)</h4>
-                  <div className="space-y-4">
+
+
+                <div className="md:col-span-2 bg-blue-50/50 p-5 rounded-2xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow mt-2">
+                  <h4 className="font-bold text-blue-900 mb-2 text-sm flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    إضافات العطلات والمواسم (كنسبة مئوية %)
+                  </h4>
+                  <p className="text-xs text-blue-700 mb-6">هذه النسبة تضاف على إجمالي تكلفة الرحلة لتعويض زيادة الطلب في المواسم.</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">السعر الأساسي (للنقل)</label>
-                      <input type="number" value={settings.estimator?.local_base_price ?? 300} onChange={e => update('estimator', 'local_base_price', Number(e.target.value))}
-                        className="w-full border border-amber-200 rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">تكلفة إضافية (جامبو/تجميد)</label>
-                      <input type="number" value={settings.estimator?.local_room_price ?? 150} onChange={e => update('estimator', 'local_room_price', Number(e.target.value))}
-                        className="w-full border border-amber-200 rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
+                      <label className="block text-xs font-bold text-slate-700 mb-2">مواسم وعطلات (Holiday %)</label>
+                      <div className="relative">
+                        <input type="number" value={settings.estimator?.holiday_percent ?? 5} onChange={e => update('estimator', 'holiday_percent', Number(e.target.value))}
+                          className="w-full border border-blue-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-mono pl-10" />
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 font-black">%</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                  <h4 className="font-bold text-blue-900 mb-3 text-sm">التسعيرة الخارجية (بين المدن)</h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">السعر الأساسي (للنقل)</label>
-                      <input type="number" value={settings.estimator?.external_base_price ?? 1000} onChange={e => update('estimator', 'external_base_price', Number(e.target.value))}
-                        className="w-full border border-blue-200 rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
+                <div className="md:col-span-2 bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 shadow-sm mt-2">
+                  <h4 className="font-bold text-emerald-900 mb-2 text-sm flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      جدول المسارات الشامل (بين المدن)
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1">تكلفة إضافية (جامبو/تجميد)</label>
-                      <input type="number" value={settings.estimator?.external_room_price ?? 300} onChange={e => update('estimator', 'external_room_price', Number(e.target.value))}
-                        className="w-full border border-blue-200 rounded-lg px-3 py-2 outline-none focus:border-amber-500" />
-                    </div>
+                    <button onClick={() => {
+                      const routes = settings.estimator?.custom_routes || [];
+                      update('estimator', 'custom_routes', [...routes, { 
+                        from: '', to: '', 
+                        small: 0, small_cooling: 0, small_freezing: 0,
+                        jumbo: 0, jumbo_cooling: 0, jumbo_freezing: 0,
+                        large: 0, large_cooling: 0, large_freezing: 0
+                      }]);
+                    }} className="bg-emerald-600 text-white text-xs px-4 py-2 rounded-xl hover:bg-emerald-700 flex items-center gap-2 transition-all shadow-sm hover:shadow">
+                      <Plus className="w-4 h-4" /> إضافة مسار جديد
+                    </button>
+                  </h4>
+                  <p className="text-xs text-emerald-800 mb-6 leading-relaxed">هنا تقوم بتحديد المسارات المدعومة بين المدن (مثال: من أبها إلى الرياض) وتسعيرتها الدقيقة لكل شاحنة. إذا اختار العميل مساراً غير موجود هنا، سيتم تطبيق التسعيرة الافتراضية.</p>
+                  
+                  <div className="space-y-3">
+                    {(settings.estimator?.custom_routes || []).map((route: any, idx: number) => (
+                      <div key={idx} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm relative mb-4">
+                        <button onClick={() => {
+                          const routes = [...(settings.estimator?.custom_routes || [])];
+                          routes.splice(idx, 1);
+                          update('estimator', 'custom_routes', routes);
+                        }} className="absolute left-4 top-4 text-red-500 hover:bg-red-100 p-2 rounded-xl transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pr-12">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">من مدينة</label>
+                            <input value={route.from} onChange={e => {
+                              const routes = [...settings.estimator.custom_routes];
+                              routes[idx].from = e.target.value;
+                              update('estimator', 'custom_routes', routes);
+                            }} className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-bold" placeholder="أبها" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">إلى مدينة</label>
+                            <input value={route.to} onChange={e => {
+                              const routes = [...settings.estimator.custom_routes];
+                              routes[idx].to = e.target.value;
+                              update('estimator', 'custom_routes', routes);
+                            }} className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-bold" placeholder="الرياض" />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Small Truck */}
+                          <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                            <h5 className="font-bold text-slate-800 text-sm text-center border-b border-slate-100 pb-3 flex justify-center items-center gap-2">
+                              <Truck className="w-4 h-4 text-emerald-500" /> شاحنة صغيرة
+                            </h5>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-500 mb-1">السعر الأساسي (جاف)</label>
+                              <input type="number" value={route.small} onChange={e => {
+                                const routes = [...settings.estimator.custom_routes];
+                                routes[idx].small = Number(e.target.value);
+                                update('estimator', 'custom_routes', routes);
+                              }} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 bg-slate-50" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تبريد (إضافة)</label>
+                                <input type="number" value={route.small_cooling ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].small_cooling = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تجميد (إضافة)</label>
+                                <input type="number" value={route.small_freezing ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].small_freezing = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Jumbo Truck */}
+                          <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                            <h5 className="font-bold text-slate-800 text-sm text-center border-b border-slate-100 pb-3 flex justify-center items-center gap-2">
+                              <Truck className="w-4 h-4 text-emerald-500" /> شاحنة جامبو
+                            </h5>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-500 mb-1">السعر الأساسي (جاف)</label>
+                              <input type="number" value={route.jumbo} onChange={e => {
+                                const routes = [...settings.estimator.custom_routes];
+                                routes[idx].jumbo = Number(e.target.value);
+                                update('estimator', 'custom_routes', routes);
+                              }} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 bg-slate-50" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تبريد (إضافة)</label>
+                                <input type="number" value={route.jumbo_cooling ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].jumbo_cooling = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تجميد (إضافة)</label>
+                                <input type="number" value={route.jumbo_freezing ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].jumbo_freezing = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Large Truck */}
+                          <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                            <h5 className="font-bold text-slate-800 text-sm text-center border-b border-slate-100 pb-3 flex justify-center items-center gap-2">
+                              <Truck className="w-4 h-4 text-emerald-500" /> تريلا / نقل ثقيل
+                            </h5>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-500 mb-1">السعر الأساسي (جاف)</label>
+                              <input type="number" value={route.large} onChange={e => {
+                                const routes = [...settings.estimator.custom_routes];
+                                routes[idx].large = Number(e.target.value);
+                                update('estimator', 'custom_routes', routes);
+                              }} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 bg-slate-50" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تبريد (إضافة)</label>
+                                <input type="number" value={route.large_cooling ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].large_cooling = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-blue-600 mb-1">تجميد (إضافة)</label>
+                                <input type="number" value={route.large_freezing ?? 0} onChange={e => {
+                                  const routes = [...settings.estimator.custom_routes];
+                                  routes[idx].large_freezing = Number(e.target.value);
+                                  update('estimator', 'custom_routes', routes);
+                                }} className="w-full border border-blue-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-500 bg-blue-50/30" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(settings.estimator?.custom_routes?.length === 0 || !settings.estimator?.custom_routes) && (
+                      <div className="text-center py-6 text-xs text-slate-400 border-2 border-dashed border-emerald-100 rounded-xl bg-emerald-50/30">لا يوجد مسارات مخصصة. سيتم استخدام التسعيرة الافتراضية.</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1439,68 +1616,245 @@ export default function SettingsManager() {
           </div>
         </div>
 
-        {/* Cities Setup */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <MapPin className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-black text-slate-900">إدارة مدن النقل (من وإلى)</h2>
+
+        {/* Home Sections Meta */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mt-6">
+          <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+            <LayoutTemplate className="w-6 h-6 text-amber-500" />
+            <h2 className="text-xl font-black text-slate-900">إعدادات العناوين الرئيسية (الصفحة الرئيسية)</h2>
           </div>
           
-          <div className="space-y-4">
-            {(settings.citiesMeta?.list || []).map((city: { ar: string, en: string }, index: number) => (
-              <div key={index} className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <input 
-                  placeholder="اسم المدينة (عربي)" 
-                  value={city.ar} 
-                  onChange={(e) => {
-                    const newList = [...(settings.citiesMeta?.list || [])];
-                    newList[index] = { ...newList[index], ar: e.target.value };
-                    update('citiesMeta', 'list', newList);
-                  }} 
-                  className="flex-1 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" 
-                />
-                <input 
-                  placeholder="City Name (EN)" 
-                  dir="ltr"
-                  value={city.en} 
-                  onChange={(e) => {
-                    const newList = [...(settings.citiesMeta?.list || [])];
-                    newList[index] = { ...newList[index], en: e.target.value };
-                    update('citiesMeta', 'list', newList);
-                  }} 
-                  className="flex-1 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" 
-                />
-                <button 
-                  onClick={() => {
-                    const newList = [...(settings.citiesMeta?.list || [])].filter((_, i) => i !== index);
-                    update('citiesMeta', 'list', newList);
-                  }} 
-                  className="w-10 h-10 flex items-center justify-center bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
+          <div className="space-y-6">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Truck className="w-4 h-4 text-amber-500" /> قسم خدماتنا (Services Section)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input placeholder="العنوان (عربي)" value={settings.pagesMeta?.homeServices?.title_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const srv = obj.homeServices || {};
+                  update('pagesMeta', 'homeServices', { ...srv, title_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Title (English)" dir="ltr" value={settings.pagesMeta?.homeServices?.title_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const srv = obj.homeServices || {};
+                  update('pagesMeta', 'homeServices', { ...srv, title_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <textarea placeholder="الوصف (عربي)" value={settings.pagesMeta?.homeServices?.desc_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const srv = obj.homeServices || {};
+                  update('pagesMeta', 'homeServices', { ...srv, desc_ar: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <textarea placeholder="Description (English)" dir="ltr" value={settings.pagesMeta?.homeServices?.desc_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const srv = obj.homeServices || {};
+                  update('pagesMeta', 'homeServices', { ...srv, desc_en: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
               </div>
-            ))}
+            </div>
 
-            <button 
-              onClick={() => {
-                const newList = [...(settings.citiesMeta?.list || []), { ar: '', en: '' }];
-                update('citiesMeta', 'list', newList);
-              }}
-              className="flex items-center gap-2 text-amber-600 font-bold hover:text-amber-700 bg-amber-50 px-4 py-2 rounded-lg"
-            >
-              <Plus className="w-5 h-5" /> إضافة مدينة جديدة
-            </button>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-amber-500" /> قسم المقالات (Articles Section)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input placeholder="نص الشارة العلوية (عربي) - اختياري" value={settings.pagesMeta?.homeArticles?.badge_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, badge_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Top Badge (English) - Optional" dir="ltr" value={settings.pagesMeta?.homeArticles?.badge_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, badge_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+
+                <input placeholder="العنوان (عربي)" value={settings.pagesMeta?.homeArticles?.title_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, title_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Title (English)" dir="ltr" value={settings.pagesMeta?.homeArticles?.title_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, title_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <textarea placeholder="الوصف (عربي)" value={settings.pagesMeta?.homeArticles?.desc_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, desc_ar: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <textarea placeholder="Description (English)" dir="ltr" value={settings.pagesMeta?.homeArticles?.desc_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const art = obj.homeArticles || {};
+                  update('pagesMeta', 'homeArticles', { ...art, desc_en: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+              </div>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-4">
+              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4 text-amber-500" /> قسم الشركاء (Partners Section)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input placeholder="العنوان (عربي)" value={settings.pagesMeta?.homePartners?.title_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const part = obj.homePartners || {};
+                  update('pagesMeta', 'homePartners', { ...part, title_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Title (English)" dir="ltr" value={settings.pagesMeta?.homePartners?.title_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const part = obj.homePartners || {};
+                  update('pagesMeta', 'homePartners', { ...part, title_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+              </div>
+            </div>
           </div>
-
+          
           <div className="mt-6 flex items-center gap-3">
-            <button onClick={() => saveSection('citiesMeta')} disabled={saving}
+            <button onClick={() => saveSection('pagesMeta')} disabled={saving}
               className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-colors text-sm">
-              <Save className="w-4 h-4" /> حفظ المدن
+              <Save className="w-4 h-4" /> حفظ العناوين
             </button>
-            {saved === 'citiesMeta' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
+            {saved === 'pagesMeta' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
           </div>
         </div>
+
+        {/* Industries Meta */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+            <Briefcase className="w-6 h-6 text-amber-500" />
+            <h2 className="text-xl font-black text-slate-900">قسم قطاعات الأعمال (Industries)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <input placeholder="العنوان (عربي)" value={settings.pagesMeta?.industries?.title_ar || ''} onChange={e => {
+              const obj = settings.pagesMeta || {};
+              const ind = obj.industries || {};
+              update('pagesMeta', 'industries', { ...ind, title_ar: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <input placeholder="العنوان (إنجليزي)" dir="ltr" value={settings.pagesMeta?.industries?.title_en || ''} onChange={e => {
+              const obj = settings.pagesMeta || {};
+              const ind = obj.industries || {};
+              update('pagesMeta', 'industries', { ...ind, title_en: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <textarea placeholder="الوصف (عربي)" value={settings.pagesMeta?.industries?.desc_ar || ''} onChange={e => {
+              const obj = settings.pagesMeta || {};
+              const ind = obj.industries || {};
+              update('pagesMeta', 'industries', { ...ind, desc_ar: e.target.value });
+            }} className="w-full h-24 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <textarea placeholder="الوصف (إنجليزي)" dir="ltr" value={settings.pagesMeta?.industries?.desc_en || ''} onChange={e => {
+              const obj = settings.pagesMeta || {};
+              const ind = obj.industries || {};
+              update('pagesMeta', 'industries', { ...ind, desc_en: e.target.value });
+            }} className="w-full h-24 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-800">القطاعات:</h3>
+            {(() => {
+              const defaultIndustries = [
+                { icon: '🍔', title_ar: 'الأغذية والسلع الاستهلاكية', title_en: 'FMCG & Food', desc_ar: 'الحفاظ على نضارة وجودة المنتجات لأسواق التجزئة.', desc_en: 'Maintaining freshness for grocery chains.' },
+                { icon: '💊', title_ar: 'الأدوية والمستلزمات الطبية', title_en: 'Pharmaceuticals', desc_ar: 'نقل مطابق لاشتراطات هيئة الغذاء والدواء (+4°C).', desc_en: 'SFDA compliant transport (+4°C to +8°C).' },
+                { icon: '🥩', title_ar: 'اللحوم والدواجن', title_en: 'Meat & Poultry', desc_ar: 'تجميد عميق يصل إلى -18°C لضمان سلامة اللحوم.', desc_en: 'Deep freezing down to -18°C for safety.' },
+                { icon: '🏨', title_ar: 'المطاعم والإعاشة', title_en: 'Restaurants & Catering', desc_ar: 'توزيع يومي موثوق لقطاع المطاعم والضيافة.', desc_en: 'Daily reliable distribution for food service.' }
+              ];
+              const currentItems = settings.pagesMeta?.industries?.items || defaultIndustries;
+              
+              return currentItems.map((item: any, index: number) => (
+                <div key={index} className="flex flex-col md:flex-row gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <div className="flex flex-col gap-2 w-full md:w-1/4">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        placeholder="الأيقونة / رابط الصورة" 
+                        value={item?.icon || ''} 
+                        onChange={(e) => {
+                          const items = [...currentItems];
+                          items[index] = { ...items[index], icon: e.target.value };
+                          update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                        }} 
+                        className="flex-1 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-amber-500 text-sm" 
+                      />
+                      <label className="cursor-pointer p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 tooltip" aria-label="رفع صورة">
+                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                          if (e.target.files?.[0]) {
+                            try {
+                              const res = await api.upload(e.target.files[0]);
+                              const items = [...currentItems];
+                              items[index] = { ...items[index], icon: res.url };
+                              update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                            } catch (err) { alert('Upload failed'); }
+                          }
+                        }} />
+                        <Upload className="w-4 h-4" />
+                      </label>
+                    </div>
+                    {item?.icon && (item.icon.startsWith('http') || item.icon.startsWith('/')) ? (
+                      <img src={item.icon} alt="Preview" className="w-12 h-12 object-contain bg-white rounded-lg border border-slate-200 p-1" />
+                    ) : (
+                      <div className="text-3xl">{item?.icon}</div>
+                    )}
+                  </div>
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <input placeholder="اسم القطاع (AR)" value={item?.title_ar || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], title_ar: e.target.value };
+                      update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                    }} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" />
+                    <input placeholder="Industry Name (EN)" dir="ltr" value={item?.title_en || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], title_en: e.target.value };
+                      update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                    }} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" />
+                    <input placeholder="وصف القطاع (AR)" value={item?.desc_ar || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], desc_ar: e.target.value };
+                      update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                    }} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" />
+                    <input placeholder="Description (EN)" dir="ltr" value={item?.desc_en || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], desc_en: e.target.value };
+                      update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                    }} className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" />
+                  </div>
+                  <button onClick={() => {
+                    const items = [...currentItems].filter((_, i) => i !== index);
+                    update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+                  }} className="w-10 h-10 shrink-0 flex items-center justify-center bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              ));
+            })()}
+            
+            <button onClick={() => {
+              const defaultIndustries = [
+                { icon: '🍔', title_ar: 'الأغذية والسلع الاستهلاكية', title_en: 'FMCG & Food', desc_ar: 'الحفاظ على نضارة وجودة المنتجات لأسواق التجزئة.', desc_en: 'Maintaining freshness for grocery chains.' },
+                { icon: '💊', title_ar: 'الأدوية والمستلزمات الطبية', title_en: 'Pharmaceuticals', desc_ar: 'نقل مطابق لاشتراطات هيئة الغذاء والدواء (+4°C).', desc_en: 'SFDA compliant transport (+4°C to +8°C).' },
+                { icon: '🥩', title_ar: 'اللحوم والدواجن', title_en: 'Meat & Poultry', desc_ar: 'تجميد عميق يصل إلى -18°C لضمان سلامة اللحوم.', desc_en: 'Deep freezing down to -18°C for safety.' },
+                { icon: '🏨', title_ar: 'المطاعم والإعاشة', title_en: 'Restaurants & Catering', desc_ar: 'توزيع يومي موثوق لقطاع المطاعم والضيافة.', desc_en: 'Daily reliable distribution for food service.' }
+              ];
+              const currentItems = settings.pagesMeta?.industries?.items || defaultIndustries;
+              const items = [...currentItems, { icon: '💼', title_ar: '', title_en: '', desc_ar: '', desc_en: '' }];
+              update('pagesMeta', 'industries', { ...settings.pagesMeta?.industries, items });
+            }} className="flex items-center gap-2 text-amber-600 font-bold hover:text-amber-700 bg-amber-50 px-4 py-2 rounded-lg">
+              <Plus className="w-5 h-5" /> إضافة قطاع
+            </button>
+          </div>
+          
+          <div className="mt-6 flex items-center gap-3">
+            <button onClick={() => saveSection('pagesMeta')} disabled={saving}
+              className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-colors text-sm">
+              <Save className="w-4 h-4" /> حفظ قطاعات الأعمال
+            </button>
+            {saved === 'pagesMeta' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
+          </div>
+        </div>
+        
         {/* Footer Settings */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-6">

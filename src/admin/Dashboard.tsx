@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApi } from './useApi';
-import { ClipboardList, Package, Image, Star, TrendingUp, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ClipboardList, Package, Image, Star, TrendingUp, Clock, CheckCircle2, AlertCircle, Users } from 'lucide-react';
 
 interface BookingStats {
   total: number;
@@ -23,7 +24,7 @@ export default function Dashboard() {
   const api = useApi();
   const [stats, setStats] = useState<BookingStats>({ total: 0, new: 0, in_progress: 0, completed: 0 });
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
-  const [counts, setCounts] = useState({ services: 0, gallery: 0, testimonials: 0 });
+  const [counts, setCounts] = useState({ services: 0, gallery: 0, testimonials: 0, partners: 0 });
 
   useEffect(() => {
     loadData();
@@ -31,16 +32,17 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [bookingStats, bookings, services, gallery, testimonials] = await Promise.all([
+      const [bookingStats, bookings, services, gallery, testimonials, partners] = await Promise.all([
         api.get('/api/bookings/stats'),
         api.get('/api/bookings?status=all'),
         api.get('/api/services'),
         api.get('/api/gallery'),
         api.get('/api/testimonials'),
+        api.get('/api/partners'),
       ]);
       setStats(bookingStats);
       setRecentBookings(bookings.slice(0, 5));
-      setCounts({ services: services.length, gallery: gallery.length, testimonials: testimonials.length });
+      setCounts({ services: services.length, gallery: gallery.length, testimonials: testimonials.length, partners: partners.length });
     } catch (err) {
       console.error(err);
     }
@@ -58,16 +60,17 @@ export default function Dashboard() {
   };
 
   const statCards = [
-    { label: 'طلبات جديدة', value: stats.new, icon: AlertCircle, color: 'from-blue-500 to-blue-600', iconBg: 'bg-blue-100 text-blue-600' },
-    { label: 'قيد التنفيذ', value: stats.in_progress, icon: Clock, color: 'from-amber-500 to-amber-600', iconBg: 'bg-amber-100 text-amber-600' },
-    { label: 'مكتملة', value: stats.completed, icon: CheckCircle2, color: 'from-green-500 to-green-600', iconBg: 'bg-green-100 text-green-600' },
-    { label: 'إجمالي الطلبات', value: stats.total, icon: TrendingUp, color: 'from-slate-600 to-slate-700', iconBg: 'bg-slate-100 text-slate-600' },
+    { label: 'طلبات جديدة', value: stats.new, icon: AlertCircle, color: 'from-blue-500 to-blue-600', iconBg: 'bg-blue-100 text-blue-600', path: '/admin/bookings' },
+    { label: 'قيد التنفيذ', value: stats.in_progress, icon: Clock, color: 'from-amber-500 to-amber-600', iconBg: 'bg-amber-100 text-amber-600', path: '/admin/bookings' },
+    { label: 'مكتملة', value: stats.completed, icon: CheckCircle2, color: 'from-green-500 to-green-600', iconBg: 'bg-green-100 text-green-600', path: '/admin/bookings' },
+    { label: 'إجمالي الطلبات', value: stats.total, icon: TrendingUp, color: 'from-slate-600 to-slate-700', iconBg: 'bg-slate-100 text-slate-600', path: '/admin/bookings' },
   ];
 
   const contentCards = [
-    { label: 'الخدمات', value: counts.services, icon: Package, color: 'text-amber-500' },
-    { label: 'المعرض', value: counts.gallery, icon: Image, color: 'text-blue-500' },
-    { label: 'الآراء', value: counts.testimonials, icon: Star, color: 'text-green-500' },
+    { label: 'الخدمات', value: counts.services, icon: Package, color: 'text-amber-500', path: '/admin/services' },
+    { label: 'الشركاء', value: counts.partners, icon: Users, color: 'text-purple-500', path: '/admin/partners' },
+    { label: 'المعرض', value: counts.gallery, icon: Image, color: 'text-blue-500', path: '/admin/gallery' },
+    { label: 'الآراء', value: counts.testimonials, icon: Star, color: 'text-green-500', path: '/admin/testimonials' },
   ];
 
   return (
@@ -78,7 +81,7 @@ export default function Dashboard() {
       {/* Booking Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {statCards.map((card, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg transition-shadow">
+          <Link to={card.path} key={i} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg transition-shadow block">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${card.iconBg}`}>
                 <card.icon className="w-6 h-6" />
@@ -86,18 +89,18 @@ export default function Dashboard() {
             </div>
             <p className="text-3xl font-black text-slate-900">{card.value}</p>
             <p className="text-slate-500 text-sm font-semibold mt-1">{card.label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* Content Stats */}
-      <div className="grid grid-cols-3 gap-5 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
         {contentCards.map((card, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 text-center hover:shadow-lg transition-shadow">
+          <Link to={card.path} key={i} className="bg-white rounded-2xl border border-slate-200 p-5 text-center hover:shadow-lg transition-shadow block">
             <card.icon className={`w-8 h-8 mx-auto mb-3 ${card.color}`} />
             <p className="text-2xl font-black text-slate-900">{card.value}</p>
             <p className="text-slate-500 text-sm font-semibold">{card.label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
