@@ -108,9 +108,26 @@ export async function initDB() {
         notes TEXT,
         client_name VARCHAR(255) NOT NULL,
         client_phone VARCHAR(50) NOT NULL,
+        company_name VARCHAR(255),
+        email VARCHAR(255),
+        industry VARCHAR(100),
+        lead_source VARCHAR(100),
+        lead_value DECIMAL(10, 2),
+        owner_id INTEGER REFERENCES admin(id) ON DELETE SET NULL,
+        next_followup_date TIMESTAMP,
+        marketing_attribution JSONB,
         status VARCHAR(50) DEFAULT 'new',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS lead_activities (
+        id SERIAL PRIMARY KEY,
+        lead_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
+        admin_id INTEGER REFERENCES admin(id) ON DELETE SET NULL,
+        activity_type VARCHAR(50) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS articles (
@@ -131,23 +148,144 @@ export async function initDB() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       
-      CREATE TABLE IF NOT EXISTS careers (
+      CREATE TABLE IF NOT EXISTS jobs (
         id SERIAL PRIMARY KEY,
         title_ar VARCHAR(255) NOT NULL,
         title_en VARCHAR(255) NOT NULL,
-        department_ar VARCHAR(100) NOT NULL,
-        department_en VARCHAR(100) NOT NULL,
+        type VARCHAR(50) DEFAULT 'Full-time',
         location_ar VARCHAR(100) NOT NULL,
         location_en VARCHAR(100) NOT NULL,
-        type VARCHAR(50) DEFAULT 'full-time',
-        desc_ar TEXT NOT NULL,
-        desc_en TEXT NOT NULL,
+        description_ar TEXT NOT NULL,
+        description_en TEXT NOT NULL,
         requirements_ar TEXT NOT NULL,
         requirements_en TEXT NOT NULL,
-        benefits_ar TEXT,
-        benefits_en TEXT,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS job_applications (
+        id SERIAL PRIMARY KEY,
+        job_id INTEGER REFERENCES jobs(id) ON DELETE SET NULL,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        phone VARCHAR(50) NOT NULL,
+        resume_url TEXT NOT NULL,
+        cover_letter TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS cities (
+        id SERIAL PRIMARY KEY,
+        name_ar VARCHAR(255) NOT NULL,
+        name_en VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        hero_title_ar VARCHAR(255),
+        hero_title_en VARCHAR(255),
+        hero_desc_ar TEXT,
+        hero_desc_en TEXT,
+        featured_image VARCHAR(500),
+        service_coverage_ar TEXT,
+        service_coverage_en TEXT,
+        faqs JSONB DEFAULT '[]',
+        cta_title_ar VARCHAR(255),
+        cta_title_en VARCHAR(255),
+        cta_desc_ar TEXT,
+        cta_desc_en TEXT,
+        seo_title_ar VARCHAR(255),
+        seo_title_en VARCHAR(255),
+        seo_desc_ar TEXT,
+        seo_desc_en TEXT,
+        canonical_url VARCHAR(500),
         active BOOLEAN DEFAULT true,
-        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS industries (
+        id SERIAL PRIMARY KEY,
+        name_ar VARCHAR(255) NOT NULL,
+        name_en VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        icon VARCHAR(100) DEFAULT 'Building2',
+        hero_title_ar VARCHAR(255),
+        hero_title_en VARCHAR(255),
+        hero_desc_ar TEXT,
+        hero_desc_en TEXT,
+        featured_image VARCHAR(500),
+        challenges_ar JSONB DEFAULT '[]',
+        challenges_en JSONB DEFAULT '[]',
+        solutions_ar JSONB DEFAULT '[]',
+        solutions_en JSONB DEFAULT '[]',
+        benefits_ar JSONB DEFAULT '[]',
+        benefits_en JSONB DEFAULT '[]',
+        related_services JSONB DEFAULT '[]',
+        related_case_studies JSONB DEFAULT '[]',
+        faqs JSONB DEFAULT '[]',
+        key_capabilities_ar JSONB DEFAULT '[]',
+        key_capabilities_en JSONB DEFAULT '[]',
+        certifications JSONB DEFAULT '[]',
+        cta_title_ar VARCHAR(255),
+        cta_title_en VARCHAR(255),
+        cta_desc_ar TEXT,
+        cta_desc_en TEXT,
+        seo_title_ar VARCHAR(255),
+        seo_title_en VARCHAR(255),
+        seo_desc_ar TEXT,
+        seo_desc_en TEXT,
+        canonical_url VARCHAR(500),
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Safe migrations for existing table
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS challenges_ar JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS challenges_en JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS solutions_ar JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS solutions_en JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS benefits_ar JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS benefits_en JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS related_services JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS related_case_studies JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS faqs JSONB DEFAULT '[]';
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS cta_desc_ar TEXT;
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS cta_desc_en TEXT;
+
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS company_name VARCHAR(255);
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS email VARCHAR(255);
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS industry VARCHAR(100);
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS lead_source VARCHAR(100);
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS lead_value DECIMAL(10, 2);
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS owner_id INTEGER REFERENCES admin(id) ON DELETE SET NULL;
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS next_followup_date TIMESTAMP;
+      ALTER TABLE bookings ADD COLUMN IF NOT EXISTS marketing_attribution JSONB;
+      CREATE TABLE IF NOT EXISTS case_studies (
+        id SERIAL PRIMARY KEY,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        industry_ar VARCHAR(255),
+        industry_en VARCHAR(255),
+        title_ar VARCHAR(255),
+        title_en VARCHAR(255),
+        problem_ar TEXT,
+        problem_en TEXT,
+        solution_ar TEXT,
+        solution_en TEXT,
+        kpi_ar VARCHAR(255),
+        kpi_en VARCHAR(255),
+        image VARCHAR(500),
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS redirects (
+        id SERIAL PRIMARY KEY,
+        old_path VARCHAR(500) UNIQUE NOT NULL,
+        new_path VARCHAR(500) NOT NULL,
+        status_code INTEGER DEFAULT 301,
+        active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

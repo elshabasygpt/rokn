@@ -51,9 +51,14 @@ export default function Dashboard() {
   const statusBadge = (status: string) => {
     const map: Record<string, { bg: string; text: string; label: string }> = {
       new: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'جديد' },
-      in_progress: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'قيد التنفيذ' },
-      completed: { bg: 'bg-green-100', text: 'text-green-700', label: 'مكتمل' },
-      cancelled: { bg: 'bg-red-100', text: 'text-red-700', label: 'ملغي' },
+      qualified: { bg: 'bg-purple-100', text: 'text-purple-700', label: 'مؤهل' },
+      quoted: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'عرض سعر' },
+      negotiation: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'مفاوضات' },
+      won: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'صفقة رابحة' },
+      lost: { bg: 'bg-red-100', text: 'text-red-700', label: 'خاسرة' },
+      in_progress: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'قيد التنفيذ (قديم)' },
+      completed: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'مكتمل (قديم)' },
+      cancelled: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'ملغي (قديم)' },
     };
     const s = map[status] || map.new;
     return <span className={`${s.bg} ${s.text} text-xs font-bold px-3 py-1 rounded-full`}>{s.label}</span>;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, X, Check, Save, FileText, Image as ImageIcon } from 'lucide-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { useAuth } from './context/AuthContext';
 
 interface Article {
@@ -80,7 +82,7 @@ export default function ArticlesManager() {
         payload.slug = payload.title_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       }
 
-      const url = payload.id ? '/api/articles/${payload.id}' : '/api/articles';
+      const url = payload.id ? `/api/articles/${payload.id}` : '/api/articles';
       const method = payload.id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -108,7 +110,7 @@ export default function ArticlesManager() {
     if (!window.confirm('هل أنت متأكد من حذف هذا المقال بصورة نهائية؟')) return;
     
     try {
-      const res = await fetch('/api/articles/${id}', {
+      const res = await fetch(`/api/articles/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -194,12 +196,12 @@ export default function ArticlesManager() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">المحتوى</label>
-                  <textarea
+                  <ReactQuill 
+                    theme="snow"
                     value={currentArticle.content_ar || ''}
-                    onChange={(e) => setCurrentArticle({...currentArticle, content_ar: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 h-64"
-                    required
-                    style={{ whiteSpace: 'pre-wrap' }}
+                    onChange={(val) => setCurrentArticle({...currentArticle, content_ar: val})}
+                    className="bg-white rounded-xl mb-12 h-64"
+                    dir="rtl"
                   />
                 </div>
                 <div>
@@ -228,12 +230,11 @@ export default function ArticlesManager() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Content</label>
-                  <textarea
+                  <ReactQuill 
+                    theme="snow"
                     value={currentArticle.content_en || ''}
-                    onChange={(e) => setCurrentArticle({...currentArticle, content_en: e.target.value})}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 h-64 text-left"
-                    required
-                    style={{ whiteSpace: 'pre-wrap' }}
+                    onChange={(val) => setCurrentArticle({...currentArticle, content_en: val})}
+                    className="bg-white rounded-xl mb-12 h-64"
                   />
                 </div>
                 <div>

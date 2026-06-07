@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     if (!showAll) {
       query += ' WHERE active = true';
     }
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY created_at DESC LIMIT 500';
     
     const { rows } = await pool.query(query);
     res.json(rows);

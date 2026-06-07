@@ -22,7 +22,7 @@ export default function Careers() {
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/careers/jobs')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/careers/jobs` )
       .then(res => res.json())
       .then(data => {
         setJobs(data.filter((j: any) => j.is_active));
@@ -33,7 +33,7 @@ export default function Careers() {
         setLoading(false);
       });
 
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => {
         if (data.general) setSettings(data.general);
@@ -45,7 +45,8 @@ export default function Careers() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/careers/apply', {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/careers/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...applyForm, job_id: selectedJob.id })
@@ -71,7 +72,7 @@ export default function Careers() {
     formData.append('file', file);
     
     try {
-      const res = await fetch('/api/upload/resume', { method: 'POST', body: formData });
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/upload/resume` , );
       const data = await res.json();
       if (data.url) {
         setApplyForm({ ...applyForm, resume_url: data.url });

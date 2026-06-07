@@ -7,9 +7,10 @@ interface SEOProps {
   title: string;
   description: string;
   schema?: any;
+  canonical?: string;
 }
 
-export default function SEO({ title, description, schema }: SEOProps) {
+export default function SEO({ title, description, schema, canonical }: SEOProps) {
   const { i18n } = useTranslation();
   const location = useLocation();
   const baseUrl = 'https://www.roknelryan.com'; // Replace with real domain when live
@@ -34,7 +35,7 @@ export default function SEO({ title, description, schema }: SEOProps) {
       <meta name="description" content={description} />
       
       {/* Canonical Tag */}
-      <link rel="canonical" href={currentUrl} />
+      <link rel="canonical" href={canonical || currentUrl} />
       
       {/* Hreflang Tags for Multi-language SEO */}
       <link rel="alternate" hrefLang="ar" href={urlAr} />

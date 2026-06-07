@@ -73,13 +73,13 @@ export default function Services() {
 
   useEffect(() => {
     // Fetch individual services
-    fetch('/api/services')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/services` )
       .then(res => res.json())
       .then(data => setApiServices(data))
       .catch(console.error);
 
     // Fetch page meta settings
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => setMeta(data.servicesMeta || null))
       .catch(console.error);

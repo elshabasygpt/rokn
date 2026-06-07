@@ -62,13 +62,13 @@ export default function Gallery() {
   const [meta, setMeta] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/gallery')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/gallery` )
       .then(res => res.json())
       .then(data => setApiGallery(data))
       .catch(console.error);
 
     // Fetch page meta settings
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => setMeta(data.galleryMeta || null))
       .catch(console.error);

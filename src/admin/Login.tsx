@@ -13,7 +13,7 @@ export default function Login() {
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => {
         if (data.general) setSettings(data.general);

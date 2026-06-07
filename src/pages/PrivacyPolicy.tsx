@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/pages/privacy')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/pages/privacy` )
       .then(res => res.json())
       .then(data => {
         if (!data.error) setPageData(data);

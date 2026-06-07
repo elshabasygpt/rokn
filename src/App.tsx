@@ -39,6 +39,11 @@ const ServicesManager = lazy(() => import('./admin/ServicesManager'));
 const FleetManager = lazy(() => import('./admin/FleetManager'));
 const GalleryManager = lazy(() => import('./admin/GalleryManager'));
 const TestimonialsManager = lazy(() => import('./admin/TestimonialsManager'));
+const AdminCities = lazy(() => import('./admin/CitiesManager'));
+const AdminIndustries = lazy(() => import('./admin/IndustriesManager'));
+const AdminMediaLibrary = lazy(() => import('./admin/MediaLibrary'));
+const AdminCaseStudies = lazy(() => import('./admin/CaseStudiesManager'));
+const RedirectsManager = lazy(() => import('./admin/RedirectsManager'));
 const BookingsManager = lazy(() => import('./admin/BookingsManager'));
 const SettingsManager = lazy(() => import('./admin/SettingsManager'));
 const PartnersManager = lazy(() => import('./admin/PartnersManager'));
@@ -74,7 +79,7 @@ function AdminLoginRoute() {
 
 export default function App() {
   React.useEffect(() => {
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => {
         if (data.general?.favicon) {
@@ -163,6 +168,11 @@ export default function App() {
               <Route path="testimonials" element={<TestimonialsManager />} />
               <Route path="partners" element={<PartnersManager />} />
               <Route path="faqs" element={<FaqManager />} />
+              <Route path="case-studies" element={<AdminCaseStudies />} />
+              <Route path="redirects" element={<RedirectsManager />} />
+              <Route path="cities" element={<AdminCities />} />
+              <Route path="industries" element={<AdminIndustries />} />
+              <Route path="media" element={<AdminMediaLibrary />} />
               <Route path="articles" element={<ArticlesManager />} />
               <Route path="pages" element={<PagesManager />} />
               <Route path="careers" element={<CareersManager />} />

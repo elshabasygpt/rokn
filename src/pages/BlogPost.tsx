@@ -36,7 +36,7 @@ export default function BlogPost() {
     setIsLoading(true);
     window.scrollTo(0, 0);
     
-    fetch(`/api/articles/${slug}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/articles/${slug}` )
       .then(res => {
         if (!res.ok) throw new Error('Not found');
         return res.json();
@@ -44,8 +44,8 @@ export default function BlogPost() {
       .then(data => {
         setArticle(data);
         return Promise.all([
-          fetch('/api/articles').then(res => res.json()),
-          fetch('/api/settings').then(res => res.json())
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/articles` ).then(res => res.json()),
+          fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` ).then(res => res.json())
         ]);
       })
       .then(([allData, settingsData]) => {
@@ -189,36 +189,10 @@ export default function BlogPost() {
 
               {/* Content Body */}
               <div className="p-8 md:p-12 lg:p-16">
-                <div className={`prose prose-lg md:prose-xl max-w-none prose-slate prose-headings:font-black prose-headings:text-slate-800 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-amber-600 hover:prose-a:text-amber-700 prose-strong:text-slate-800 prose-li:text-slate-600 ${!isEn && 'text-right'}`}>
-                  {content.split('\n').map((line, idx) => {
-                    if (!line.trim()) return <div key={idx} className="h-6"></div>;
-                    
-                    // Format Bullet points
-                    if (line.trim().startsWith('- ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-4 my-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-colors hover:bg-slate-100">
-                          <CheckCircle2 className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
-                          <p className="text-slate-700 leading-relaxed font-medium m-0">{line.replace('- ', '')}</p>
-                        </div>
-                      );
-                    }
-
-                    // Format Headings
-                    if (/^([١-٩1-9]+[\.\-]\s*|أولاً:|ثانياً:|ثالثاً:|رابعاً:|أولاً|ثانياً|ثالثاً|الخطأ الأول:|الخطأ الثاني:|الخطأ الثالث:)/.test(line.trim())) {
-                      return <h3 key={idx} className="text-2xl md:text-3xl font-black text-slate-800 mt-12 mb-6 border-b-2 border-amber-500 inline-block pb-2">{line}</h3>;
-                    }
-                    
-                    // Format Blockquotes (Starting with > )
-                    if (line.trim().startsWith('> ')) {
-                        return (
-                           <blockquote key={idx} className="border-r-4 border-l-0 border-amber-500 bg-amber-50/50 p-6 my-8 rounded-l-2xl text-xl italic font-medium text-slate-700">
-                               {line.replace('> ', '')}
-                           </blockquote>
-                        );
-                    }
-
-                    return <p key={idx} className="text-slate-600 leading-8 md:leading-9 my-5 text-[1.1rem] md:text-[1.2rem]">{line}</p>;
-                  })}
+                <div 
+                  className={`prose prose-lg md:prose-xl max-w-none prose-slate prose-headings:font-black prose-headings:text-slate-800 prose-p:text-slate-600 prose-p:leading-relaxed prose-a:text-amber-600 hover:prose-a:text-amber-700 prose-strong:text-slate-800 prose-li:text-slate-600 ${!isEn && 'text-right'}`}
+                  dangerouslySetInnerHTML={{ __html: content }}
+                >
                 </div>
 
                 {/* Keywords Tags */}

@@ -62,13 +62,14 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const API_URL = import.meta.env.VITE_API_URL || '';
         const [settingsRes, servicesRes, testimonialsRes, partnersRes, faqsRes, articlesRes] = await Promise.all([
-          fetch('/api/settings').then(r => r.json()),
-          fetch('/api/services').then(r => r.json()),
-          fetch('/api/testimonials').then(r => r.json()),
-          fetch('/api/partners').then(r => r.json()),
-          fetch('/api/faqs').then(r => r.json()),
-          fetch('/api/articles').then(r => r.json())
+          fetch(`${API_URL}/api/settings`).then(r => r.json()),
+          fetch(`${API_URL}/api/services`).then(r => r.json()),
+          fetch(`${API_URL}/api/testimonials`).then(r => r.json()),
+          fetch(`${API_URL}/api/partners`).then(r => r.json()),
+          fetch(`${API_URL}/api/faqs`).then(r => r.json()),
+          fetch(`${API_URL}/api/articles`).then(r => r.json())
         ]);
         setApiData({
           hero: settingsRes.hero || apiData.hero,

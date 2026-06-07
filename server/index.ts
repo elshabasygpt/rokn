@@ -23,14 +23,18 @@ import articlesRoutes from './routes/articles';
 import backupRoutes from './routes/backup';
 import careersRoutes from './routes/careers';
 import pagesRoutes from './routes/pages';
+import citiesRoutes from './routes/cities';
+import industriesRoutes from './routes/industries';
+import caseStudiesRoutes from './routes/case-studies';
+import redirectsRoutes from './routes/redirects';
 
 const app = express();
 const PORT = process.env.API_PORT || 3001;
 
 // Middleware
 app.use(cors({ origin: true, credentials: true, exposedHeaders: ['Content-Disposition'] }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.resolve(__dirname, '../public/uploads')));
@@ -49,6 +53,10 @@ app.use('/api/articles', articlesRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/careers', careersRoutes);
 app.use('/api/pages', pagesRoutes);
+app.use('/api/cities', citiesRoutes);
+app.use('/api/industries', industriesRoutes);
+app.use('/api/case-studies', caseStudiesRoutes);
+app.use('/api/redirects', redirectsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -82,6 +90,8 @@ app.get('/sitemap.xml', async (req, res) => {
     const BASE_URL = await getBaseUrl(req);
     const servicesRes = await pool.query('SELECT * FROM services WHERE active = true'); // Future 
     const articlesRes = await pool.query('SELECT slug FROM articles WHERE active = true');
+    const citiesRes = await pool.query('SELECT slug FROM cities WHERE active = true');
+    const industriesRes = await pool.query('SELECT slug FROM industries WHERE active = true');
 
     const urls = [
       '',
@@ -98,12 +108,26 @@ app.get('/sitemap.xml', async (req, res) => {
       '/en/blog',
       '/careers',
       '/en/careers',
+      '/case-studies',
+      '/en/case-studies',
     ];
 
     // Add dynamic articles
     for (const article of articlesRes.rows) {
       urls.push(`/blog/${article.slug}`);
       urls.push(`/en/blog/${article.slug}`);
+    }
+
+    // Add dynamic cities
+    for (const city of citiesRes.rows) {
+      urls.push(`/locations/${city.slug}`);
+      urls.push(`/en/locations/${city.slug}`);
+    }
+
+    // Add dynamic industries
+    for (const ind of industriesRes.rows) {
+      urls.push(`/industries/${ind.slug}`);
+      urls.push(`/en/industries/${ind.slug}`);
     }
     
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
@@ -118,6 +142,31 @@ app.get('/sitemap.xml', async (req, res) => {
     res.send(xml);
   } catch (err) {
     res.status(500).send('Error generating sitemap');
+  }
+});
+
+// --- SEO 301 Redirects Middleware ---
+// Must be placed before the React SPA catch-all and after API routes
+app.use(async (req, res, next) => {
+  // Ignore API requests and static assets
+  if (req.path.startsWith('/api/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    return next();
+  }
+  
+  try {
+    const { rows } = await pool.query(
+      'SELECT new_path, status_code FROM redirects WHERE old_path = $1 AND active = true LIMIT 1',
+      [req.path]
+    );
+    
+    if (rows.length > 0) {
+      const redirect = rows[0];
+      return res.redirect(redirect.status_code, redirect.new_path);
+    }
+    next();
+  } catch (err) {
+    console.error('Redirects middleware error:', err);
+    next(); // Fail gracefully
   }
 });
 

@@ -30,7 +30,7 @@ export default function Contact() {
   const [cities, setCities] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => {
         setSettings(data.general || {});
@@ -55,10 +55,19 @@ export default function Contact() {
     } else {
       setIsSubmitting(true);
       try {
-        await fetch('/api/bookings', {
+        const { getAttributionData } = await import('../lib/attribution');
+        const attribution = getAttributionData();
+        
+        const payload = {
+          ...formData,
+          marketing_attribution: attribution
+        };
+
+        const API_URL = import.meta.env.VITE_API_URL || '';
+        await fetch(`${API_URL}/api/bookings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
         setIsSubmitted(true);
         

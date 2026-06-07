@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { useApi } from './useApi';
-import { LayoutDashboard, Package, Image, Star, ClipboardList, Settings, LogOut, Menu, X, ChevronLeft, FileText, Shield, Truck, Users } from 'lucide-react';
+import { LayoutDashboard, Package, Image, Star, ClipboardList, Settings, LogOut, Menu, X, ChevronLeft, FileText, Shield, Truck, Users, MapPin, Building, Link2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function AdminLayout() {
@@ -24,7 +24,12 @@ export default function AdminLayout() {
     { path: '/admin/testimonials', label: 'آراء العملاء', icon: Star, req: 'manage_services' },
     { path: '/admin/partners', label: 'الشركاء', icon: Image, req: 'manage_partners' },
     { path: '/admin/faqs', label: 'الأسئلة الشائعة', icon: ClipboardList, req: 'manage_faqs' },
+    { path: '/admin/case-studies', label: 'دراسات الحالة', icon: Star, req: 'manage_pages' },
     { path: '/admin/articles', label: 'المدونة والمقالات', icon: FileText, req: 'manage_articles' },
+    { path: '/admin/redirects', label: 'روابط السيو 301', icon: Link2, req: 'manage_settings' },
+    { path: '/admin/cities', label: 'إدارة المدن', icon: MapPin, req: 'manage_pages' },
+    { path: '/admin/industries', label: 'القطاعات', icon: Building, req: 'manage_services' },
+    { path: '/admin/media', label: 'مكتبة الوسائط', icon: Image, req: 'manage_gallery' },
     { path: '/admin/careers', label: 'التوظيف', icon: Users, req: 'manage_careers' },
     { path: '/admin/bookings', label: 'الطلبات', icon: ClipboardList, req: 'all' },
     { path: '/admin/pages', label: 'الصفحات الثابتة', icon: FileText, req: 'manage_settings' },

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck, Snowflake, MapPin, Activity, CheckCircle2, ChevronRight, Home, Package, Image as ImageIcon, Info, FileText, Briefcase, PhoneCall } from 'lucide-react';
+import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck, Snowflake, MapPin, Activity, CheckCircle2, ChevronRight, ChevronDown, Home, Package, Image as ImageIcon, Info, FileText, Briefcase, PhoneCall } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { initAttribution } from '../lib/attribution';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg 
@@ -31,18 +32,47 @@ export default function Layout() {
       return {};
     }
   });
+  const [cities, setCities] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('siteCities');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [industries, setIndustries] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('siteIndustries');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const location = useLocation();
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then(res => res.json())
-      .then(data => {
-        const newSettings = { ...data.general, promo: data.promo };
+    const API_URL = import.meta.env.VITE_API_URL || '';
+    Promise.all([
+      fetch(`${API_URL}/api/settings`).then(res => res.json()),
+      fetch(`${API_URL}/api/cities`).then(res => res.json()),
+      fetch(`${API_URL}/api/industries`).then(res => res.json())
+    ]).then(([settingsData, citiesData, industriesData]) => {
+      if (settingsData && settingsData.general) {
+        const newSettings = { ...settingsData.general, promo: settingsData.promo };
         setSettings(newSettings);
-        // Cache settings to eliminate loading flicker on next visits
         localStorage.setItem('siteSettings', JSON.stringify(newSettings));
-      })
-      .catch(console.error);
+      }
+      
+      if (Array.isArray(citiesData)) {
+        setCities(citiesData);
+        localStorage.setItem('siteCities', JSON.stringify(citiesData));
+      }
+      
+      if (Array.isArray(industriesData)) {
+        setIndustries(industriesData);
+        localStorage.setItem('siteIndustries', JSON.stringify(industriesData));
+      }
+    }).catch(console.error);
   }, []);
 
   const navigate = useNavigate();
@@ -88,6 +118,9 @@ export default function Layout() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     window.scrollTo(0, 0);
+
+    // Initialize marketing attribution
+    initAttribution();
 
     // Update document title for SEO
     let title = i18n.language === 'en' ? 'Rokn Elryan Refrigerated Transport' : 'ركن الريان للنقل المبرد';
@@ -225,16 +258,48 @@ export default function Layout() {
             {[
               { path: '', label: t('layout.nav.home'), icon: Home },
               { path: 'services', label: t('layout.nav.services'), icon: Package },
+              { path: 'industries', label: i18n.language === 'en' ? 'Industries' : 'القطاعات', icon: Activity, isDropdown: true, items: industries, type: 'industry' },
+              { path: 'locations', label: i18n.language === 'en' ? 'Coverage' : 'التغطية', icon: MapPin, isDropdown: true, items: cities, type: 'city' },
               { path: 'fleet', label: t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا'), icon: Truck },
-              { path: 'gallery', label: t('layout.nav.gallery'), icon: ImageIcon },
               { path: 'about', label: t('layout.nav.about'), icon: Info },
               { path: 'blog', label: i18n.language === 'en' ? 'Blog' : 'المقالات', icon: FileText },
               { path: 'careers', label: i18n.language === 'en' ? 'Careers' : 'التوظيف', icon: Briefcase },
-              { path: 'contact', label: t('layout.nav.contact'), icon: PhoneCall },
             ].map(link => {
               const Icon = link.icon;
               const fullPath = i18n.language === 'en' ? `/en${link.path ? `/${link.path}` : ''}` : `/${link.path}`;
               const isActive = link.path === '' ? (location.pathname === '/' || location.pathname === '/en') : location.pathname.includes(`/${link.path}`);
+              
+              if (link.isDropdown) {
+                return (
+                  <div key={link.path} className="relative group">
+                    <button className={`flex items-center gap-1.5 2xl:gap-2.5 px-2.5 2xl:px-5 py-2.5 2xl:py-3.5 rounded-2xl text-[14px] 2xl:text-[18px] font-bold whitespace-nowrap transition-all duration-300 ${isActive ? 'text-amber-700 bg-amber-50/80 border-amber-300/60' : 'text-slate-600 hover:text-amber-600 hover:bg-slate-50 border-transparent'}`}>
+                      <Icon className={`w-4 h-4 2xl:w-[22px] 2xl:h-[22px] ${isActive ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'}`} />
+                      <span className="relative z-10 pt-0.5">{link.label}</span>
+                      <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
+                    </button>
+                    
+                    <div className="absolute top-full start-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
+                      <div className="p-2 space-y-1">
+                        {link.items?.map((item: any) => {
+                          const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
+                          return (
+                            <Link key={item.slug} to={itemPath} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-amber-600 transition-colors font-semibold">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                <ChevronRight className="w-4 h-4 text-slate-400 rtl:rotate-180" />
+                              </div>
+                              {i18n.language === 'en' ? item.name_en : item.name_ar}
+                            </Link>
+                          );
+                        })}
+                        {link.items?.length === 0 && (
+                          <div className="px-4 py-3 text-sm text-slate-500 text-center">{i18n.language === 'en' ? 'Loading...' : 'جاري التحميل...'}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <Link 
                   key={link.path}
@@ -302,6 +367,8 @@ export default function Layout() {
             {[
               { path: '', label: t('layout.nav.home'), icon: Home },
               { path: 'services', label: t('layout.nav.services'), icon: Package },
+              { path: 'industries', label: i18n.language === 'en' ? 'Industries' : 'القطاعات', icon: Activity, isDropdown: true, items: industries, type: 'industry' },
+              { path: 'locations', label: i18n.language === 'en' ? 'Coverage' : 'التغطية', icon: MapPin, isDropdown: true, items: cities, type: 'city' },
               { path: 'fleet', label: t('layout.nav.fleet') || (i18n.language === 'en' ? 'Our Fleet' : 'أسطولنا'), icon: Truck },
               { path: 'gallery', label: t('layout.nav.gallery'), icon: ImageIcon },
               { path: 'about', label: t('layout.nav.about'), icon: Info },
@@ -311,6 +378,28 @@ export default function Layout() {
             ].map(link => {
               const Icon = link.icon;
               const isActive = link.path === '' ? (location.pathname === '/' || location.pathname === '/en') : location.pathname.includes(`/${link.path}`);
+              
+              if (link.isDropdown) {
+                return (
+                  <div key={link.path} className="flex flex-col">
+                    <div className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[18px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'text-slate-700 border border-transparent'}`}>
+                      <Icon className={`w-6 h-6 ${isActive ? 'text-amber-600 drop-shadow-sm' : 'text-slate-400'}`} />
+                      {link.label}
+                    </div>
+                    <div className="flex flex-col ps-12 gap-2 mt-1">
+                      {link.items?.map((item: any) => {
+                        const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
+                        return (
+                          <Link key={item.slug} to={itemPath} className="text-[16px] text-slate-600 hover:text-amber-600 py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                            {i18n.language === 'en' ? item.name_en : item.name_ar}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                <Link key={link.path} to={i18n.language === 'en' ? `/en/${link.path}` : (link.path ? `/${link.path}` : '/')} className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[18px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'hover:bg-slate-50 text-slate-700 border border-transparent'}`} onClick={() => setIsMobileMenuOpen(false)}>
                  <Icon className={`w-6 h-6 ${isActive ? 'text-amber-600 drop-shadow-sm' : 'text-slate-400'}`} />
@@ -410,9 +499,14 @@ export default function Layout() {
                 {i18n.language === 'en' ? 'Industries' : 'القطاعات'}
               </h4>
               <ul className="space-y-4 font-semibold">
-                <li><Link to={i18n.language === 'en' ? '/en/industries/pharma' : '/industries/pharma'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Pharmaceuticals' : 'قطاع الأدوية'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/industries/food' : '/industries/food'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Food Manufacturing' : 'المصانع الغذائية'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/industries/retail' : '/industries/retail'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Retail & Restaurants' : 'التجزئة والمطاعم'}</Link></li>
+                {industries.map((industry) => (
+                  <li key={industry.slug}>
+                    <Link to={i18n.language === 'en' ? `/en/industries/${industry.slug}` : `/industries/${industry.slug}`} className="flex items-center gap-2 hover:text-amber-500 transition-colors group">
+                      <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> 
+                      {i18n.language === 'en' ? industry.name_en : industry.name_ar}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -423,10 +517,14 @@ export default function Layout() {
                 {i18n.language === 'en' ? 'Coverage' : 'تغطيتنا'}
               </h4>
               <ul className="space-y-4 font-semibold">
-                <li><Link to={i18n.language === 'en' ? '/en/locations/qassim' : '/locations/qassim'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group text-amber-500"><ChevronRight className="w-4 h-4 text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Qassim (Headquarters)' : 'القصيم (المركز الرئيسي)'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/locations/riyadh' : '/locations/riyadh'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Riyadh' : 'الرياض'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/locations/jeddah' : '/locations/jeddah'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Jeddah' : 'جدة'}</Link></li>
-                <li><Link to={i18n.language === 'en' ? '/en/locations/dammam' : '/locations/dammam'} className="flex items-center gap-2 hover:text-amber-500 transition-colors group"><ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> {i18n.language === 'en' ? 'Dammam' : 'الدمام'}</Link></li>
+                {cities.map((city) => (
+                  <li key={city.slug}>
+                    <Link to={i18n.language === 'en' ? `/en/locations/${city.slug}` : `/locations/${city.slug}`} className="flex items-center gap-2 hover:text-amber-500 transition-colors group">
+                      <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> 
+                      {i18n.language === 'en' ? city.name_en : city.name_ar}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 

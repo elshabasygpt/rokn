@@ -9,7 +9,7 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/pages/terms')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/pages/terms` )
       .then(res => res.json())
       .then(data => {
         if (!data.error) setPageData(data);

@@ -30,26 +30,55 @@ export default function EnterpriseQuote() {
   };
 
   React.useEffect(() => {
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => setSettings(data))
       .catch(err => console.error(err));
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    setTimeout(() => {
+    setIsSubmitting(true);
+    
+    try {
+      const { getAttributionData } = await import('../lib/attribution');
+      const attribution = getAttributionData();
+
+      const payload = {
+        client_name: formData.contactName,
+        client_phone: formData.phone,
+        company_name: formData.companyName,
+        email: formData.email,
+        industry: formData.industry,
+        notes: `CR Number: ${formData.crNumber}\nMonthly Trips: ${formData.monthlyTrips}\nTemp Required: ${formData.tempRequired}\nNotes: ${formData.notes}`,
+        from_city: 'Enterprise Quote',
+        to_city: 'Enterprise Quote',
+        marketing_attribution: attribution
+      };
+
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      await fetch(`${API_URL}/api/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
       setSubmitted(true);
       
       // Track Conversion Events
       if (typeof window !== 'undefined') {
-        if ((window as any).gtag) (window as any).gtag('event', 'generate_lead', { currency: 'SAR', value: 500 }); // Enterprise lead is higher value
+        if ((window as any).gtag) (window as any).gtag('event', 'generate_lead', { currency: 'SAR', value: 500 });
         if ((window as any).fbq) (window as any).fbq('track', 'Lead');
         if ((window as any).snaptr) (window as any).snaptr('track', 'SIGN_UP');
         if ((window as any).ttq) (window as any).ttq.track('SubmitForm');
       }
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const pageTitle = i18n.language === 'en' ? 'Enterprise Quote Request' : 'طلب تسعيرة للشركات';

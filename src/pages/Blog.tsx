@@ -28,7 +28,7 @@ export default function Blog() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/articles')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/articles` )
       .then(res => res.json())
       .then(data => {
         setArticles(data);

@@ -23,7 +23,7 @@ export default function About() {
   const [dynamicPage, setDynamicPage] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/settings` )
       .then(res => res.json())
       .then(data => {
         if (data.general) setSettings(data.general);
@@ -32,7 +32,7 @@ export default function About() {
       })
       .catch(console.error);
 
-    fetch('/api/pages/about')
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/pages/about` )
       .then(res => res.json())
       .then(data => {
         if (!data.error) setDynamicPage(data);
