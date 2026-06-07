@@ -14,12 +14,24 @@ export default function LeadDetails({ lead, onClose, onUpdate, columns }: any) {
   const [leadValue, setLeadValue] = useState(lead.lead_value || '');
   const [industry, setIndustry] = useState(lead.industry || '');
   const [leadSource, setLeadSource] = useState(lead.lead_source || '');
+  const [ownerId, setOwnerId] = useState(lead.owner_id || '');
+  const [admins, setAdmins] = useState<any[]>([]);
 
   const [leadStatus, setLeadStatus] = useState(lead.status);
 
   useEffect(() => {
     loadActivities();
+    loadAdmins();
   }, [lead.id]);
+
+  const loadAdmins = async () => {
+    try {
+      const res = await api.get('/api/auth/admins');
+      if (Array.isArray(res)) setAdmins(res);
+    } catch (err) {
+      console.error('Failed to load admins', err);
+    }
+  };
 
   const loadActivities = async () => {
     try {
@@ -45,17 +57,13 @@ export default function LeadDetails({ lead, onClose, onUpdate, columns }: any) {
 
   const saveLeadData = async () => {
     setUpdating(true);
-    // Since we don't have a specific endpoint for updating the whole lead yet,
-    // let's assume we can add it later or we just log a note for now.
-    // Actually, I can just log a note that data was updated if no endpoint exists,
-    // or I'll just skip saving it to DB for this sprint unless I create the PUT endpoint.
-    // For now, I'll mock the UI and just log an activity.
     try {
       await api.put(`/api/bookings/${lead.id}`, {
         company_name: companyName,
         industry,
         lead_source: leadSource,
-        lead_value: leadValue
+        lead_value: leadValue,
+        owner_id: ownerId
       });
       loadActivities();
       onUpdate();
@@ -170,9 +178,20 @@ export default function LeadDetails({ lead, onClose, onUpdate, columns }: any) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">قيمة الصفقة المتوقعة (SAR)</label>
-                <input type="number" value={leadValue} onChange={e => setLeadValue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" placeholder="0.00" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">قيمة الصفقة (SAR)</label>
+                  <input type="number" value={leadValue} onChange={e => setLeadValue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none" placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">تعيين إلى (Owner)</label>
+                  <select value={ownerId} onChange={e => setOwnerId(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:border-amber-500 outline-none">
+                    <option value="">-- غير معين --</option>
+                    {admins.map(admin => (
+                      <option key={admin.id} value={admin.id}>{admin.username}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <button onClick={saveLeadData} disabled={updating} className="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-2 rounded-lg transition-colors text-sm">

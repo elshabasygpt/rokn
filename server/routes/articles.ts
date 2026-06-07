@@ -59,10 +59,24 @@ router.get('/check-slug/:slug', authMiddleware, async (req, res) => {
   }
 });
 
+// Basic XSS Sanitizer since dompurify install failed due to network
+function sanitizeHtml(html: string | undefined): string {
+  if (!html) return '';
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+    .replace(/on\w+="[^"]*"/gi, '') // Remove inline event handlers (e.g. onclick="...")
+    .replace(/on\w+='[^']*'/gi, '')
+    .replace(/javascript:/gi, 'about:blank'); // Prevent javascript: links
+}
+
 // Create article (admin)
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { title_ar, title_en, slug, content_ar, content_en, image, seo_desc_ar, seo_desc_en, active, seo_keywords, is_featured } = req.body;
+    let { title_ar, title_en, slug, content_ar, content_en, image, seo_desc_ar, seo_desc_en, active, seo_keywords, is_featured } = req.body;
+    
+    // Sanitize content
+    content_ar = sanitizeHtml(content_ar);
+    content_en = sanitizeHtml(content_en);
     
     const query = `
       INSERT INTO articles (title_ar, title_en, slug, content_ar, content_en, image, seo_desc_ar, seo_desc_en, active, seo_keywords, is_featured)
@@ -83,7 +97,11 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title_ar, title_en, slug, content_ar, content_en, image, seo_desc_ar, seo_desc_en, active, seo_keywords, is_featured } = req.body;
+    let { title_ar, title_en, slug, content_ar, content_en, image, seo_desc_ar, seo_desc_en, active, seo_keywords, is_featured } = req.body;
+    
+    // Sanitize content
+    content_ar = sanitizeHtml(content_ar);
+    content_en = sanitizeHtml(content_en);
     
     const query = `
       UPDATE articles 

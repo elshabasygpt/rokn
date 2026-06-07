@@ -5,8 +5,26 @@ import { sendBookingNotification } from '../notify';
 
 const router = Router();
 
+// Custom In-Memory Rate Limiter for Bookings (Max 10 requests per 15 mins)
+const ipHits = new Map<string, { count: number, resetTime: number }>();
+const rateLimiter = (req: Request, res: Response, next: Function) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const record = ipHits.get(ip);
+  
+  if (record && now < record.resetTime) {
+    if (record.count >= 10) {
+      return res.status(429).json({ error: 'Too many requests from this IP. Please try again after 15 minutes.' });
+    }
+    record.count++;
+  } else {
+    ipHits.set(ip, { count: 1, resetTime: now + 15 * 60 * 1000 });
+  }
+  next();
+};
+
 // POST /api/bookings (public — from contact form)
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', rateLimiter, async (req: Request, res: Response) => {
   try {
     const { from_city, to_city, rooms, notes, client_name, client_phone, marketing_attribution, company_name, email, industry } = req.body;
     if (!client_name || !client_phone) {
@@ -137,16 +155,17 @@ router.get('/export', authMiddleware, async (req: Request, res: Response) => {
 router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { company_name, industry, lead_source, lead_value } = req.body;
+    const { company_name, industry, lead_source, lead_value, owner_id } = req.body;
     
     // Fix empty string causing Postgres numeric syntax error
     const parsedLeadValue = lead_value === '' || lead_value === null ? null : parseFloat(lead_value);
+    const parsedOwnerId = owner_id === '' || owner_id === null ? null : parseInt(owner_id);
     
     const result = await pool.query(
       `UPDATE bookings 
-       SET company_name = $1, industry = $2, lead_source = $3, lead_value = $4, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $5 RETURNING *`,
-      [company_name, industry, lead_source, parsedLeadValue, id]
+       SET company_name = $1, industry = $2, lead_source = $3, lead_value = $4, owner_id = $5, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $6 RETURNING *`,
+      [company_name, industry, lead_source, parsedLeadValue, parsedOwnerId, id]
     );
     
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });

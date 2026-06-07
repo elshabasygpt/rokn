@@ -175,7 +175,7 @@ app.use(express.static(path.resolve(__dirname, '../dist'), { index: false }));
 
 app.get('*', async (req, res) => {
   const userAgent = req.headers['user-agent'] || '';
-  const isBot = /WhatsApp|Twitterbot|facebookexternalhit|LinkedInBot|discordbot|Slackbot|TelegramBot/i.test(userAgent);
+  const isBot = /WhatsApp|Twitterbot|facebookexternalhit|LinkedInBot|discordbot|Slackbot|TelegramBot|Googlebot|Bingbot|YandexBot|DuckDuckBot|Baiduspider|Slurp/i.test(userAgent);
   
   const indexPath = path.resolve(__dirname, '../dist/index.html');
   
@@ -225,6 +225,22 @@ app.get('*', async (req, res) => {
            if (article.image) {
              image = article.image.startsWith('/') ? `${BASE_URL}${article.image}` : article.image;
            }
+        }
+      } else if (req.path.includes('/locations') && !req.path.endsWith('/locations')) {
+        const slug = req.path.split('/').pop();
+        const cityRes = await pool.query('SELECT * FROM cities WHERE slug = $1 AND active = true', [slug]);
+        if (cityRes.rows.length > 0) {
+           const city = cityRes.rows[0];
+           title = (isEn ? city.title_en : city.title_ar) + ' | ' + title;
+           desc = isEn ? city.seo_desc_en : city.seo_desc_ar;
+        }
+      } else if (req.path.includes('/industries') && !req.path.endsWith('/industries')) {
+        const slug = req.path.split('/').pop();
+        const indRes = await pool.query('SELECT * FROM industries WHERE slug = $1 AND active = true', [slug]);
+        if (indRes.rows.length > 0) {
+           const ind = indRes.rows[0];
+           title = (isEn ? ind.title_en : ind.title_ar) + ' | ' + title;
+           desc = isEn ? ind.seo_desc_en : ind.seo_desc_ar;
         }
       } else if (settings.hero) {
         // Home page default

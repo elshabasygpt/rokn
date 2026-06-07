@@ -17,41 +17,71 @@ export default function PayloadCalculator() {
   const [inputType, setInputType] = useState<'pallets' | 'weight'>('pallets');
   const [amount, setAmount] = useState<number | ''>('');
   
+  const [config, setConfig] = useState<any>(null);
+
+  React.useEffect(() => {
+    // Fetch settings to get payload_config
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data && data.payload_config) {
+          setConfig(data.payload_config);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchConfig();
+  }, []);
+  
   const calculateRecommendation = () => {
     if (!amount || amount <= 0) return null;
     
+    // Default variables if CMS is empty
+    const palletWeightKg = config?.pallet_weight_kg || 800;
+    const palletWeightTon = palletWeightKg / 1000;
+    
+    const smallPallets = config?.small_max_pallets || 5;
+    const smallTons = config?.small_max_tons || 4;
+    
+    const mediumPallets = config?.medium_max_pallets || 12;
+    const mediumTons = config?.medium_max_tons || 10;
+    
+    const trailerPallets = config?.trailer_max_pallets || 24;
+
     let pallets = 0;
     let weightTon = 0;
 
     if (inputType === 'pallets') {
       pallets = Number(amount);
-      weightTon = pallets * 0.8; // Assume avg pallet is 800kg
+      weightTon = pallets * palletWeightTon; 
     } else {
       weightTon = Number(amount);
-      pallets = Math.ceil(weightTon / 0.8);
+      pallets = Math.ceil(weightTon / palletWeightTon);
     }
 
-    if (pallets <= 5 || weightTon <= 4) {
+    if (pallets <= smallPallets || weightTon <= smallTons) {
       return {
         vehicle: isEn ? 'Refrigerated Dyna (Small)' : 'دينا تبريد (صغير)',
-        capacity: isEn ? 'Up to 5 Pallets / 4 Tons' : 'حتى 5 طبالي / 4 طن',
+        capacity: isEn ? `Up to ${smallPallets} Pallets / ${smallTons} Tons` : `حتى ${smallPallets} طبالي / ${smallTons} طن`,
         temp: '-18°C to +25°C',
         bestFor: isEn ? 'Inner-city distribution, restaurants, pharmacies.' : 'التوزيع داخل المدن، المطاعم، الصيدليات.',
         image: 'https://images.unsplash.com/photo-1519003722824-194d4455aeb7?q=80&w=800&auto=format&fit=crop'
       };
-    } else if (pallets <= 12 || weightTon <= 10) {
+    } else if (pallets <= mediumPallets || weightTon <= mediumTons) {
       return {
         vehicle: isEn ? 'Refrigerated Truck (Medium)' : 'لوري تبريد (متوسط)',
-        capacity: isEn ? 'Up to 12 Pallets / 10 Tons' : 'حتى 12 طبلية / 10 طن',
+        capacity: isEn ? `Up to ${mediumPallets} Pallets / ${mediumTons} Tons` : `حتى ${mediumPallets} طبلية / ${mediumTons} طن`,
         temp: '-18°C to +25°C',
         bestFor: isEn ? 'Regional distribution, supermarkets, regional pharma.' : 'التوزيع الإقليمي، السوبرماركت، مستودعات الأدوية.',
         image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=800&auto=format&fit=crop'
       };
     } else {
-      const trailersNeeded = Math.ceil(pallets / 24);
+      const trailersNeeded = Math.ceil(pallets / trailerPallets);
       return {
         vehicle: isEn ? 'Refrigerated Trailer (Heavy)' : 'تريلا تبريد (ثقيل)',
-        capacity: isEn ? 'Up to 24 Pallets / 25 Tons per trailer' : 'حتى 24 طبلية / 25 طن للتريلا الواحدة',
+        capacity: isEn ? `Up to ${trailerPallets} Pallets / ${config?.trailer_max_tons || 25} Tons per trailer` : `حتى ${trailerPallets} طبلية / ${config?.trailer_max_tons || 25} طن للتريلا الواحدة`,
         count: trailersNeeded,
         temp: '-20°C to +25°C',
         bestFor: isEn ? 'Long-haul, nationwide distribution, food manufacturing.' : 'النقل الطويل، التوزيع بين المدن، المصانع الغذائية.',

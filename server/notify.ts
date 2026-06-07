@@ -9,6 +9,7 @@ interface Booking {
   notes: string;
   client_name: string;
   client_phone: string;
+  email?: string | null;
   created_at: string;
 }
 
@@ -29,8 +30,66 @@ export async function sendBookingNotification(booking: Booking) {
     if (settings.whatsapp_enabled && settings.whatsapp_to) {
       await sendWhatsAppNotification(booking, settings);
     }
+    
+    // Customer Receipt Notification
+    if (booking.email) {
+      await sendCustomerReceipt(booking);
+    }
   } catch (err) {
     console.error('Notification error:', err);
+  }
+}
+
+async function sendCustomerReceipt(booking: Booking) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASS || '',
+      },
+    });
+
+    const htmlBody = `
+      <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #0f172a; padding: 20px; border-radius: 12px 12px 0 0; text-align: center;">
+          <h1 style="color: #f59e0b; margin: 0;">🚚 شركة ركن الريان للنقل اللوجستي</h1>
+        </div>
+        <div style="background: #f8fafc; padding: 24px; border: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+          <h2 style="color: #1e293b;">مرحباً ${booking.client_name}،</h2>
+          <p style="color: #475569; font-size: 16px; line-height: 1.6;">
+            شكراً لتواصلك مع شركة ركن الريان! لقد استلمنا طلب التسعير الخاص بك بنجاح.
+          </p>
+          <div style="background: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>تفاصيل الطلب:</strong></p>
+            <ul style="color: #475569;">
+              <li>من: ${booking.from_city}</li>
+              <li>إلى: ${booking.to_city}</li>
+            </ul>
+          </div>
+          <p style="color: #475569; font-size: 16px; line-height: 1.6;">
+            سيقوم أحد ممثلي المبيعات لدينا بالتواصل معك قريباً على الرقم (${booking.client_phone}) لتقديم عرض السعر المناسب.
+          </p>
+          <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 30px;">
+            أطيب التحيات،<br>
+            فريق ركن الريان
+          </p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"ركن الريان للنقل اللوجستي" <${process.env.SMTP_USER || 'noreply@roknelryan.com'}>`,
+      to: booking.email,
+      subject: `🚚 تم استلام طلبك بنجاح - ركن الريان`,
+      html: htmlBody,
+    });
+
+    console.log(`📧 Customer receipt sent to ${booking.email}`);
+  } catch (err) {
+    console.error('Customer receipt email failed:', err);
   }
 }
 

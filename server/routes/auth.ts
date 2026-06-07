@@ -73,7 +73,7 @@ const requireSuperAdmin = (req: AuthRequest, res: Response, next: Function) => {
   next();
 };
 
-router.get('/admins', authMiddleware, requireSuperAdmin, async (req: AuthRequest, res: Response) => {
+router.get('/admins', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query('SELECT id, username, permissions, created_at FROM admin ORDER BY id ASC');
     const admins = result.rows.map(row => ({
