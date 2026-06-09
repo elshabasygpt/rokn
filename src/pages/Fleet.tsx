@@ -19,6 +19,83 @@ const iconMap: Record<string, any> = {
   MapPin: <MapPin className="w-8 h-8 text-amber-500" />
 };
 
+const VehicleDisplay = ({ vehicle, isReversed, title, desc, capacity, vIcon, i18n }: any) => {
+  const [activeImage, setActiveImage] = useState(vehicle.image);
+
+  useEffect(() => {
+    setActiveImage(vehicle.image);
+  }, [vehicle.image]);
+
+  return (
+    <div className={`flex flex-col ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'} gap-12 items-center`}>
+      <motion.div 
+        initial={{ opacity: 0, x: isReversed ? 50 : -50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        className="lg:w-1/2 flex flex-col gap-6"
+      >
+        <div className="relative">
+          <div className="absolute -inset-4 bg-amber-500/10 rounded-[2.5rem] transform rotate-3 blur-lg"></div>
+          <img 
+            src={activeImage} 
+            alt={title} 
+            className="rounded-[2rem] shadow-2xl object-contain bg-white h-[350px] md:h-[450px] w-full relative z-10 transition-opacity duration-300 p-2"
+          />
+          <div className="absolute top-6 end-6 bg-white p-3 rounded-2xl shadow-xl z-20">
+            {vIcon}
+          </div>
+        </div>
+        
+        {vehicle.images && vehicle.images.length > 0 && (
+          <div className="flex gap-4 overflow-x-auto pb-2 z-10 scrollbar-hide">
+            <img 
+              onClick={() => setActiveImage(vehicle.image)}
+              src={vehicle.image}
+              alt={`${title} - رئيسية`}
+              className={`w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-md border-2 cursor-pointer flex-shrink-0 transition-all duration-200 ${activeImage === vehicle.image ? 'border-amber-500 scale-105 opacity-100' : 'border-white opacity-60 hover:opacity-100'}`}
+            />
+            {vehicle.images.map((img: string, i: number) => (
+              <img 
+                key={i}
+                onClick={() => setActiveImage(img)}
+                src={img}
+                alt={`${title} - إضافية ${i + 1}`}
+                className={`w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-md border-2 cursor-pointer flex-shrink-0 transition-all duration-200 ${activeImage === img ? 'border-amber-500 scale-105 opacity-100' : 'border-white opacity-60 hover:opacity-100'}`}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0, x: isReversed ? -50 : 50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        className="lg:w-1/2"
+      >
+        <h2 className="text-4xl font-black text-slate-900 mb-6">{title}</h2>
+        <p className="text-xl text-slate-600 leading-relaxed mb-8">
+          {desc}
+        </p>
+        
+        <div className="bg-slate-900 text-white p-6 rounded-2xl border-s-4 border-amber-500 mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <CheckCircle2 className="w-5 h-5 text-amber-500" />
+            <span className="font-bold text-lg">{capacity}</span>
+          </div>
+        </div>
+
+        <Link 
+          to="/enterprise-quote" 
+          className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/30"
+        >
+          {i18n.language === 'en' ? 'Request Pricing' : 'طلب تسعيرة للشاحنة'}
+        </Link>
+      </motion.div>
+    </div>
+  );
+};
+
 export default function Fleet() {
   const { t, i18n } = useTranslation();
   const [meta, setMeta] = useState<any>(null);
@@ -131,50 +208,16 @@ export default function Fleet() {
             const vIcon = apiVehicles.length > 0 ? (iconMap[vehicle.icon] || <Truck className="w-8 h-8 text-amber-500" />) : vehicle.icon;
 
             return (
-              <div key={vehicle.id} className={`flex flex-col ${isReversed ? 'lg:flex-row-reverse' : 'lg:flex-row'} gap-12 items-center`}>
-                <motion.div 
-                  initial={{ opacity: 0, x: isReversed ? 50 : -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="lg:w-1/2 relative"
-                >
-                  <div className="absolute -inset-4 bg-amber-500/10 rounded-[2.5rem] transform rotate-3 blur-lg"></div>
-                  <img 
-                    src={vehicle.image} 
-                    alt={title} 
-                    className="rounded-[2rem] shadow-2xl object-cover h-[400px] w-full relative z-10"
-                  />
-                  <div className="absolute top-6 end-6 bg-white p-3 rounded-2xl shadow-xl z-20">
-                    {vIcon}
-                  </div>
-                </motion.div>
-                
-                <motion.div 
-                  initial={{ opacity: 0, x: isReversed ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="lg:w-1/2"
-                >
-                  <h2 className="text-4xl font-black text-slate-900 mb-6">{title}</h2>
-                  <p className="text-xl text-slate-600 leading-relaxed mb-8">
-                    {desc}
-                  </p>
-                  
-                  <div className="bg-slate-900 text-white p-6 rounded-2xl border-s-4 border-amber-500 mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                      <CheckCircle2 className="w-5 h-5 text-amber-500" />
-                      <span className="font-bold text-lg">{capacity}</span>
-                    </div>
-                  </div>
-
-                  <Link 
-                    to="/enterprise-quote" 
-                    className="inline-flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/30"
-                  >
-                    {i18n.language === 'en' ? 'Request Pricing' : 'طلب تسعيرة للشاحنة'}
-                  </Link>
-                </motion.div>
-              </div>
+              <VehicleDisplay 
+                key={vehicle.id}
+                vehicle={vehicle}
+                isReversed={isReversed}
+                title={title}
+                desc={desc}
+                capacity={capacity}
+                vIcon={vIcon}
+                i18n={i18n}
+              />
             );
           })}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Search, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Search, MapPin, CheckCircle, XCircle, GripVertical } from 'lucide-react';
 import { useApi } from './useApi';
 
 interface City {
@@ -25,6 +25,7 @@ interface City {
   seo_desc_en: string;
   canonical_url: string;
   active: boolean;
+  display_order?: number;
 }
 
 export default function CitiesManager() {
@@ -35,6 +36,8 @@ export default function CitiesManager() {
   const [editing, setEditing] = useState<Partial<City> | null>(null);
   const [activeTab, setActiveTab] = useState<'basic' | 'content' | 'seo' | 'faqs'>('basic');
   const [langTab, setLangTab] = useState<'ar' | 'en'>('ar');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   useEffect(() => {
     fetchCities();
@@ -42,7 +45,7 @@ export default function CitiesManager() {
 
   const fetchCities = async () => {
     try {
-      const res = await api.get('/api/cities/admin?all=true');
+      const res = await api.get('/api/cities?all=true');
       setCities(Array.isArray(res) ? res : []);
     } catch (err) {
       console.error(err);
@@ -93,6 +96,44 @@ export default function CitiesManager() {
   const filtered = cities.filter(c => 
     c.name_ar?.includes(searchTerm) || c.name_en?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const onDragStart = (e: React.DragEvent, index: number) => {
+    if (searchTerm) return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => {
+      const el = document.getElementById(`row-${index}`);
+      if (el) el.style.opacity = '0.5';
+    }, 0);
+  };
+
+  const onDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (searchTerm || draggedIndex === null || draggedIndex === index) return;
+    const newCities = [...cities];
+    const draggedItem = newCities[draggedIndex];
+    newCities.splice(draggedIndex, 1);
+    newCities.splice(index, 0, draggedItem);
+    setDraggedIndex(index);
+    setCities(newCities);
+  };
+
+  const onDragEnd = async () => {
+    setDraggedIndex(null);
+    document.querySelectorAll('tr').forEach(el => el.style.opacity = '1');
+    if (searchTerm) return;
+    setIsSavingOrder(true);
+    try {
+      const items = cities.map((c, i) => ({ id: c.id, display_order: i }));
+      await api.put('/api/cities/reorder', { items });
+    } catch (err) {
+      console.error(err);
+      alert('فشل حفظ ترتيب المدن');
+      fetchCities();
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
 
   if (loading) return <div className="p-8 text-center text-slate-500">جاري التحميل...</div>;
 
@@ -163,6 +204,20 @@ export default function CitiesManager() {
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">محتوى التغطية (Service Coverage Info)</label>
                   <textarea rows={5} value={langTab === 'ar' ? editing.service_coverage_ar || '' : editing.service_coverage_en || ''} onChange={e => setEditing(langTab === 'ar' ? { ...editing, service_coverage_ar: e.target.value } : { ...editing, service_coverage_en: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" dir={langTab === 'ar' ? 'rtl' : 'ltr'} />
+                </div>
+                
+                <div className="pt-6 border-t border-slate-200 mt-6">
+                  <h3 className="text-lg font-black text-slate-800 mb-4">إعدادات دعوة الإجراء (Call to Action)</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">عنوان الزر (CTA Title)</label>
+                      <input type="text" value={langTab === 'ar' ? editing.cta_title_ar || '' : editing.cta_title_en || ''} onChange={e => setEditing(langTab === 'ar' ? { ...editing, cta_title_ar: e.target.value } : { ...editing, cta_title_en: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" dir={langTab === 'ar' ? 'rtl' : 'ltr'} placeholder={langTab === 'ar' ? 'مثل: اطلب تسعيرة لمدينة جدة' : 'e.g. Request Quote for Jeddah'} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">نص التشجيع (CTA Description)</label>
+                      <textarea rows={2} value={langTab === 'ar' ? editing.cta_desc_ar || '' : editing.cta_desc_en || ''} onChange={e => setEditing(langTab === 'ar' ? { ...editing, cta_desc_ar: e.target.value } : { ...editing, cta_desc_en: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" dir={langTab === 'ar' ? 'rtl' : 'ltr'} placeholder={langTab === 'ar' ? 'مثل: فريقنا جاهز لخدمتك على مدار الساعة في مدينتك.' : 'e.g. Our team is ready to serve you 24/7.'} />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -259,6 +314,7 @@ export default function CitiesManager() {
           <table className="w-full text-right">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 text-sm">
+                <th className="p-4 w-10"></th>
                 <th className="p-4 font-bold">المدينة</th>
                 <th className="p-4 font-bold">الرابط (Slug)</th>
                 <th className="p-4 font-bold text-center">الحالة</th>
@@ -267,8 +323,20 @@ export default function CitiesManager() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(city => (
-                <tr key={city.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+              {filtered.map((city, index) => (
+                <tr 
+                  key={city.id} 
+                  id={`row-${index}`}
+                  draggable={!searchTerm}
+                  onDragStart={(e) => onDragStart(e, index)}
+                  onDragEnter={(e) => onDragEnter(e, index)}
+                  onDragEnd={onDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${draggedIndex === index ? 'bg-slate-100 opacity-50' : ''}`}
+                >
+                  <td className="p-4">
+                    {!searchTerm && <GripVertical className="w-5 h-5 text-slate-300 cursor-grab hover:text-slate-500" />}
+                  </td>
                   <td className="p-4 font-bold text-slate-900 flex items-center gap-3">
                     {city.featured_image ? <img src={city.featured_image} className="w-10 h-10 rounded-lg object-cover" alt="" /> : <div className="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center"><MapPin className="w-5 h-5 text-slate-400" /></div>}
                     {city.name_ar}
@@ -288,7 +356,7 @@ export default function CitiesManager() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500 font-medium">لا توجد مدن مضافة حتى الآن.</td>
+                  <td colSpan={6} className="p-8 text-center text-slate-500 font-medium">لا توجد مدن مضافة حتى الآن.</td>
                 </tr>
               )}
             </tbody>

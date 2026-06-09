@@ -257,7 +257,7 @@ export default function ArticlesManager() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">رابط المقال (Slug) - إنجليزي فقط</label>
                     <div className="flex" dir="ltr">
                       <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-slate-500 sm:text-sm">
-                        Rokn Elryanmoving.com/blog/
+                        roknelryan.com/blog/
                       </span>
                       <input
                         type="text"

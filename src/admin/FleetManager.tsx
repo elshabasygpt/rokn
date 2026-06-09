@@ -18,6 +18,7 @@ interface FleetVehicle {
   capacity_ar: string;
   capacity_en: string;
   image: string;
+  images?: string[];
   icon: string;
 }
 
@@ -78,6 +79,7 @@ export default function FleetManager() {
             capacity_ar: 'سعة التحميل: حتى 25 طن',
             capacity_en: 'Load Capacity: Up to 25 Tons',
             image: 'https://images.unsplash.com/photo-1586864387789-628af9feed72?q=80&w=2070&auto=format&fit=crop',
+            images: [],
             icon: 'Zap'
           }
         ];
@@ -128,6 +130,20 @@ export default function FleetManager() {
     try {
       const result = await api.upload(file);
       setEditing({ ...editing, image: result.url });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAdditionalImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !editing) return;
+    const files = Array.from(e.target.files);
+    
+    try {
+      const urls = await Promise.all(
+        files.map(file => api.upload(file as File).then((res: any) => res.url))
+      );
+      setEditing({ ...editing, images: [...(editing.images || []), ...urls] });
     } catch (err) {
       console.error(err);
     }
@@ -198,6 +214,50 @@ export default function FleetManager() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-2">صور أخرى (إضافية)</label>
+            <div className="flex flex-wrap gap-4 mb-3">
+              {(editing.images || []).map((img, i) => (
+                <div 
+                  key={i} 
+                  className="relative cursor-move ring-2 ring-transparent hover:ring-amber-500 rounded-xl transition-all"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('imageIndex', i.toString());
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const sourceIndex = parseInt(e.dataTransfer.getData('imageIndex'), 10);
+                    if (isNaN(sourceIndex) || sourceIndex === i || !editing.images) return;
+                    
+                    const newImages = [...editing.images];
+                    const [draggedImage] = newImages.splice(sourceIndex, 1);
+                    newImages.splice(i, 0, draggedImage);
+                    
+                    setEditing({ ...editing, images: newImages });
+                  }}
+                >
+                  <img src={img} alt="" draggable={false} className="w-20 h-20 rounded-xl object-cover" />
+                  <button onClick={(e) => {
+                    e.preventDefault(); // Prevent any possible drag issues when clicking delete
+                    const newImages = [...(editing.images || [])];
+                    newImages.splice(i, 1);
+                    setEditing({...editing, images: newImages});
+                  }} className="absolute -top-2 -end-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors"><X className="w-3 h-3" /></button>
+                </div>
+              ))}
+            </div>
+            <label className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl cursor-pointer transition-colors text-sm font-bold inline-block">
+              رفع صور إضافية
+              <input type="file" multiple accept="image/*" onChange={handleAdditionalImagesUpload} className="hidden" />
+            </label>
+          </div>
+
           <div className="flex gap-3 pt-4 border-t border-slate-100">
             <button onClick={saveVehicle} className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-6 py-3 rounded-xl hover:bg-amber-400 transition-colors">
               <Save className="w-5 h-5" /> حفظ
@@ -240,7 +300,7 @@ export default function FleetManager() {
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-black text-slate-800">مركبات الأسطول</h2>
-        <button onClick={() => setEditing({ id: '', title_ar: '', title_en: '', desc_ar: '', desc_en: '', capacity_ar: '', capacity_en: '', image: '', icon: 'Truck' })} className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-xl hover:bg-amber-400 transition-colors">
+        <button onClick={() => setEditing({ id: '', title_ar: '', title_en: '', desc_ar: '', desc_en: '', capacity_ar: '', capacity_en: '', image: '', images: [], icon: 'Truck' })} className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-4 py-2 rounded-xl hover:bg-amber-400 transition-colors">
           <Plus className="w-4 h-4" /> إضافة مركبة
         </button>
       </div>

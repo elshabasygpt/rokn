@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, Search, CheckCircle, XCircle, Building2, PlusCircle, MinusCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Search, CheckCircle, XCircle, Building2, PlusCircle, MinusCircle, GripVertical } from 'lucide-react';
 import { useApi } from './useApi';
 
 interface Industry {
@@ -35,6 +35,7 @@ interface Industry {
   seo_desc_en: string;
   canonical_url: string;
   active: boolean;
+  display_order?: number;
 }
 
 export default function IndustriesManager() {
@@ -45,6 +46,8 @@ export default function IndustriesManager() {
   const [editing, setEditing] = useState<Partial<Industry> | null>(null);
   const [activeTab, setActiveTab] = useState<'basic' | 'content' | 'lists' | 'faqs' | 'seo'>('basic');
   const [langTab, setLangTab] = useState<'ar' | 'en'>('ar');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -95,8 +98,9 @@ export default function IndustriesManager() {
     try {
       const result = await api.upload(e.target.files[0]);
       setEditing({ ...editing, featured_image: result.url });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(`فشل رفع الصورة: ${err.message || 'حجم الصورة كبير أو خطأ في الاتصال'}`);
     }
   };
 
@@ -119,6 +123,44 @@ export default function IndustriesManager() {
   const filtered = items.filter(c => 
     c.name_ar?.includes(searchTerm) || c.name_en?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const onDragStart = (e: React.DragEvent, index: number) => {
+    if (searchTerm) return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => {
+      const el = document.getElementById(`row-${index}`);
+      if (el) el.style.opacity = '0.5';
+    }, 0);
+  };
+
+  const onDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (searchTerm || draggedIndex === null || draggedIndex === index) return;
+    const newItems = [...items];
+    const draggedItem = newItems[draggedIndex];
+    newItems.splice(draggedIndex, 1);
+    newItems.splice(index, 0, draggedItem);
+    setDraggedIndex(index);
+    setItems(newItems);
+  };
+
+  const onDragEnd = async () => {
+    setDraggedIndex(null);
+    document.querySelectorAll('tr').forEach(el => el.style.opacity = '1');
+    if (searchTerm) return;
+    setIsSavingOrder(true);
+    try {
+      const payload = items.map((c, i) => ({ id: c.id, display_order: i }));
+      await api.put('/api/industries/reorder', { items: payload });
+    } catch (err) {
+      console.error(err);
+      alert('فشل حفظ ترتيب القطاعات');
+      fetchItems();
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
 
   if (loading) return <div className="p-8 text-center text-slate-500">جاري التحميل...</div>;
 
@@ -363,6 +405,7 @@ export default function IndustriesManager() {
           <table className="w-full text-right">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 text-sm">
+                <th className="p-4 w-10"></th>
                 <th className="p-4 font-bold">القطاع</th>
                 <th className="p-4 font-bold">الرابط (Slug)</th>
                 <th className="p-4 font-bold text-center">الحالة</th>
@@ -370,8 +413,20 @@ export default function IndustriesManager() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(item => (
-                <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+              {filtered.map((item, index) => (
+                <tr 
+                  key={item.id} 
+                  id={`row-${index}`}
+                  draggable={!searchTerm}
+                  onDragStart={(e) => onDragStart(e, index)}
+                  onDragEnter={(e) => onDragEnter(e, index)}
+                  onDragEnd={onDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${draggedIndex === index ? 'bg-slate-100 opacity-50' : ''}`}
+                >
+                  <td className="p-4">
+                    {!searchTerm && <GripVertical className="w-5 h-5 text-slate-300 cursor-grab hover:text-slate-500" />}
+                  </td>
                   <td className="p-4 font-bold text-slate-900 flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center"><Building2 className="w-5 h-5" /></div>
                     {item.name_ar}
@@ -390,7 +445,7 @@ export default function IndustriesManager() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-slate-500 font-medium">لا توجد قطاعات مضافة.</td>
+                  <td colSpan={5} className="p-8 text-center text-slate-500 font-medium">لا توجد قطاعات مضافة.</td>
                 </tr>
               )}
             </tbody>

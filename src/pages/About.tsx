@@ -65,9 +65,10 @@ export default function About() {
           <img 
             src={meta?.hero_image?.startsWith('/') ? meta.hero_image : meta?.hero_image || "https://images.unsplash.com/photo-1519003722824-194d4455aeb7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"} 
             alt="Background" 
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-slate-900"></div>
+          <div className="absolute inset-0 bg-slate-900/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent"></div>
         </div>
 
         <div className="container mx-auto px-4 md:px-6 relative z-20">
@@ -160,7 +161,7 @@ export default function About() {
       {/* 🌟 Vision 2030 Section */}
       <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${meta?.vision_image || "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=2070&auto=format&fit=crop"}')` }}></div>
         </div>
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -171,23 +172,22 @@ export default function About() {
             <p className="text-xl md:text-2xl text-slate-300 leading-relaxed font-light mb-12">
               {tLang('vision_desc', 'about.vision.desc')}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-start">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-                <ShieldCheck className="w-8 h-8 text-amber-500 mb-4" />
-                <h3 className="font-bold text-lg mb-2">{i18n.language === 'en' ? 'Food & Drug Security' : 'الأمن الغذائي والدوائي'}</h3>
-                <p className="text-slate-400 text-sm">{i18n.language === 'en' ? 'Ensuring continuous supply chains per SFDA standards.' : 'ضمان استمرارية سلاسل الإمداد وفق أعلى معايير الجودة لهيئة الغذاء والدواء.'}</p>
+            {meta?.vision_pillars && meta.vision_pillars.some((p: any) => p[`title_${currentLang}`]) && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-start">
+                {meta.vision_pillars.map((pillar: any, index: number) => {
+                  if (!pillar[`title_${currentLang}`]) return null;
+                  const icons = [ShieldCheck, Award, Clock, Target];
+                  const Icon = icons[index % icons.length];
+                  return (
+                    <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+                      <Icon className="w-8 h-8 text-amber-500 mb-4" />
+                      <h3 className="font-bold text-lg mb-2">{pillar[`title_${currentLang}`]}</h3>
+                      <p className="text-slate-400 text-sm">{pillar[`desc_${currentLang}`]}</p>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-                <Award className="w-8 h-8 text-amber-500 mb-4" />
-                <h3 className="font-bold text-lg mb-2">{i18n.language === 'en' ? 'Logistics Efficiency' : 'كفاءة الخدمات اللوجستية'}</h3>
-                <p className="text-slate-400 text-sm">{i18n.language === 'en' ? 'Deploying advanced tracking systems and lowering operation costs.' : 'تطبيق أحدث أنظمة التتبع (Data Loggers) لرفع كفاءة عمليات التوزيع.'}</p>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-                <Clock className="w-8 h-8 text-amber-500 mb-4" />
-                <h3 className="font-bold text-lg mb-2">{i18n.language === 'en' ? 'Sustainable Fleet' : 'أسطول مستدام'}</h3>
-                <p className="text-slate-400 text-sm">{i18n.language === 'en' ? 'Modern refrigerated trucks utilizing eco-friendly Thermo King units.' : 'شاحنات مبردة حديثة تعتمد على وحدات تبريد موفرة للطاقة وصديقة للبيئة.'}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

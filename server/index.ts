@@ -27,6 +27,7 @@ import citiesRoutes from './routes/cities';
 import industriesRoutes from './routes/industries';
 import caseStudiesRoutes from './routes/case-studies';
 import redirectsRoutes from './routes/redirects';
+import companyRoutes from './routes/company';
 
 const app = express();
 const PORT = process.env.API_PORT || 3001;
@@ -57,6 +58,7 @@ app.use('/api/cities', citiesRoutes);
 app.use('/api/industries', industriesRoutes);
 app.use('/api/case-studies', caseStudiesRoutes);
 app.use('/api/redirects', redirectsRoutes);
+app.use('/api/company', companyRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -93,47 +95,52 @@ app.get('/sitemap.xml', async (req, res) => {
     const citiesRes = await pool.query('SELECT slug FROM cities WHERE active = true');
     const industriesRes = await pool.query('SELECT slug FROM industries WHERE active = true');
 
-    const urls = [
+    const baseUrls = [
       '',
-      '/en',
       '/about',
-      '/en/about',
       '/contact',
-      '/en/contact',
       '/gallery',
-      '/en/gallery',
       '/services',
-      '/en/services',
       '/blog',
-      '/en/blog',
       '/careers',
-      '/en/careers',
       '/case-studies',
-      '/en/case-studies',
+      '/faq',
+      '/enterprise-quote',
+      '/compliance',
+      '/calculator',
+      '/fleet',
+      '/checker',
+      '/privacy',
+      '/terms'
     ];
 
     // Add dynamic articles
     for (const article of articlesRes.rows) {
-      urls.push(`/blog/${article.slug}`);
-      urls.push(`/en/blog/${article.slug}`);
+      baseUrls.push(`/blog/${article.slug}`);
     }
 
     // Add dynamic cities
     for (const city of citiesRes.rows) {
-      urls.push(`/locations/${city.slug}`);
-      urls.push(`/en/locations/${city.slug}`);
+      baseUrls.push(`/locations/${city.slug}`);
     }
 
     // Add dynamic industries
     for (const ind of industriesRes.rows) {
-      urls.push(`/industries/${ind.slug}`);
-      urls.push(`/en/industries/${ind.slug}`);
+      baseUrls.push(`/industries/${ind.slug}`);
     }
     
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`;
 
-    for (const path of urls) {
-      xml += `\n  <url>\n    <loc>${BASE_URL}${path}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${path === '' || path === '/en' ? '1.0' : '0.8'}</priority>\n  </url>`;
+    for (const basePath of baseUrls) {
+      const urlAr = `${BASE_URL}${basePath}`;
+      const urlEn = `${BASE_URL}/en${basePath}`;
+      const priority = basePath === '' ? '1.0' : '0.8';
+
+      // Arabic URL node
+      xml += `\n  <url>\n    <loc>${urlAr}</loc>\n    <xhtml:link rel="alternate" hreflang="en" href="${urlEn}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${urlAr}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${urlAr}"/>\n    <changefreq>weekly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+
+      // English URL node
+      xml += `\n  <url>\n    <loc>${urlEn}</loc>\n    <xhtml:link rel="alternate" hreflang="en" href="${urlEn}"/>\n    <xhtml:link rel="alternate" hreflang="ar" href="${urlAr}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${urlAr}"/>\n    <changefreq>weekly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
     }
 
     xml += `\n</urlset>`;
@@ -188,6 +195,7 @@ app.get('*', async (req, res) => {
       let desc = 'نحن نقدم أفضل خدمات نقل وتغليف الأثاث مع الفك والتركيب في جميع أنحاء المملكة. ضمان كامل وسرعة واحترافية.';
       let image = `${BASE_URL}/logo.png`;
       let ogType = 'website';
+      let geoTags = `\n  <meta name="geo.region" content="SA">\n  <meta name="geo.placename" content="Abha">\n  <meta name="geo.position" content="18.2164;42.5053">\n  <meta name="ICBM" content="18.2164, 42.5053">`;
 
       // Fetch dynamic settings to enrich SSR
       const settingsRes = await pool.query('SELECT key, value FROM settings');
@@ -221,65 +229,111 @@ app.get('*', async (req, res) => {
            const article = articleRes.rows[0];
            ogType = 'article';
            title = (isEn ? article.title_en : article.title_ar) + ' | ' + title;
-           desc = isEn ? article.seo_desc_en : article.seo_desc_ar;
+           desc = (isEn ? article.seo_desc_en : article.seo_desc_ar) || desc;
            if (article.image) {
              image = article.image.startsWith('/') ? `${BASE_URL}${article.image}` : article.image;
            }
+        } else {
+           return res.status(404).send('<!DOCTYPE html><html><head><meta name="robots" content="noindex"></head><body><h1>404 Not Found</h1></body></html>');
         }
       } else if (req.path.includes('/locations') && !req.path.endsWith('/locations')) {
+        const getRegionCode = (cityName: string) => {
+          const name = cityName.toLowerCase();
+          if (name.includes('riyadh') || name.includes('رياض')) return 'SA-01';
+          if (name.includes('jeddah') || name.includes('makkah') || name.includes('جدة') || name.includes('مكة') || name.includes('taif') || name.includes('طائف')) return 'SA-02';
+          if (name.includes('madinah') || name.includes('مدينة')) return 'SA-03';
+          if (name.includes('dammam') || name.includes('khobar') || name.includes('jubail') || name.includes('دمام') || name.includes('خبر') || name.includes('جبيل')) return 'SA-04';
+          if (name.includes('qassim') || name.includes('buraidah') || name.includes('قصيم') || name.includes('بريدة')) return 'SA-05';
+          if (name.includes('abha') || name.includes('khamis') || name.includes('أبها') || name.includes('خميس')) return 'SA-14';
+          if (name.includes('tabuk') || name.includes('تبوك')) return 'SA-07';
+          if (name.includes('hail') || name.includes('حائل')) return 'SA-06';
+          if (name.includes('najran') || name.includes('نجران')) return 'SA-10';
+          if (name.includes('jazan') || name.includes('jizan') || name.includes('جازان') || name.includes('جيزان')) return 'SA-09';
+          return 'SA-14';
+        };
+
         const slug = req.path.split('/').pop();
         const cityRes = await pool.query('SELECT * FROM cities WHERE slug = $1 AND active = true', [slug]);
         if (cityRes.rows.length > 0) {
            const city = cityRes.rows[0];
-           title = (isEn ? city.title_en : city.title_ar) + ' | ' + title;
-           desc = isEn ? city.seo_desc_en : city.seo_desc_ar;
+           const pageTitle = isEn ? (city.seo_title_en || city.name_en) : (city.seo_title_ar || city.name_ar);
+           title = pageTitle + ' | ' + title;
+           desc = (isEn ? (city.seo_desc_en || city.hero_desc_en) : (city.seo_desc_ar || city.hero_desc_ar)) || desc;
+           if (city.featured_image) image = city.featured_image.startsWith('/') ? `${BASE_URL}${city.featured_image}` : city.featured_image;
+           
+           const regionCode = getRegionCode(city.name_en || city.name_ar);
+           geoTags = `\n  <meta name="geo.region" content="${regionCode}">\n  <meta name="geo.placename" content="${isEn ? city.name_en : city.name_ar}">\n  <meta name="geo.position" content="18.2164;42.5053">\n  <meta name="ICBM" content="18.2164, 42.5053">`;
+        } else {
+           return res.status(404).send('<!DOCTYPE html><html><head><meta name="robots" content="noindex"></head><body><h1>404 Not Found</h1></body></html>');
         }
       } else if (req.path.includes('/industries') && !req.path.endsWith('/industries')) {
         const slug = req.path.split('/').pop();
         const indRes = await pool.query('SELECT * FROM industries WHERE slug = $1 AND active = true', [slug]);
         if (indRes.rows.length > 0) {
            const ind = indRes.rows[0];
-           title = (isEn ? ind.title_en : ind.title_ar) + ' | ' + title;
-           desc = isEn ? ind.seo_desc_en : ind.seo_desc_ar;
+           const pageTitle = isEn ? (ind.seo_title_en || ind.name_en) : (ind.seo_title_ar || ind.name_ar);
+           title = pageTitle + ' | ' + title;
+           desc = (isEn ? (ind.seo_desc_en || ind.hero_desc_en) : (ind.seo_desc_ar || ind.hero_desc_ar)) || desc;
+           if (ind.featured_image) image = ind.featured_image.startsWith('/') ? `${BASE_URL}${ind.featured_image}` : ind.featured_image;
+           geoTags = `\n  <meta name="geo.region" content="SA-14">\n  <meta name="geo.placename" content="Abha">\n  <meta name="geo.position" content="18.2164;42.5053">\n  <meta name="ICBM" content="18.2164, 42.5053">`;
+        } else {
+           return res.status(404).send('<!DOCTYPE html><html><head><meta name="robots" content="noindex"></head><body><h1>404 Not Found</h1></body></html>');
         }
       } else if (settings.hero) {
         // Home page default
         title = (isEn ? settings.hero.title1_en : settings.hero.title1_ar) + ' | ' + title;
-        desc = isEn ? settings.hero.desc_en : settings.hero.desc_ar;
+        desc = (isEn ? settings.hero.desc_en : settings.hero.desc_ar) || desc;
         if (settings.hero.images && settings.hero.images.length > 0) {
           image = settings.hero.images[0].startsWith('/') ? `${BASE_URL}${settings.hero.images[0]}` : settings.hero.images[0];
         }
+        geoTags = `\n  <meta name="geo.region" content="SA">\n  <meta name="geo.placename" content="Abha">\n  <meta name="geo.position" content="18.2164;42.5053">\n  <meta name="ICBM" content="18.2164, 42.5053">`;
       }
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-  <meta charset="UTF-8">
-  <title>${title}</title>
-  <meta name="description" content="${desc}">
-  
+      let baseHtml = '';
+      if (fs.existsSync(indexPath)) {
+         baseHtml = await fs.promises.readFile(indexPath, 'utf-8');
+      } else {
+         baseHtml = '<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>';
+      }
+
+      // Remove default meta tags to avoid duplication
+      baseHtml = baseHtml.replace(/<title>.*?<\/title>/i, '');
+      baseHtml = baseHtml.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, '');
+      baseHtml = baseHtml.replace(/<meta\s+name="keywords"\s+content="[^"]*"\s*\/?>/i, '');
+      baseHtml = baseHtml.replace(/<meta\s+name="geo\.[^"]+"\s+content="[^"]*"\s*\/?>/gi, '');
+      baseHtml = baseHtml.replace(/<meta\s+name="ICBM"\s+content="[^"]*"\s*\/?>/i, '');
+
+      // Fix lang and dir for English paths
+      if (isEn) {
+        baseHtml = baseHtml.replace(/<html[^>]*>/i, '<html lang="en" dir="ltr">');
+      }
+
+      const safeTitle = title.replace(/"/g, '&quot;');
+      const safeDesc = desc.replace(/"/g, '&quot;');
+      const safeImage = image.replace(/"/g, '&quot;');
+      const safeUrl = `${BASE_URL}${req.path}`.replace(/"/g, '&quot;');
+
+      const headInjection = `
+  <title>${safeTitle}</title>
+  <meta name="description" content="${safeDesc}">
   <!-- Open Graph -->
-  <meta property="og:title" content="${title}">
-  <meta property="og:description" content="${desc}">
-  <meta property="og:image" content="${image}">
-  <meta property="og:url" content="${BASE_URL}${req.path}">
+  <meta property="og:title" content="${safeTitle}">
+  <meta property="og:description" content="${safeDesc}">
+  <meta property="og:image" content="${safeImage}">
+  <meta property="og:url" content="${safeUrl}">
   <meta property="og:type" content="${ogType}">
   <meta property="og:site_name" content="ركن الريان للنقل المبرد">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${title}">
-  <meta name="twitter:description" content="${desc}">
-  <meta name="twitter:image" content="${image}">
-  <meta name="twitter:url" content="${BASE_URL}${req.path}">
-</head>
-<body>
-  <p>${desc}</p>
-</body>
-</html>
-      `;
-      return res.send(htmlContent);
+  <meta name="twitter:title" content="${safeTitle}">
+  <meta name="twitter:description" content="${safeDesc}">
+  <meta name="twitter:image" content="${safeImage}">
+  <meta name="twitter:url" content="${safeUrl}">
+  ${geoTags}`;
+      
+      const finalHtml = baseHtml.replace('</head>', `${headInjection}\n</head>`);
+      return res.send(finalHtml);
     } catch (e) {
       console.error('SSR Error', e);
       // Fallback below

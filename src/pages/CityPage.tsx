@@ -87,6 +87,7 @@ export default function CityPage() {
   const heroDesc = isFromDB ? (isEn ? cityData.hero_desc_en : cityData.hero_desc_ar) : (isEn ? cityData.desc_en : cityData.desc_ar);
   const bgImage = cityData.featured_image || "https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=2000&auto=format&fit=crop";
   const ctaTitle = isFromDB ? (isEn ? cityData.cta_title_en : cityData.cta_title_ar) : (isEn ? 'Request Corporate Quote' : 'طلب تسعيرة للشركات');
+  const ctaDesc = isFromDB ? (isEn ? cityData.cta_desc_en : cityData.cta_desc_ar) : null;
   const serviceCoverage = isFromDB ? (isEn ? cityData.service_coverage_en : cityData.service_coverage_ar) : null;
   const faqs = isFromDB ? cityData.faqs : [];
 
@@ -109,14 +110,34 @@ export default function CityPage() {
     "description": metaDesc
   };
 
+  const getRegionCode = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('riyadh') || lowerName.includes('رياض')) return 'SA-01';
+    if (lowerName.includes('jeddah') || lowerName.includes('makkah') || lowerName.includes('جدة') || lowerName.includes('مكة') || lowerName.includes('taif') || lowerName.includes('طائف')) return 'SA-02';
+    if (lowerName.includes('madinah') || lowerName.includes('مدينة')) return 'SA-03';
+    if (lowerName.includes('dammam') || lowerName.includes('khobar') || lowerName.includes('jubail') || lowerName.includes('دمام') || lowerName.includes('خبر') || lowerName.includes('جبيل')) return 'SA-04';
+    if (lowerName.includes('qassim') || lowerName.includes('buraidah') || lowerName.includes('قصيم') || lowerName.includes('بريدة')) return 'SA-05';
+    if (lowerName.includes('tabuk') || lowerName.includes('تبوك')) return 'SA-07';
+    if (lowerName.includes('hail') || lowerName.includes('حائل')) return 'SA-06';
+    if (lowerName.includes('najran') || lowerName.includes('نجران')) return 'SA-10';
+    if (lowerName.includes('jazan') || lowerName.includes('jizan') || lowerName.includes('جازان') || lowerName.includes('جيزان')) return 'SA-09';
+    return 'SA-14'; // Default to HQ Asir
+  };
+
+  const geoData = {
+    region: getRegionCode(cityName),
+    placename: cityName,
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
-      <SEO title={metaTitle || heroTitle} description={metaDesc || heroDesc} schema={localSchema} canonical={canonical} />
+      <SEO title={metaTitle || heroTitle} description={metaDesc || heroDesc} schema={localSchema} canonical={canonical} geo={geoData} />
       
       {/* City Hero */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}></div>
+        <div className="absolute inset-0 bg-slate-900/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="max-w-4xl">
@@ -135,9 +156,14 @@ export default function CityPage() {
             <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
               {heroTitle || (isEn ? `Refrigerated Transport in ${cityName}` : `النقل المبرد في ${cityName}`)}
             </h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-10 max-w-3xl leading-relaxed">
+            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl leading-relaxed">
               {heroDesc}
             </p>
+            {ctaDesc && (
+              <p className="text-lg md:text-xl font-bold text-amber-400 mb-8 max-w-2xl leading-relaxed border-l-4 border-amber-500 pl-4 rtl:pl-0 rtl:pr-4 rtl:border-l-0 rtl:border-r-4">
+                {ctaDesc}
+              </p>
+            )}
             <div className="flex flex-wrap gap-4">
               <Link to={isEn ? '/en/enterprise-quote' : '/enterprise-quote'} className="bg-amber-500 text-slate-900 px-8 py-4 rounded-xl font-black text-lg hover:bg-amber-400 transition-all flex items-center gap-2">
                 {ctaTitle || (isEn ? 'Request Corporate Quote' : 'طلب تسعيرة للشركات')}

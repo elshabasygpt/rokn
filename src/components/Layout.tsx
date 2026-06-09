@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck, Snowflake, MapPin, Activity, CheckCircle2, ChevronRight, ChevronDown, Home, Package, Image as ImageIcon, Info, FileText, Briefcase, PhoneCall } from 'lucide-react';
+import { Phone, Menu, X, MessageCircle, Percent, Truck, Globe, ShieldCheck, Snowflake, MapPin, Activity, CheckCircle2, ChevronRight, ChevronDown, Home, Package, Image as ImageIcon, Info, FileText, Briefcase, PhoneCall, Factory, FlaskConical, Utensils, Store, Warehouse, Mail, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
@@ -81,7 +81,7 @@ export default function Layout() {
     const isEn = location.pathname === '/en' || location.pathname.startsWith('/en/');
     if (isEn && i18n.language !== 'en') i18n.changeLanguage('en');
     if (!isEn && i18n.language !== 'ar') i18n.changeLanguage('ar');
-  }, [location.pathname, i18n]);
+  }, [location.pathname, i18n.language, i18n]);
 
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
@@ -169,7 +169,7 @@ export default function Layout() {
 
   return (
     <div className={`min-h-screen flex flex-col bg-slate-50 text-slate-800 focus:outline-none selection:bg-amber-500 selection:text-slate-900 pb-20 md:pb-0 font-${i18n.language === 'en' ? 'sans' : 'cairo'}`}>
-      {settings.googleSiteVerification || settings.googleAnalyticsId ? (
+      {settings.googleSiteVerification || settings.googleAnalyticsId || settings.company_info ? (
         <Helmet>
           {settings.googleSiteVerification && <meta name="google-site-verification" content={settings.googleSiteVerification} />}
           {settings.googleAnalyticsId && <script async src={`https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`}></script>}
@@ -183,20 +183,28 @@ export default function Layout() {
               `}
             </script>
           )}
-          <script type="application/ld+json">
-            {JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "name": i18n.language === 'en' ? 'Rokn Elryan' : 'ركن الريان للنقل المبرد',
-              "url": "https://www.roknelryan.com",
-              "logo": "https://www.roknelryan.com/logo.png",
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": `+${settings.phone1 || '966502375887'}`,
-                "contactType": "customer service"
-              }
-            })}
-          </script>
+          {settings.company_info && (
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                "name": settings.company_info.name || "شركة ركن الريان",
+                "address": {
+                  "@type": "PostalAddress",
+                  "addressCountry": "SA",
+                  "addressRegion": settings.company_info.region,
+                  "addressLocality": settings.company_info.city,
+                  "streetAddress": settings.company_info.street + (settings.company_info.district ? ` - حي ${settings.company_info.district}` : ''),
+                  "postalCode": settings.company_info.postal_code
+                },
+                "vatID": settings.company_info.vat_number,
+                "telephone": settings.company_info.phone,
+                "email": settings.company_info.email,
+                "url": "https://www.roknelryan.com",
+                "logo": "https://www.roknelryan.com/logo.png"
+              })}
+            </script>
+          )}
         </Helmet>
       ) : null}
 
@@ -207,7 +215,7 @@ export default function Layout() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-slate-900 border-b border-amber-500/30 text-white overflow-hidden relative z-50 group"
+            className="bg-slate-950 border-b border-white/10 text-white overflow-hidden relative z-50 group shadow-lg"
           >
             {/* Background Texture & Animated Gradients */}
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 mix-blend-overlay"></div>
@@ -246,6 +254,44 @@ export default function Layout() {
         )}
       </AnimatePresence>
 
+      {/* Top Bar (Contact Info) */}
+      <div className="bg-slate-900 text-slate-300 py-3 2xl:py-4 hidden lg:block text-[17px] lg:text-[19px] 2xl:text-[22px] font-semibold border-b border-white/5 relative z-50">
+        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 flex justify-between items-center">
+          <div className="flex items-center gap-8 lg:gap-12 2xl:gap-16">
+            {settings.phone1 && (
+              <a href={`tel:${settings.phone1}`} className="flex items-center gap-3 hover:text-white transition-colors group" dir="ltr">
+                <Phone className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="flex gap-2 items-center"><span className="text-slate-400 font-medium">{i18n.language === 'en' ? 'Support:' : 'الدعم:'}</span> <span className="text-white font-black tracking-wider">{settings.phone1}</span></span>
+              </a>
+            )}
+            {settings.phone2 && (
+              <a href={`tel:${settings.phone2}`} className="flex items-center gap-3 hover:text-white transition-colors group" dir="ltr">
+                <Phone className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="flex gap-2 items-center"><span className="text-slate-400 font-medium">{i18n.language === 'en' ? 'Sales:' : 'المبيعات:'}</span> <span className="text-white font-black tracking-wider">{settings.phone2}</span></span>
+              </a>
+            )}
+            {settings.whatsapp && (
+              <a href={`https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-[#25D366] transition-colors group" dir="ltr">
+                <WhatsAppIcon className="w-[20px] h-[20px] 2xl:w-[24px] 2xl:h-[24px] text-[#25D366] group-hover:scale-110 transition-transform" />
+                <span className="text-white font-black tracking-wider">{settings.whatsapp}</span>
+              </a>
+            )}
+            {settings.email && (
+              <a href={`mailto:${settings.email}`} className="flex items-center gap-3 hover:text-white transition-colors group">
+                <Mail className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                <span className="text-white font-bold">{settings.email}</span>
+              </a>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+             <span className="flex items-center gap-3 text-amber-500 font-bold bg-amber-500/10 px-5 py-2.5 rounded-full border border-amber-500/20">
+               <Clock className="w-5 h-5 2xl:w-6 2xl:h-6" />
+               <span>{i18n.language === 'en' ? 'Available 24/7' : 'نعمل على مدار الساعة'}</span>
+             </span>
+          </div>
+        </div>
+      </div>
+
       {/* Navbar */}
       <nav className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white/90 backdrop-blur-lg border-b border-slate-200/50'}`}>
         <div className={`w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 flex items-center justify-between gap-4 2xl:gap-8 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5 md:py-6'}`}>
@@ -254,7 +300,7 @@ export default function Layout() {
           </div>
           
           {/* Desktop Nav - Clean Enterprise Layout */}
-          <div className="hidden xl:flex flex-1 items-center justify-center gap-1.5 2xl:gap-4 px-2">
+          <div className="hidden xl:flex flex-1 items-center justify-center gap-8 lg:gap-10 2xl:gap-14 px-4">
             {[
               { path: '', label: t('layout.nav.home'), icon: Home },
               { path: 'services', label: t('layout.nav.services'), icon: Package },
@@ -265,36 +311,123 @@ export default function Layout() {
               { path: 'blog', label: i18n.language === 'en' ? 'Blog' : 'المقالات', icon: FileText },
               { path: 'careers', label: i18n.language === 'en' ? 'Careers' : 'التوظيف', icon: Briefcase },
             ].map(link => {
-              const Icon = link.icon;
               const fullPath = i18n.language === 'en' ? `/en${link.path ? `/${link.path}` : ''}` : `/${link.path}`;
               const isActive = link.path === '' ? (location.pathname === '/' || location.pathname === '/en') : location.pathname.includes(`/${link.path}`);
               
               if (link.isDropdown) {
+                const isMegaMenu = link.items && (link.items.length > 8 || link.type === 'industry' || link.type === 'city');
+
                 return (
                   <div key={link.path} className="relative group">
-                    <button className={`flex items-center gap-1.5 2xl:gap-2.5 px-2.5 2xl:px-5 py-2.5 2xl:py-3.5 rounded-2xl text-[14px] 2xl:text-[18px] font-bold whitespace-nowrap transition-all duration-300 ${isActive ? 'text-amber-700 bg-amber-50/80 border-amber-300/60' : 'text-slate-600 hover:text-amber-600 hover:bg-slate-50 border-transparent'}`}>
-                      <Icon className={`w-4 h-4 2xl:w-[22px] 2xl:h-[22px] ${isActive ? 'text-amber-600' : 'text-slate-400 group-hover:text-amber-500'}`} />
-                      <span className="relative z-10 pt-0.5">{link.label}</span>
-                      <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
+                    <button className={`flex items-center gap-2 py-2 text-[19px] lg:text-[20px] 2xl:text-[22px] font-bold whitespace-nowrap transition-all duration-300 relative ${isActive ? 'text-amber-600' : 'text-slate-700 hover:text-amber-600'}`}>
+                      <span className="relative z-10">{link.label}</span>
+                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-500 group-hover:rotate-180'}`} />
+                      <span className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-[4px] rounded-t-full bg-amber-500 transition-all duration-300 ${isActive ? 'w-[70%] opacity-100' : 'w-0 opacity-0 group-hover:w-[70%] group-hover:opacity-100'}`}></span>
                     </button>
                     
-                    <div className="absolute top-full start-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
-                      <div className="p-2 space-y-1">
-                        {link.items?.map((item: any) => {
-                          const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
-                          return (
-                            <Link key={item.slug} to={itemPath} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-amber-600 transition-colors font-semibold">
-                              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                <ChevronRight className="w-4 h-4 text-slate-400 rtl:rotate-180" />
-                              </div>
-                              {i18n.language === 'en' ? item.name_en : item.name_ar}
-                            </Link>
-                          );
-                        })}
-                        {link.items?.length === 0 && (
-                          <div className="px-4 py-3 text-sm text-slate-500 text-center">{i18n.language === 'en' ? 'Loading...' : 'جاري التحميل...'}</div>
-                        )}
-                      </div>
+                    <div className={`absolute top-full mt-3 ${isMegaMenu ? 'w-[320px] sm:w-[600px] md:w-[800px] xl:w-[900px] start-1/2 rtl:translate-x-1/2 ltr:-translate-x-1/2' : 'w-72 start-0'} bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top translate-y-4 group-hover:translate-y-0 z-50 overflow-hidden ring-1 ring-slate-900/5`}>
+                      {isMegaMenu ? (
+                        <div className="p-6 md:p-8">
+                           {/* Header of Mega Menu */}
+                           <div className="flex items-center justify-between mb-6 pb-5 border-b border-slate-100/80">
+                             <div className="flex items-center gap-4">
+                               <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center border border-amber-100/50 shadow-inner">
+                                 <link.icon className="w-6 h-6 text-amber-600" />
+                               </div>
+                               <div>
+                                 <h3 className="text-2xl font-black text-slate-800">{link.label}</h3>
+                                 <p className="text-slate-500 text-base mt-1 max-w-lg">
+                                   {link.type === 'city' 
+                                     ? (i18n.language === 'en' ? 'Explore our extensive logistics network covering major cities across the Kingdom with precision and care.' : 'اكتشف شبكتنا اللوجستية الواسعة التي تغطي أهم مدن المملكة بدقة واحترافية عالية.')
+                                     : (i18n.language === 'en' ? 'Discover customized refrigerated transport solutions designed specifically for your industry needs.' : 'اكتشف حلول النقل المبرد المخصصة المصممة خصيصاً لتلبية احتياجات قطاعك التجاري.')}
+                                 </p>
+                               </div>
+                             </div>
+                             <span className="hidden sm:inline-flex items-center gap-2 text-amber-600 text-base font-bold bg-amber-50 px-4 py-2 rounded-xl border border-amber-200/50">
+                               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                               {link.items.length} {i18n.language === 'en' ? 'Available' : 'متاح'}
+                             </span>
+                           </div>
+
+                           {/* Grid of items */}
+                           <div className={`grid grid-cols-1 ${link.type === 'industry' ? 'sm:grid-cols-2 lg:grid-cols-3 gap-4' : 'sm:grid-cols-2 lg:grid-cols-4 gap-3'} max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 pb-2`}>
+                             {link.items?.map((item: any) => {
+                                const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
+                                
+                                let ItemIcon = MapPin;
+                                if (link.type === 'industry') {
+                                  const name = ((item.name_en || '') + ' ' + (item.name_ar || '')).toLowerCase();
+                                  if (name.includes('food') || name.includes('مصانع') || name.includes('أغذية')) ItemIcon = Factory;
+                                  else if (name.includes('pharma') || name.includes('أدوية')) ItemIcon = FlaskConical;
+                                  else if (name.includes('restaurant') || name.includes('مطاعم')) ItemIcon = Utensils;
+                                  else if (name.includes('retail') || name.includes('تجزئة')) ItemIcon = Store;
+                                  else if (name.includes('warehouse') || name.includes('مستودعات')) ItemIcon = Warehouse;
+                                  else if (name.includes('distribution') || name.includes('توزيع')) ItemIcon = Truck;
+                                  else ItemIcon = Activity;
+                                }
+
+                                if (link.type === 'industry') {
+                                  return (
+                                    <Link key={item.slug} to={itemPath} className="group/item flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-100 hover:border-amber-300 hover:shadow-[0_8px_20px_rgba(245,158,11,0.08)] transition-all duration-300 relative overflow-hidden hover:-translate-y-0.5">
+                                      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                                      <div className="w-12 h-12 bg-slate-50 group-hover/item:bg-white rounded-xl flex items-center justify-center shrink-0 transition-colors shadow-sm border border-slate-100 group-hover/item:border-amber-200">
+                                        <ItemIcon className="w-6 h-6 text-slate-400 group-hover/item:text-amber-600 transition-colors" />
+                                      </div>
+                                      <div className="relative z-10">
+                                        <h4 className="font-bold text-slate-800 text-lg mb-1 group-hover/item:text-amber-600 transition-colors">{i18n.language === 'en' ? item.name_en : item.name_ar}</h4>
+                                        <p className="text-[14px] text-slate-500 line-clamp-2 leading-relaxed">
+                                          {i18n.language === 'en' ? 'Specialized transport solutions tailored for ' + item.name_en : 'حلول نقل مخصصة تتناسب مع متطلبات ' + item.name_ar}
+                                        </p>
+                                      </div>
+                                    </Link>
+                                  );
+                                } else {
+                                  return (
+                                    <Link key={item.slug} to={itemPath} className="group/item flex items-center justify-between p-3.5 bg-slate-50/80 hover:bg-white rounded-xl border border-slate-100 hover:border-amber-300 hover:shadow-md hover:shadow-amber-500/5 transition-all duration-300 hover:-translate-y-0.5">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-white group-hover/item:bg-amber-50 rounded-lg flex items-center justify-center transition-colors shadow-sm border border-slate-100 group-hover/item:border-amber-100">
+                                          <ItemIcon className="w-4 h-4 text-slate-400 group-hover/item:text-amber-600 transition-colors" />
+                                        </div>
+                                        <span className="font-bold text-slate-700 text-[16px] group-hover/item:text-slate-900 transition-colors">{i18n.language === 'en' ? item.name_en : item.name_ar}</span>
+                                      </div>
+                                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover/item:text-amber-500 transition-all rtl:-scale-x-100" />
+                                    </Link>
+                                  );
+                                }
+                             })}
+                             {link.items?.length === 0 && (
+                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400 gap-3 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                  <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-amber-500 animate-spin"></div>
+                                  <span className="text-sm font-semibold">{i18n.language === 'en' ? 'Loading...' : 'جاري التحميل...'}</span>
+                                </div>
+                             )}
+                           </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="bg-slate-50/50 p-4 border-b border-slate-100 flex items-center gap-2">
+                            <link.icon className="w-4 h-4 text-amber-500" />
+                            <span className="text-xs font-black text-slate-500 uppercase tracking-wider">{link.label}</span>
+                          </div>
+                          <div className="p-3 grid grid-cols-1 gap-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            {link.items?.map((item: any) => {
+                              const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
+                              let ItemIcon = MapPin;
+                              if (link.type === 'industry') {
+                                ItemIcon = Activity;
+                              }
+                              return (
+                                <Link key={item.slug} to={itemPath} className="group/item flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-amber-50 text-slate-700 transition-all duration-300 font-bold relative overflow-hidden">
+                                  <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover/item:bg-amber-100/80 flex items-center justify-center shrink-0 transition-colors duration-300 relative z-10 shadow-sm group-hover/item:shadow-amber-200">
+                                    <ItemIcon className="w-5 h-5 text-slate-500 group-hover/item:text-amber-600 transition-colors duration-300" />
+                                  </div>
+                                  <span className="relative z-10 group-hover/item:text-amber-700 transition-colors">{i18n.language === 'en' ? item.name_en : item.name_ar}</span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
@@ -304,35 +437,24 @@ export default function Layout() {
                 <Link 
                   key={link.path}
                   to={fullPath} 
-                  className={`flex items-center gap-1.5 2xl:gap-2.5 px-2.5 2xl:px-5 py-2.5 2xl:py-3.5 rounded-2xl text-[14px] 2xl:text-[18px] font-bold whitespace-nowrap transition-all duration-300 relative group overflow-hidden ${isActive ? 'text-amber-700 bg-gradient-to-br from-amber-50/80 to-amber-100/80 shadow-[inset_0_2px_10px_rgba(251,191,36,0.15)] border border-amber-300/60 drop-shadow-sm' : 'text-slate-600 hover:text-amber-600 hover:bg-slate-50 border border-transparent'}`}
+                  className={`flex items-center py-2 text-[19px] lg:text-[20px] 2xl:text-[22px] font-bold whitespace-nowrap transition-all duration-300 relative group ${isActive ? 'text-amber-600' : 'text-slate-700 hover:text-amber-600'}`}
                 >
-                  <Icon className={`w-4 h-4 2xl:w-[22px] 2xl:h-[22px] transition-transform duration-300 ${isActive ? 'scale-110 drop-shadow-md text-amber-600' : 'group-hover:scale-110 opacity-70 group-hover:opacity-100 text-slate-400 group-hover:text-amber-500'}`} />
-                  <span className="relative z-10 pt-0.5">{link.label}</span>
-                  {isActive && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[4px] bg-amber-500 rounded-t-full shadow-[0_-2px_10px_rgba(245,158,11,0.6)]"></div>}
+                  <span className="relative z-10">{link.label}</span>
+                  <span className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-[4px] rounded-t-full bg-amber-500 transition-all duration-300 ${isActive ? 'w-[70%] opacity-100' : 'w-0 opacity-0 group-hover:w-[70%] group-hover:opacity-100'}`}></span>
                 </Link>
               );
             })}
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
-            <div className="hidden lg:flex items-center gap-3 2xl:gap-6">
-              <button onClick={toggleLanguage} className="flex items-center justify-center text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 p-2.5 2xl:p-3.5 rounded-xl transition-all border border-slate-200/60" title={i18n.language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}>
-                <Globe className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-500" />
-                <span className="sr-only">{i18n.language === 'ar' ? 'EN' : 'عربي'}</span>
+            <div className="flex items-center gap-4 shrink-0">
+            <div className="hidden lg:flex items-center gap-3 2xl:gap-5">
+              <button onClick={toggleLanguage} className="flex items-center justify-center gap-2.5 text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 px-4 py-3 2xl:px-5 2xl:py-4 rounded-xl transition-all border-2 border-slate-200 hover:border-amber-400 font-bold text-[17px] 2xl:text-[19px] shadow-sm" title={i18n.language === 'ar' ? 'Switch to English' : 'التبديل للعربية'}>
+                <Globe className="w-6 h-6 2xl:w-7 2xl:h-7 text-amber-500" />
+                <span>{i18n.language === 'ar' ? 'English' : 'العربية'}</span>
               </button>
               
-              <a href={`tel:${settings.phone1 || ''}`} className="hidden xl:flex items-center gap-3 2xl:gap-4 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 px-4 2xl:px-6 py-2.5 2xl:py-3 rounded-xl transition-all group" dir="ltr">
-                <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-amber-100 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Phone className="w-5 h-5 2xl:w-6 2xl:h-6 text-amber-600" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[11px] 2xl:text-[13px] font-bold text-slate-500 uppercase tracking-wider leading-none mb-1 2xl:mb-1.5">{i18n.language === 'en' ? 'Available 24/7' : 'متاح 24/7'}</span>
-                  <span className="text-[16px] 2xl:text-[22px] font-black text-slate-900 leading-none">{settings.phone1 || '050 237 5887'}</span>
-                </div>
-              </a>
-              
-              <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="bg-amber-500 text-slate-900 px-6 2xl:px-10 py-3 2xl:py-4 rounded-xl font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 text-[15px] 2xl:text-[18px] flex items-center gap-2 2xl:gap-3 group border border-amber-400 hover:border-amber-300 whitespace-nowrap shrink-0">
-                {i18n.language === 'en' ? 'Get a Quote in Minutes' : 'احصل على عرض سعر خلال دقائق'}
+              <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="bg-amber-500 text-slate-900 px-6 lg:px-8 2xl:px-10 py-3 2xl:py-4 rounded-xl font-bold hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 text-[18px] 2xl:text-[20px] flex items-center gap-3 group border border-amber-400 hover:border-amber-300 whitespace-nowrap shrink-0">
+                {i18n.language === 'en' ? 'Get a Quote' : 'احصل على عرض سعر'}
                 <Truck className="w-5 h-5 2xl:w-6 2xl:h-6 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
@@ -345,13 +467,13 @@ export default function Layout() {
         </div>
 
         {/* Trust Bar below navigation */}
-        <div className={`hidden lg:block border-t border-slate-100/60 bg-slate-50/50 transition-all duration-300 overflow-hidden ${isScrolled ? 'h-0 opacity-0' : 'h-14 opacity-100'}`}>
-          <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 h-full flex justify-center items-center text-[14px] 2xl:text-[17px] font-bold text-slate-600">
-             <div className="flex items-center justify-center gap-4 xl:gap-16 w-full px-2">
-               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><MapPin className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Nationwide Coverage' : 'تغطية جميع مدن المملكة'}</span><span className="xl:hidden">{i18n.language === 'en' ? 'Nationwide' : 'تغطية شاملة'}</span></span>
-               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><Activity className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '24/7 Temp Monitoring' : 'مراقبة حرارة 24/7'}</span><span className="xl:hidden">24/7</span></span>
-               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><CheckCircle2 className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '5000+ Successful Trips' : 'أكثر من 5000 رحلة ناجحة'}</span><span className="xl:hidden">+5000 رحلة</span></span>
-               <span className="flex items-center gap-1.5 xl:gap-2.5 whitespace-nowrap"><Snowflake className="w-4 h-4 xl:w-5 xl:h-5 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Full Cold Chain Compliance' : 'التزام كامل بسلسلة التبريد'}</span><span className="xl:hidden">سلسلة التبريد</span></span>
+        <div className={`hidden lg:block border-t border-slate-100/60 bg-slate-50/50 transition-all duration-300 overflow-hidden ${isScrolled ? 'h-0 opacity-0' : 'h-16 opacity-100'}`}>
+          <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 2xl:px-12 h-full flex justify-center items-center text-[16px] xl:text-[18px] 2xl:text-[20px] font-bold text-slate-600">
+             <div className="flex items-center justify-center gap-6 xl:gap-24 w-full px-2">
+               <span className="flex items-center gap-2 xl:gap-3 whitespace-nowrap"><MapPin className="w-5 h-5 xl:w-6 xl:h-6 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Nationwide Coverage' : 'تغطية جميع مدن المملكة'}</span><span className="xl:hidden">{i18n.language === 'en' ? 'Nationwide' : 'تغطية شاملة'}</span></span>
+               <span className="flex items-center gap-2 xl:gap-3 whitespace-nowrap"><Activity className="w-5 h-5 xl:w-6 xl:h-6 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '24/7 Temp Monitoring' : 'مراقبة حرارة 24/7'}</span><span className="xl:hidden">24/7</span></span>
+               <span className="flex items-center gap-2 xl:gap-3 whitespace-nowrap"><CheckCircle2 className="w-5 h-5 xl:w-6 xl:h-6 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? '5000+ Successful Trips' : 'أكثر من 5000 رحلة ناجحة'}</span><span className="xl:hidden">+5000 رحلة</span></span>
+               <span className="flex items-center gap-2 xl:gap-3 whitespace-nowrap"><Snowflake className="w-5 h-5 xl:w-6 xl:h-6 text-amber-500"/> <span className="hidden xl:inline">{i18n.language === 'en' ? 'Full Cold Chain Compliance' : 'التزام كامل بسلسلة التبريد'}</span><span className="xl:hidden">سلسلة التبريد</span></span>
              </div>
           </div>
         </div>
@@ -382,7 +504,7 @@ export default function Layout() {
               if (link.isDropdown) {
                 return (
                   <div key={link.path} className="flex flex-col">
-                    <div className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[18px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'text-slate-700 border border-transparent'}`}>
+                    <div className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[20px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'text-slate-700 border border-transparent'}`}>
                       <Icon className={`w-6 h-6 ${isActive ? 'text-amber-600 drop-shadow-sm' : 'text-slate-400'}`} />
                       {link.label}
                     </div>
@@ -390,7 +512,7 @@ export default function Layout() {
                       {link.items?.map((item: any) => {
                         const itemPath = i18n.language === 'en' ? `/en/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}` : `/${link.type === 'industry' ? 'industries' : 'locations'}/${item.slug}`;
                         return (
-                          <Link key={item.slug} to={itemPath} className="text-[16px] text-slate-600 hover:text-amber-600 py-1" onClick={() => setIsMobileMenuOpen(false)}>
+                          <Link key={item.slug} to={itemPath} className="text-[18px] text-slate-600 hover:text-amber-600 py-1" onClick={() => setIsMobileMenuOpen(false)}>
                             {i18n.language === 'en' ? item.name_en : item.name_ar}
                           </Link>
                         );
@@ -401,20 +523,40 @@ export default function Layout() {
               }
 
               return (
-               <Link key={link.path} to={i18n.language === 'en' ? `/en/${link.path}` : (link.path ? `/${link.path}` : '/')} className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[18px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'hover:bg-slate-50 text-slate-700 border border-transparent'}`} onClick={() => setIsMobileMenuOpen(false)}>
+               <Link key={link.path} to={i18n.language === 'en' ? `/en/${link.path}` : (link.path ? `/${link.path}` : '/')} className={`flex items-center gap-4 p-3.5 rounded-xl text-start text-[20px] transition-all font-bold ${isActive ? 'bg-gradient-to-br from-amber-50 to-amber-100/50 text-amber-700 shadow-sm border border-amber-200/60' : 'hover:bg-slate-50 text-slate-700 border border-transparent'}`} onClick={() => setIsMobileMenuOpen(false)}>
                  <Icon className={`w-6 h-6 ${isActive ? 'text-amber-600 drop-shadow-sm' : 'text-slate-400'}`} />
                  {link.label}
                </Link>
               );
             })}
             <div className="h-px bg-slate-100 my-2"></div>
-            <a href={`tel:${settings.phone1 || ''}`} className="flex items-center justify-center gap-3 bg-amber-50 text-amber-700 p-4 rounded-xl font-bold text-[16px]" dir="ltr">
-              <Phone className="w-5 h-5" />
-              <div className="flex flex-col text-left">
-                 <span className="text-[10px] text-amber-600/80 uppercase">{i18n.language === 'en' ? 'Available 24/7' : 'متاح 24/7'}</span>
-                 <span>{settings.phone1 || '050 237 5887'}</span>
-              </div>
-            </a>
+            <div className="flex flex-col gap-2">
+              <a href={`tel:${settings.phone1 || ''}`} className="flex items-center justify-center gap-3 bg-amber-50 text-amber-700 p-4 rounded-xl font-bold text-[18px]" dir="ltr">
+                <Phone className="w-5 h-5" />
+                <div className="flex flex-col text-left">
+                   <span className="text-[10px] text-amber-600/80 uppercase">{i18n.language === 'en' ? 'Support' : 'الدعم'}</span>
+                   <span>{settings.phone1 || '050 237 5887'}</span>
+                </div>
+              </a>
+              {settings.phone2 && (
+                <a href={`tel:${settings.phone2}`} className="flex items-center justify-center gap-3 bg-amber-50 text-amber-700 p-4 rounded-xl font-bold text-[18px]" dir="ltr">
+                  <Phone className="w-5 h-5" />
+                  <div className="flex flex-col text-left">
+                     <span className="text-[10px] text-amber-600/80 uppercase">{i18n.language === 'en' ? 'Sales' : 'المبيعات'}</span>
+                     <span>{settings.phone2}</span>
+                  </div>
+                </a>
+              )}
+              {settings.whatsapp && (
+                <a href={`https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 bg-[#25D366]/10 text-[#25D366] p-4 rounded-xl font-bold text-[18px]" dir="ltr">
+                  <WhatsAppIcon className="w-5 h-5" />
+                  <div className="flex flex-col text-left">
+                     <span className="text-[10px] text-[#25D366]/80 uppercase">{i18n.language === 'en' ? 'WhatsApp' : 'تواصل عبر واتساب'}</span>
+                     <span>{settings.whatsapp}</span>
+                  </div>
+                </a>
+              )}
+            </div>
           </div>
         )}
       </nav>
@@ -425,7 +567,11 @@ export default function Layout() {
       </main>
 
       {/* Premium Enterprise Footer */}
-      <footer className="bg-slate-950 text-slate-400 relative overflow-hidden mt-auto pt-20">
+      <footer className="bg-slate-950 text-slate-400 relative mt-auto pt-20 border-t border-slate-900">
+        {/* Background Gradients & Textures */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/5 via-slate-950 to-slate-950 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
+
         {/* Decorative Background */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>
         <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen"></div>
@@ -451,15 +597,18 @@ export default function Layout() {
                 {i18n.language === 'en' ? 'Request a Quote' : 'اطلب تسعيرة الآن'}
                 <Truck className="w-5 h-5" />
               </Link>
-              <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noopener noreferrer" className="bg-slate-800/80 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-700 transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600">
-                <MessageCircle className="w-5 h-5 text-green-400" />
-                {i18n.language === 'en' ? 'WhatsApp Contact' : 'تواصل عبر واتساب'}
+              <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-3 bg-slate-800/80 hover:bg-[#25D366] text-white border border-slate-700/80 hover:border-[#25D366] backdrop-blur-md px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-[0_15px_40px_rgba(37,211,102,0.3)] hover:-translate-y-1 overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[1.5s] ease-in-out"></div>
+                <div className="w-8 h-8 rounded-full bg-[#25D366]/20 group-hover:bg-white/20 flex items-center justify-center transition-all duration-300 relative z-10">
+                  <WhatsAppIcon className="w-5 h-5 text-[#25D366] group-hover:text-white transition-colors" />
+                </div>
+                <span className="relative z-10">{i18n.language === 'en' ? 'WhatsApp Contact' : 'تواصل عبر واتساب'}</span>
               </a>
             </div>
           </div>
 
           {/* 2. Main Footer Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-8 2xl:gap-12 mb-16">
             
             {/* Company Overview */}
             <div className="lg:col-span-2">
@@ -511,21 +660,24 @@ export default function Layout() {
             </div>
 
             {/* Coverage Areas */}
-            <div>
+            <div className="lg:col-span-1 xl:col-span-1">
               <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-amber-500" />
                 {i18n.language === 'en' ? 'Coverage' : 'تغطيتنا'}
               </h4>
-              <ul className="space-y-4 font-semibold">
-                {cities.map((city) => (
-                  <li key={city.slug}>
-                    <Link to={i18n.language === 'en' ? `/en/locations/${city.slug}` : `/locations/${city.slug}`} className="flex items-center gap-2 hover:text-amber-500 transition-colors group">
-                      <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-amber-500 transition-colors" /> 
-                      {i18n.language === 'en' ? city.name_en : city.name_ar}
-                    </Link>
-                  </li>
+              <div className="flex flex-wrap gap-2.5 font-semibold">
+                {cities.slice(0, 14).map((city) => (
+                  <Link key={city.slug} to={i18n.language === 'en' ? `/en/locations/${city.slug}` : `/locations/${city.slug}`} className="bg-slate-900/50 border border-slate-800 hover:border-amber-500/40 hover:bg-slate-800 text-slate-400 hover:text-amber-400 px-3.5 py-2 rounded-xl transition-all text-sm flex items-center gap-1.5 group shadow-sm">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-500 transition-colors" />
+                    {i18n.language === 'en' ? city.name_en : city.name_ar}
+                  </Link>
                 ))}
-              </ul>
+                {cities.length > 14 && (
+                   <Link to={i18n.language === 'en' ? '/en/locations' : '/locations'} className="bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 hover:text-amber-400 text-amber-500 px-3.5 py-2 rounded-xl transition-all text-sm flex items-center gap-1 font-bold">
+                     {i18n.language === 'en' ? 'All Locations' : 'كل المدن'} <ChevronRight className="w-3.5 h-3.5 rtl:-scale-x-100" />
+                   </Link>
+                )}
+              </div>
             </div>
 
             {/* Company Links */}
@@ -548,30 +700,33 @@ export default function Layout() {
             </div>
 
             {/* Contact & Support */}
-            <div>
+            <div className="lg:col-span-1 xl:col-span-1">
               <h4 className="text-white font-black text-xl mb-6 flex items-center gap-2">
                 <Phone className="w-5 h-5 text-amber-500" />
                 {i18n.language === 'en' ? 'Contact Us' : 'تواصل معنا'}
               </h4>
-              <ul className="space-y-6 font-semibold">
-                <li>
-                  <a href={`tel:${settings.phone1 || '0502375887'}`} className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
-                    <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-amber-500 shrink-0"><Phone className="w-4 h-4" /></div>
-                    <span className="text-lg text-white font-bold tracking-wide">{settings.phone1 || '050 237 5887'}</span>
-                  </a>
-                </li>
-                <li>
-                  <a href={`https://wa.me/${settings.whatsapp || ''}`} onClick={trackWhatsAppClick} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 hover:text-amber-500 transition-colors" dir="ltr">
-                    <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-green-400 shrink-0"><MessageCircle className="w-4 h-4" /></div>
-                    <span className="text-base text-slate-300">WhatsApp Support</span>
-                  </a>
-                </li>
-                <li>
-                  <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="text-sm text-slate-500 hover:text-amber-500 transition-colors underline underline-offset-4">
-                    {i18n.language === 'en' ? 'View all contact options' : 'عرض كافة خيارات التواصل'}
-                  </Link>
-                </li>
-              </ul>
+              <div className="flex flex-col gap-4">
+                <a href={`tel:${settings.company_info?.phone || settings.phone1 || '0502375887'}`} className="flex items-center gap-3 bg-slate-900/80 hover:bg-slate-800 p-3 2xl:p-4 rounded-2xl border border-slate-800 hover:border-amber-500/30 transition-all group" dir="ltr">
+                  <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shrink-0 group-hover:scale-110 transition-transform"><Phone className="w-5 h-5" /></div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] 2xl:text-xs text-slate-400 font-bold tracking-wider uppercase mb-0.5">{i18n.language === 'en' ? 'Sales & Support' : 'المبيعات والدعم'}</span>
+                    <span className="text-base 2xl:text-lg text-white font-black tracking-wide">{settings.company_info?.phone || settings.phone1 || '050 237 5887'}</span>
+                  </div>
+                </a>
+                
+                <a href={`https://wa.me/${settings.company_info?.whatsapp || settings.whatsapp || ''}`} onClick={trackWhatsAppClick} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-slate-900/80 hover:bg-slate-800 p-3 2xl:p-4 rounded-2xl border border-slate-800 hover:border-[#25D366]/30 transition-all group" dir="ltr">
+                  <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-[#25D366]/10 rounded-xl flex items-center justify-center text-[#25D366] shrink-0 group-hover:scale-110 transition-transform"><MessageCircle className="w-5 h-5" /></div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] 2xl:text-xs text-slate-400 font-bold tracking-wider uppercase mb-0.5">{i18n.language === 'en' ? 'Fast Response' : 'استجابة سريعة'}</span>
+                    <span className="text-sm 2xl:text-base text-white font-bold">WhatsApp Support</span>
+                  </div>
+                </a>
+
+                <Link to={i18n.language === 'en' ? '/en/contact' : '/contact'} className="inline-flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-xl font-bold text-amber-500 hover:text-slate-900 hover:bg-amber-500 transition-all border border-amber-500/20 hover:border-amber-500 group">
+                  {i18n.language === 'en' ? 'View all contact options' : 'عرض كافة خيارات التواصل'}
+                  <ChevronRight className="w-4 h-4 rtl:-scale-x-100 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
 
           </div>
@@ -601,11 +756,9 @@ export default function Layout() {
              <div className="flex flex-wrap items-center justify-center gap-3 md:gap-5 bg-slate-900 px-6 py-3 rounded-full border border-slate-800">
                 <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-500" /> <span className="text-slate-300">{i18n.language === 'en' ? 'Certified Logistics' : 'لوجستيات معتمدة'}</span></span>
                 <span className="hidden md:inline text-slate-700">|</span>
-                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'CR:' : 'س.ت:'}</span> <span className="text-slate-300">1010123456</span></span>
+                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'CR:' : 'س.ت:'}</span> <span className="text-slate-300">{settings.company_info?.cr_number || '1131335461'}</span></span>
                 <span className="hidden md:inline text-slate-700">|</span>
-                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'VAT:' : 'ض.ق.م:'}</span> <span className="text-slate-300">300123456700003</span></span>
-                <span className="hidden lg:inline text-slate-700">|</span>
-                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'TGA:' : 'هيئة النقل:'}</span> <span className="text-slate-300">040112</span></span>
+                <span className="flex items-center gap-1"><span className="text-amber-600">{i18n.language === 'en' ? 'VAT:' : 'ض.ق.م:'}</span> <span className="text-slate-300">{settings.company_info?.vat_number || '310636667600003'}</span></span>
              </div>
              
              <div className="flex flex-col items-center lg:items-end gap-2">
@@ -622,9 +775,9 @@ export default function Layout() {
         </div>
       </footer>
 
-      {settings.whatsapp && (
+      {(settings.company_info?.whatsapp || settings.whatsapp) && (
         <a 
-          href={`https://wa.me/${settings.whatsapp}`} 
+          href={`https://wa.me/${settings.company_info?.whatsapp || settings.whatsapp}`} 
           target="_blank" 
           rel="noreferrer"
           className="hidden md:flex fixed bottom-6 end-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 hover:shadow-[#25D366]/40 transition-all duration-300 group"
@@ -638,9 +791,9 @@ export default function Layout() {
       )}
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-50 p-3 flex gap-3 border-t border-slate-100">
-        {settings.whatsapp && (
+        {(settings.company_info?.whatsapp || settings.whatsapp) && (
           <a 
-            href={`https://wa.me/${settings.whatsapp}`} 
+            href={`https://wa.me/${settings.company_info?.whatsapp || settings.whatsapp}`} 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex-1 flex flex-col items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-xl"
@@ -649,9 +802,9 @@ export default function Layout() {
             {t('layout.cta.whatsapp')}
           </a>
         )}
-        {settings.phone1 && (
+        {(settings.company_info?.phone || settings.phone1) && (
           <a 
-            href={`tel:${settings.phone1}`} 
+            href={`tel:${settings.company_info?.phone || settings.phone1}`} 
             className="flex-1 flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm"
           >
             <Phone className="w-5 h-5" />

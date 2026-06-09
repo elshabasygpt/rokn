@@ -31,7 +31,7 @@ const docStorage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (_req, file, cb) => {
     const allowedExts = /jpeg|jpg|png|gif|webp|svg/;
     const extName = path.extname(file.originalname).toLowerCase();
@@ -56,7 +56,12 @@ const uploadDoc = multer({
 const router = Router();
 
 // POST /api/upload (admin)
-router.post('/', authMiddleware, upload.single('file'), (req: Request, res: Response) => {
+router.post('/', authMiddleware, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  });
+}, (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -74,7 +79,12 @@ router.post('/resume', uploadDoc.single('file'), (req: Request, res: Response) =
 });
 
 // POST /api/upload/multiple (admin)
-router.post('/multiple', authMiddleware, upload.array('files', 5), (req: Request, res: Response) => {
+router.post('/multiple', authMiddleware, (req, res, next) => {
+  upload.array('files', 10)(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  });
+}, (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded' });

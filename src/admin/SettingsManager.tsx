@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from './useApi';
-import { ShieldCheck, Users, Briefcase, Calculator, CheckCircle2, ChevronRight, Contact, Globe, MapPin, Search, Server, Settings, Star, Trash2, Upload, AlertTriangle, AlertCircle, FileText, Image as ImageIcon, PenTool, LayoutTemplate, Layers, MessageSquare, HelpCircle, Phone, Calendar, Download, Building, Plane, Truck, Activity, Plus, Save, FileBox, X, MessageCircle, BarChart3, Database, HardDrive, RefreshCw, ClipboardList, Megaphone, LayoutDashboard, Bell, Mail, Clock, BarChart } from 'lucide-react';
+import { ShieldCheck, Users, Briefcase, Calculator, CheckCircle2, ChevronRight, Contact, Globe, MapPin, Search, Server, Settings, Star, Trash2, Upload, AlertTriangle, AlertCircle, FileText, Image as ImageIcon, PenTool, LayoutTemplate, Layers, MessageSquare, HelpCircle, Phone, Calendar, Download, Building, Plane, Truck, Activity, Plus, Save, FileBox, X, MessageCircle, BarChart3, Database, HardDrive, RefreshCw, ClipboardList, Megaphone, LayoutDashboard, Bell, Mail, Clock, BarChart, Copy } from 'lucide-react';
 import { availableIcons, getIcon } from '../lib/iconMap';
 
 
@@ -241,7 +241,7 @@ export default function SettingsManager() {
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">رابط الموقع (Domain URL)</label>
               <input 
-                placeholder="https://www.Rokn Elryanmoving.com" 
+                placeholder="https://www.roknelryan.com" 
                 value={settings.general?.domain || ''} 
                 onChange={e => update('general', 'domain', e.target.value)}
                 dir="ltr"
@@ -552,6 +552,131 @@ export default function SettingsManager() {
               <Save className="w-4 h-4" /> حفظ الشعارات
             </button>
             {saved === 'general' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ</span>}
+          </div>
+        </div>
+
+        {/* Company Identity (Legal Info) */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Building className="w-5 h-5 text-amber-500" />
+            <h2 className="text-lg font-black text-slate-900">هوية ومعلومات الشركة (Company Identity)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Legal Information */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
+              <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">المعلومات القانونية (Legal)</h3>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">اسم الشركة (Company Name)</label>
+                <input value={settings.company_info?.name || ''} onChange={e => update('company_info', 'name', e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="شركة ركن الريان" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">السجل التجاري (CR Number)</label>
+                <div className="flex gap-2">
+                  <input value={settings.company_info?.cr_number || ''} onChange={e => update('company_info', 'cr_number', e.target.value)}
+                    className={`w-full border ${settings.company_info?.cr_number && settings.company_info.cr_number.length !== 10 ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-amber-500'} rounded-xl px-4 py-3 outline-none`} placeholder="1131335461" />
+                  <button onClick={() => navigator.clipboard.writeText(settings.company_info?.cr_number || '')} className="bg-slate-200 hover:bg-amber-500 text-slate-700 hover:text-slate-900 p-3 rounded-xl transition-colors"><Copy className="w-5 h-5" /></button>
+                </div>
+                {settings.company_info?.cr_number && settings.company_info.cr_number.length !== 10 && <p className="text-red-500 text-xs mt-1">يجب أن يكون السجل التجاري 10 أرقام</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">الرقم الضريبي (VAT Number)</label>
+                <div className="flex gap-2">
+                  <input value={settings.company_info?.vat_number || ''} onChange={e => update('company_info', 'vat_number', e.target.value)}
+                    className={`w-full border ${(settings.company_info?.vat_number && (settings.company_info.vat_number.length !== 15 || !settings.company_info.vat_number.startsWith('3'))) ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-amber-500'} rounded-xl px-4 py-3 outline-none`} placeholder="310636667600003" />
+                  <button onClick={() => navigator.clipboard.writeText(settings.company_info?.vat_number || '')} className="bg-slate-200 hover:bg-amber-500 text-slate-700 hover:text-slate-900 p-3 rounded-xl transition-colors"><Copy className="w-5 h-5" /></button>
+                </div>
+                {settings.company_info?.vat_number && (settings.company_info.vat_number.length !== 15 || !settings.company_info.vat_number.startsWith('3')) && <p className="text-red-500 text-xs mt-1">الرقم الضريبي السعودي يجب أن يبدأ بـ 3 ويكون 15 رقماً</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">الرقم الموحد (Unified Number)</label>
+                <input value={settings.company_info?.unified_number || ''} onChange={e => update('company_info', 'unified_number', e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="7038221060" />
+              </div>
+            </div>
+
+            {/* National Address */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4">
+              <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">العنوان الوطني (National Address)</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الدولة</label>
+                  <input value={settings.company_info?.country || 'Saudi Arabia'} onChange={e => update('company_info', 'country', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">المنطقة</label>
+                  <input value={settings.company_info?.region || ''} onChange={e => update('company_info', 'region', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="Al Qassim" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">المدينة</label>
+                  <input value={settings.company_info?.city || ''} onChange={e => update('company_info', 'city', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="Buraidah" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الحي</label>
+                  <input value={settings.company_info?.district || ''} onChange={e => update('company_info', 'district', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="Al Safa" />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الشارع</label>
+                  <input value={settings.company_info?.street || ''} onChange={e => update('company_info', 'street', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="King Faisal Road" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">رقم المبنى</label>
+                  <input value={settings.company_info?.building_number || ''} onChange={e => update('company_info', 'building_number', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="3472" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الرمز البريدي</label>
+                  <input value={settings.company_info?.postal_code || ''} onChange={e => update('company_info', 'postal_code', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="52353" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الرقم الإضافي</label>
+                  <input value={settings.company_info?.additional_number || ''} onChange={e => update('company_info', 'additional_number', e.target.value)}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="7716" />
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Channels */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-4 lg:col-span-2">
+              <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">بيانات التواصل والخرائط</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">البريد الإلكتروني للشركة</label>
+                  <input value={settings.company_info?.email || ''} onChange={e => update('company_info', 'email', e.target.value)} dir="ltr"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="info@company.com" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">الهاتف الموحد / الرئيسي</label>
+                  <input value={settings.company_info?.phone || ''} onChange={e => update('company_info', 'phone', e.target.value)} dir="ltr"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="+966920000000" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">رقم الواتساب (WhatsApp)</label>
+                  <input value={settings.company_info?.whatsapp || ''} onChange={e => update('company_info', 'whatsapp', e.target.value)} dir="ltr"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="+966500000000" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">رابط خرائط جوجل (Google Maps URL / Embed)</label>
+                  <input value={settings.company_info?.map_url || ''} onChange={e => update('company_info', 'map_url', e.target.value)} dir="ltr"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="https://maps.google.com/..." />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <button onClick={() => saveSection('company_info')} disabled={saving}
+              className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-colors text-sm w-max">
+              <Save className="w-4 h-4" /> حفظ الهوية
+            </button>
+            {saved === 'company_info' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
           </div>
         </div>
 
@@ -1438,31 +1563,65 @@ export default function SettingsManager() {
             {/* Main Header */}
             <div>
               <h3 className="font-bold text-slate-800 border-b pb-2 mb-4 text-amber-600">صور الخلفية والقصة</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">صورة الافتتاحية (Hero)</label>
-                  <div className="flex gap-3">
-                    <input value={settings.aboutMeta?.hero_image || ''} onChange={e => update('aboutMeta', 'hero_image', e.target.value)} dir="ltr"
-                      className="flex-1 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500" placeholder="URL" />
-                    <label className="flex items-center justify-center px-4 py-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors font-bold text-sm text-slate-600">
-                      رفع <input type="file" accept="image/*" onChange={async (e) => {
-                        if (!e.target.files) return;
-                        try { const res = await api.upload(e.target.files[0]); update('aboutMeta', 'hero_image', res.url); } catch(err){}
-                      }} className="hidden" />
-                    </label>
+                  <div className="flex flex-col gap-3">
+                    {settings.aboutMeta?.hero_image && (
+                      <div className="w-full h-32 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                        <img src={settings.aboutMeta.hero_image} alt="Hero" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <input value={settings.aboutMeta?.hero_image || ''} onChange={e => update('aboutMeta', 'hero_image', e.target.value)} dir="ltr"
+                        className="flex-1 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500 min-w-0" placeholder="URL" />
+                      <label className="flex items-center justify-center px-4 py-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors font-bold text-sm text-slate-600 shrink-0">
+                        رفع <input type="file" accept="image/*" onChange={async (e) => {
+                          if (!e.target.files) return;
+                          try { const res = await api.upload(e.target.files[0]); update('aboutMeta', 'hero_image', res.url); } catch(err: any){ alert('فشل رفع الصورة: ' + (err.message || '')); }
+                        }} className="hidden" />
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">صورة جانبية (قصتنا)</label>
-                  <div className="flex gap-3">
-                    <input value={settings.aboutMeta?.story_image || ''} onChange={e => update('aboutMeta', 'story_image', e.target.value)} dir="ltr"
-                      className="flex-1 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500" placeholder="URL" />
-                    <label className="flex items-center justify-center px-4 py-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors font-bold text-sm text-slate-600">
-                      رفع <input type="file" accept="image/*" onChange={async (e) => {
-                        if (!e.target.files) return;
-                        try { const res = await api.upload(e.target.files[0]); update('aboutMeta', 'story_image', res.url); } catch(err){}
-                      }} className="hidden" />
-                    </label>
+                  <div className="flex flex-col gap-3">
+                    {settings.aboutMeta?.story_image && (
+                      <div className="w-full h-32 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                        <img src={settings.aboutMeta.story_image} alt="Story" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <input value={settings.aboutMeta?.story_image || ''} onChange={e => update('aboutMeta', 'story_image', e.target.value)} dir="ltr"
+                        className="flex-1 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500 min-w-0" placeholder="URL" />
+                      <label className="flex items-center justify-center px-4 py-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors font-bold text-sm text-slate-600 shrink-0">
+                        رفع <input type="file" accept="image/*" onChange={async (e) => {
+                          if (!e.target.files) return;
+                          try { const res = await api.upload(e.target.files[0]); update('aboutMeta', 'story_image', res.url); } catch(err: any){ alert('فشل رفع الصورة: ' + (err.message || '')); }
+                        }} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">صورة رؤيتنا (Vision)</label>
+                  <div className="flex flex-col gap-3">
+                    {settings.aboutMeta?.vision_image && (
+                      <div className="w-full h-32 rounded-xl border border-slate-200 overflow-hidden bg-slate-50">
+                        <img src={settings.aboutMeta.vision_image} alt="Vision" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <input value={settings.aboutMeta?.vision_image || ''} onChange={e => update('aboutMeta', 'vision_image', e.target.value)} dir="ltr"
+                        className="flex-1 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500 min-w-0" placeholder="URL" />
+                      <label className="flex items-center justify-center px-4 py-3 bg-slate-100 rounded-lg cursor-pointer hover:bg-slate-200 transition-colors font-bold text-sm text-slate-600 shrink-0">
+                        رفع <input type="file" accept="image/*" onChange={async (e) => {
+                          if (!e.target.files) return;
+                          try { const res = await api.upload(e.target.files[0]); update('aboutMeta', 'vision_image', res.url); } catch(err: any){ alert('فشل رفع الصورة: ' + (err.message || '')); }
+                        }} className="hidden" />
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1514,6 +1673,53 @@ export default function SettingsManager() {
                 <input placeholder="Values Title (EN)" dir="ltr" value={settings.aboutMeta?.values_title_en || ''} onChange={e => update('aboutMeta', 'values_title_en', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
                 <textarea placeholder="وصف القيم (عربي)" value={settings.aboutMeta?.values_desc_ar || ''} onChange={e => update('aboutMeta', 'values_desc_ar', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
                 <textarea placeholder="Values Desc (EN)" dir="ltr" value={settings.aboutMeta?.values_desc_en || ''} onChange={e => update('aboutMeta', 'values_desc_en', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
+              </div>
+            </div>
+
+            {/* Vision Pillars */}
+            <div>
+              <h3 className="font-bold text-slate-800 border-b pb-2 mb-4 text-amber-600">ركائز الرؤية (3 ركائز)</h3>
+              <div className="space-y-6">
+                {[0, 1, 2].map((index) => {
+                  const pillars = settings.aboutMeta?.vision_pillars || [];
+                  const pillar = pillars[index] || {};
+                  return (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 relative">
+                      <div className="absolute -start-3 -top-3 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-black shadow-md">{index + 1}</div>
+                      <input placeholder={`عنوان الركيزة ${index + 1} (عربي)`} value={pillar.title_ar || ''} 
+                        onChange={e => {
+                          const newPillars = [...(settings.aboutMeta?.vision_pillars || [{},{},{}])];
+                          newPillars[index] = { ...newPillars[index], title_ar: e.target.value };
+                          update('aboutMeta', 'vision_pillars', newPillars);
+                        }} 
+                        className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
+                      
+                      <input placeholder={`Pillar ${index + 1} Title (EN)`} dir="ltr" value={pillar.title_en || ''} 
+                        onChange={e => {
+                          const newPillars = [...(settings.aboutMeta?.vision_pillars || [{},{},{}])];
+                          newPillars[index] = { ...newPillars[index], title_en: e.target.value };
+                          update('aboutMeta', 'vision_pillars', newPillars);
+                        }} 
+                        className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
+                      
+                      <textarea placeholder={`وصف الركيزة ${index + 1} (عربي)`} value={pillar.desc_ar || ''} 
+                        onChange={e => {
+                          const newPillars = [...(settings.aboutMeta?.vision_pillars || [{},{},{}])];
+                          newPillars[index] = { ...newPillars[index], desc_ar: e.target.value };
+                          update('aboutMeta', 'vision_pillars', newPillars);
+                        }} 
+                        className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
+                        
+                      <textarea placeholder={`Pillar ${index + 1} Desc (EN)`} dir="ltr" value={pillar.desc_en || ''} 
+                        onChange={e => {
+                          const newPillars = [...(settings.aboutMeta?.vision_pillars || [{},{},{}])];
+                          newPillars[index] = { ...newPillars[index], desc_en: e.target.value };
+                          update('aboutMeta', 'vision_pillars', newPillars);
+                        }} 
+                        className="w-full border border-slate-200 rounded-lg px-4 py-2 outline-none focus:border-amber-500" />
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -1710,8 +1916,49 @@ export default function SettingsManager() {
                 }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
               </div>
             </div>
+            
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-4">
+              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><MessageCircle className="w-4 h-4 text-amber-500" /> بوابة الدعم الفني (Support Gateway)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input placeholder="نص الشارة (عربي)" value={settings.pagesMeta?.supportGateway?.badge_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, badge_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Badge Text (English)" dir="ltr" value={settings.pagesMeta?.supportGateway?.badge_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, badge_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+
+                <input placeholder="الكلمة المميزة في العنوان (عربي)" value={settings.pagesMeta?.supportGateway?.title_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, title_ar: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <input placeholder="Highlighted Title Word (English)" dir="ltr" value={settings.pagesMeta?.supportGateway?.title_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, title_en: e.target.value });
+                }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+
+                <textarea placeholder="الوصف (عربي)" value={settings.pagesMeta?.supportGateway?.desc_ar || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, desc_ar: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+                
+                <textarea placeholder="Description (English)" dir="ltr" value={settings.pagesMeta?.supportGateway?.desc_en || ''} onChange={e => {
+                  const obj = settings.pagesMeta || {};
+                  const sg = obj.supportGateway || {};
+                  update('pagesMeta', 'supportGateway', { ...sg, desc_en: e.target.value });
+                }} className="w-full h-20 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 bg-white" />
+              </div>
+            </div>
+            
           </div>
-          
           <div className="mt-6 flex items-center gap-3">
             <button onClick={() => saveSection('pagesMeta')} disabled={saving}
               className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-colors text-sm">
@@ -1850,6 +2097,146 @@ export default function SettingsManager() {
             <button onClick={() => saveSection('pagesMeta')} disabled={saving}
               className="flex items-center gap-2 bg-amber-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-amber-400 transition-colors text-sm">
               <Save className="w-4 h-4" /> حفظ قطاعات الأعمال
+            </button>
+            {saved === 'pagesMeta' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
+          </div>
+        </div>
+
+        {/* Enterprise Compliance Section (CMS) */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
+            <ShieldCheck className="w-6 h-6 text-emerald-600" />
+            <h2 className="text-xl font-black text-slate-900">قسم الاعتمادات والتأمين (Compliance)</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <input placeholder="الشارة (عربي)" value={settings.pagesMeta?.compliance?.badge_ar || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, badge_ar: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <input placeholder="Badge (English)" dir="ltr" value={settings.pagesMeta?.compliance?.badge_en || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, badge_en: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+
+            <input placeholder="العنوان (عربي)" value={settings.pagesMeta?.compliance?.title_ar || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, title_ar: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <input placeholder="Title (English)" dir="ltr" value={settings.pagesMeta?.compliance?.title_en || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, title_en: e.target.value });
+            }} className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <textarea placeholder="الوصف (عربي)" value={settings.pagesMeta?.compliance?.desc_ar || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, desc_ar: e.target.value });
+            }} className="w-full h-24 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+            
+            <textarea placeholder="Description (English)" dir="ltr" value={settings.pagesMeta?.compliance?.desc_en || ''} onChange={e => {
+              const comp = settings.pagesMeta?.compliance || {};
+              update('pagesMeta', 'compliance', { ...comp, desc_en: e.target.value });
+            }} className="w-full h-24 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-bold text-slate-800">بطاقات الاعتماد:</h3>
+            {(() => {
+              const defaultComplianceItems = [
+                { id: 'sfda', icon: '🛡️', title_ar: 'اعتماد الغذاء والدواء', title_en: 'SFDA Approved', desc_ar: 'مرخصون بالكامل من هيئة الغذاء والدواء السعودية لنقل الأدوية والأغذية المبردة.', desc_en: 'Fully licensed by the Saudi Food and Drug Authority for sensitive cold chain transport.' },
+                { id: 'insurance', icon: '📄', title_ar: 'تأمين شامل', title_en: 'Comprehensive Insurance', desc_ar: 'صفر مخاطرة مالية. جميع الحمولات مغطاة ببوليصة تأمين شاملة ضد التلف والحوادث أثناء النقل.', desc_en: 'Zero financial risk. All cargo is covered by robust Goods-In-Transit insurance policies.' },
+                { id: 'tga', icon: '🚛', title_ar: 'ترخيص هيئة النقل', title_en: 'TGA Licensed', desc_ar: 'جميع شاحناتنا تحمل بطاقات تشغيل رسمية وسارية من الهيئة العامة للنقل (TGA).', desc_en: 'Official operating cards from the Transport General Authority for our entire modern fleet.' },
+                { id: 'gdp', icon: '📈', title_ar: 'معايير GDP وتتبع حي', title_en: 'GDP & Live Tracking', desc_ar: 'نطبق ممارسات التوزيع الجيد (GDP) ونوفر تقارير أجهزة التتبع الحراري اللحظية (Data Loggers).', desc_en: 'Adhering to Good Distribution Practices with real-time temperature data loggers.' }
+              ];
+              const currentItems = settings.pagesMeta?.compliance?.items || defaultComplianceItems;
+              
+              return currentItems.map((item: any, index: number) => (
+                <div key={index} className="flex flex-col md:flex-row gap-3 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
+                  <div className="flex flex-col gap-2 w-full md:w-1/4">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        placeholder="الأيقونة / رابط الصورة" 
+                        value={item?.icon || ''} 
+                        onChange={(e) => {
+                          const items = [...currentItems];
+                          items[index] = { ...items[index], icon: e.target.value };
+                          update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                        }} 
+                        className="flex-1 border border-emerald-200 rounded-lg px-3 py-2 outline-none focus:border-emerald-500 text-sm" 
+                      />
+                      <label className="cursor-pointer p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 tooltip" aria-label="رفع صورة">
+                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                          if (e.target.files?.[0]) {
+                            try {
+                              const res = await api.upload(e.target.files[0]);
+                              const items = [...currentItems];
+                              items[index] = { ...items[index], icon: res.url };
+                              update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                            } catch (err) { alert('Upload failed'); }
+                          }
+                        }} />
+                        <Upload className="w-4 h-4" />
+                      </label>
+                    </div>
+                    {item?.icon && typeof item.icon === 'string' && (item.icon.startsWith('http') || item.icon.startsWith('/')) ? (
+                      <img src={item.icon} alt="Preview" className="w-12 h-12 object-contain bg-white rounded-lg border border-slate-200 p-1" />
+                    ) : (
+                      <div className="text-3xl text-emerald-700">{item?.icon || '🛡️'}</div>
+                    )}
+                  </div>
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <input placeholder="عنوان الاعتماد (AR)" value={item?.title_ar || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], title_ar: e.target.value };
+                      update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                    }} className="border border-emerald-200 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none" />
+                    <input placeholder="Compliance Name (EN)" dir="ltr" value={item?.title_en || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], title_en: e.target.value };
+                      update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                    }} className="border border-emerald-200 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none" />
+                    <input placeholder="وصف الاعتماد (AR)" value={item?.desc_ar || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], desc_ar: e.target.value };
+                      update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                    }} className="border border-emerald-200 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none" />
+                    <input placeholder="Description (EN)" dir="ltr" value={item?.desc_en || ''} onChange={(e) => {
+                      const items = [...currentItems];
+                      items[index] = { ...items[index], desc_en: e.target.value };
+                      update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                    }} className="border border-emerald-200 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 outline-none" />
+                  </div>
+                  <button onClick={() => {
+                    const items = [...currentItems].filter((_, i) => i !== index);
+                    update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+                  }} className="w-10 h-10 shrink-0 flex items-center justify-center bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              ));
+            })()}
+            
+            <button onClick={() => {
+              const defaultComplianceItems = [
+                { id: 'sfda', icon: '🛡️', title_ar: 'اعتماد الغذاء والدواء', title_en: 'SFDA Approved', desc_ar: 'مرخصون بالكامل من هيئة الغذاء والدواء السعودية لنقل الأدوية والأغذية المبردة.', desc_en: 'Fully licensed by the Saudi Food and Drug Authority for sensitive cold chain transport.' },
+                { id: 'insurance', icon: '📄', title_ar: 'تأمين شامل', title_en: 'Comprehensive Insurance', desc_ar: 'صفر مخاطرة مالية. جميع الحمولات مغطاة ببوليصة تأمين شاملة ضد التلف والحوادث أثناء النقل.', desc_en: 'Zero financial risk. All cargo is covered by robust Goods-In-Transit insurance policies.' },
+                { id: 'tga', icon: '🚛', title_ar: 'ترخيص هيئة النقل', title_en: 'TGA Licensed', desc_ar: 'جميع شاحناتنا تحمل بطاقات تشغيل رسمية وسارية من الهيئة العامة للنقل (TGA).', desc_en: 'Official operating cards from the Transport General Authority for our entire modern fleet.' },
+                { id: 'gdp', icon: '📈', title_ar: 'معايير GDP وتتبع حي', title_en: 'GDP & Live Tracking', desc_ar: 'نطبق ممارسات التوزيع الجيد (GDP) ونوفر تقارير أجهزة التتبع الحراري اللحظية (Data Loggers).', desc_en: 'Adhering to Good Distribution Practices with real-time temperature data loggers.' }
+              ];
+              const currentItems = settings.pagesMeta?.compliance?.items || defaultComplianceItems;
+              const items = [...currentItems, { icon: '✨', title_ar: '', title_en: '', desc_ar: '', desc_en: '' }];
+              update('pagesMeta', 'compliance', { ...settings.pagesMeta?.compliance, items });
+            }} className="flex items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 bg-emerald-50 px-4 py-2 rounded-lg">
+              <Plus className="w-5 h-5" /> إضافة اعتماد جديد
+            </button>
+          </div>
+          
+          <div className="mt-6 flex items-center gap-3">
+            <button onClick={() => saveSection('pagesMeta')} disabled={saving}
+              className="flex items-center gap-2 bg-emerald-500 text-slate-900 font-bold px-5 py-2.5 rounded-xl hover:bg-emerald-400 transition-colors text-sm">
+              <Save className="w-4 h-4" /> حفظ قسم الاعتمادات
             </button>
             {saved === 'pagesMeta' && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> تم الحفظ بنجاح</span>}
           </div>

@@ -96,7 +96,7 @@ export default function BlogPost() {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": title,
-    "image": article.image ? [article.image.startsWith('/') ? `https://www.Rokn Elryanmoving.com${article.image}` : article.image] : [],
+    "image": article.image ? [article.image.startsWith('/') ? `${window.location.origin}${article.image}` : article.image] : [],
     "datePublished": new Date(article.created_at).toISOString(),
     "author": {
       "@type": "Organization",

@@ -26,6 +26,7 @@ export default function Contact() {
   });
 
   const [settings, setSettings] = useState<any>({});
+  const [companyInfo, setCompanyInfo] = useState<any>({});
   const [meta, setMeta] = useState<any>(null);
   const [cities, setCities] = useState<any[]>([]);
 
@@ -34,6 +35,7 @@ export default function Contact() {
       .then(res => res.json())
       .then(data => {
         setSettings(data.general || {});
+        if (data.company_info) setCompanyInfo(data.company_info);
         if (data.contactMeta) setMeta(data.contactMeta);
         if (data.citiesMeta && data.citiesMeta.list) setCities(data.citiesMeta.list);
       })
@@ -140,13 +142,13 @@ export default function Contact() {
               <h2 className="text-3xl font-black mb-8">{tLang('info_title', 'contact.info.title')}</h2>
               
               <div className="space-y-8">
-                <a href={`tel:${settings.phone1 || ''}`} className="flex items-center gap-4 group">
+                <a href={`tel:${companyInfo.phone || settings.phone1 || ''}`} className="flex items-center gap-4 group">
                   <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-amber-500 transition-colors flex-shrink-0">
                     <Phone className="w-7 h-7 text-amber-400 group-hover:text-slate-900 transition-colors" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-400 mb-1">{t('contact.info.p1Label')}</div>
-                    <div dir="ltr" className="text-2xl font-bold group-hover:text-amber-400 transition-colors text-end">{settings.phone1 || '050 237 5887'}</div>
+                    <div dir="ltr" className="text-2xl font-bold group-hover:text-amber-400 transition-colors text-end">{companyInfo.phone || settings.phone1 || '050 237 5887'}</div>
                   </div>
                 </a>
                 
@@ -160,25 +162,25 @@ export default function Contact() {
                   </div>
                 </a>
 
-                <a href={`https://wa.me/${settings.whatsapp || ''}`} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
+                <a href={`https://wa.me/${companyInfo.whatsapp || settings.whatsapp || ''}`} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
                   <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-[#25D366] transition-colors flex-shrink-0">
                     <MessageCircle className="w-7 h-7 text-[#25D366] group-hover:text-white transition-colors" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-400 mb-1">{t('contact.info.waLabel')}</div>
-                    <div className="text-xl font-bold group-hover:text-[#25D366] transition-colors" dir="ltr">{settings.whatsapp || tLang('waText', 'contact.info.waText')}</div>
+                    <div className="text-xl font-bold group-hover:text-[#25D366] transition-colors" dir="ltr">{companyInfo.whatsapp || settings.whatsapp || tLang('waText', 'contact.info.waText')}</div>
                   </div>
                 </a>
 
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-7 h-7 text-amber-400" />
+                <a href={companyInfo.map_url || '#'} target="_blank" rel="noreferrer" className="flex items-center gap-4 group cursor-pointer">
+                  <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500 transition-colors">
+                    <MapPin className="w-7 h-7 text-amber-400 group-hover:text-slate-900 transition-colors" />
                   </div>
                   <div>
                     <div className="text-sm text-slate-400 mb-1">{t('contact.info.hqLabel')}</div>
-                    <div className="text-xl font-bold">{tLang('info_hqText', 'contact.info.hqText')}</div>
+                    <div className="text-lg font-bold group-hover:text-amber-400 transition-colors">{companyInfo.city ? `${companyInfo.city}, ${companyInfo.district || ''}` : tLang('info_hqText', 'contact.info.hqText')}</div>
                   </div>
-                </div>
+                </a>
 
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">

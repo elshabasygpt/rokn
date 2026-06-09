@@ -47,14 +47,28 @@ export function useApi() {
   };
 
   const upload = async (file: File): Promise<{ url: string }> => {
+    // Attempt to compress image before uploading
+    let fileToUpload = file;
+    try {
+      if (file.type.startsWith('image/')) {
+        const { compressImage } = await import('../lib/imageCompression');
+        fileToUpload = await compressImage(file, 1920, 0.95);
+      }
+    } catch (e) {
+      console.warn('Image compression failed, uploading original', e);
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileToUpload);
     const res = await fetch(`${API}/api/upload`, {
       method: 'POST',
       headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: formData,
     });
-    if (!res.ok) throw new Error('Upload failed');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'فشل في رفع الملف');
+    }
     return res.json();
   };
 

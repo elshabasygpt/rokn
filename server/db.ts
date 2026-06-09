@@ -241,6 +241,9 @@ export async function initDB() {
       );
 
       -- Safe migrations for existing table
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+      ALTER TABLE industries ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+      
       ALTER TABLE industries ADD COLUMN IF NOT EXISTS challenges_ar JSONB DEFAULT '[]';
       ALTER TABLE industries ADD COLUMN IF NOT EXISTS challenges_en JSONB DEFAULT '[]';
       ALTER TABLE industries ADD COLUMN IF NOT EXISTS solutions_ar JSONB DEFAULT '[]';

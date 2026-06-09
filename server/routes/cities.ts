@@ -12,13 +12,35 @@ router.get('/', async (req, res) => {
     if (!showAll) {
       query += ' WHERE active = true';
     }
-    query += ' ORDER BY id DESC';
+    query += ' ORDER BY display_order ASC, id ASC';
     
     const { rows } = await pool.query(query);
     res.json(rows);
   } catch (err) {
     console.error('Error fetching cities', err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Reorder cities (Admin)
+router.put('/reorder', authMiddleware, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { items } = req.body; // Array of { id, display_order }
+    if (!Array.isArray(items)) return res.status(400).json({ error: 'Invalid payload' });
+
+    await client.query('BEGIN');
+    for (const item of items) {
+      await client.query('UPDATE cities SET display_order = $1 WHERE id = $2', [item.display_order, item.id]);
+    }
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error reordering cities', err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
   }
 });
 

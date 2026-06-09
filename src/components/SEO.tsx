@@ -8,9 +8,15 @@ interface SEOProps {
   description: string;
   schema?: any;
   canonical?: string;
+  geo?: {
+    region?: string;
+    placename?: string;
+    position?: string;
+    icbm?: string;
+  };
 }
 
-export default function SEO({ title, description, schema, canonical }: SEOProps) {
+export default function SEO({ title, description, schema, canonical, geo }: SEOProps) {
   const { i18n } = useTranslation();
   const location = useLocation();
   const baseUrl = 'https://www.roknelryan.com'; // Replace with real domain when live
@@ -50,10 +56,16 @@ export default function SEO({ title, description, schema, canonical }: SEOProps)
       <meta property="og:locale" content={i18n.language === 'ar' ? 'ar_SA' : 'en_US'} />
       <meta property="og:locale:alternate" content={i18n.language === 'ar' ? 'en_US' : 'ar_SA'} />
 
+      {/* Geo Tags for Local SEO */}
+      {geo?.region && <meta name="geo.region" content={geo.region} />}
+      {geo?.placename && <meta name="geo.placename" content={geo.placename} />}
+      {geo?.position && <meta name="geo.position" content={geo.position} />}
+      {geo?.icbm && <meta name="ICBM" content={geo.icbm} />}
+
       {/* Structured Data (Schema Markup) */}
       {schema && (
         <script type="application/ld+json">
-          {JSON.stringify(schema)}
+          {JSON.stringify(Array.isArray(schema) ? { "@context": "https://schema.org", "@graph": schema } : schema)}
         </script>
       )}
     </Helmet>

@@ -95,14 +95,19 @@ export default function IndustryPage() {
     }
   };
 
+  const geoData = {
+    region: 'SA-14', // Default to HQ Asir
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
-      <SEO title={metaTitle} description={metaDesc} schema={industrySchema} canonical={canonical} />
+      <SEO title={metaTitle} description={metaDesc} schema={industrySchema} canonical={canonical} geo={geoData} />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/40"></div>
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }}></div>
+        <div className="absolute inset-0 bg-slate-900/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="max-w-4xl">
@@ -253,7 +258,7 @@ export default function IndustryPage() {
                    <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2"><Briefcase className="w-6 h-6 text-amber-500"/> {isEn ? 'Related Case Studies' : 'دراسات حالة ذات صلة'}</h3>
                    <div className="flex flex-wrap gap-3">
                      {relatedCaseStudies.map((slug: string, i: number) => (
-                       <Link key={i} to={isEn ? `/en/case-studies/${slug}` : `/case-studies/${slug}`} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-colors">
+                       <Link key={i} to={isEn ? `/en/case-studies` : `/case-studies`} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-colors">
                          {slug.replace(/-/g, ' ')}
                        </Link>
                      ))}
@@ -265,7 +270,7 @@ export default function IndustryPage() {
                    <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2"><PackageCheck className="w-6 h-6 text-amber-500"/> {isEn ? 'Recommended Services' : 'خدمات موصى بها'}</h3>
                    <div className="flex flex-wrap gap-3">
                      {relatedServices.map((slug: string, i: number) => (
-                       <Link key={i} to={isEn ? `/en/services/${slug}` : `/services/${slug}`} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-colors">
+                       <Link key={i} to={isEn ? `/en/services` : `/services`} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-colors">
                          {slug.replace(/-/g, ' ')}
                        </Link>
                      ))}
