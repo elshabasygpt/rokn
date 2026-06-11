@@ -44,6 +44,30 @@ router.put('/reorder', authMiddleware, async (req, res) => {
   }
 });
 
+// Temporary endpoint to fix city order
+router.get('/fix-order', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const desiredOrder = [
+      'qassim', 'buraidah', 'unaizah', 'ar-rass', 'al-bukayriyah', 'al-mithnab', 'al-badayea',
+      'riyadh', 'jeddah', 'dammam', 'makkah', 'madinah', 'khobar', 'jubail', 'al-ahsa',
+      'taif', 'tabuk', 'hail', 'abha', 'jizan', 'najran', 'yanbu'
+    ];
+    await client.query('BEGIN');
+    for (let i = 0; i < desiredOrder.length; i++) {
+      await client.query('UPDATE cities SET display_order = $1 WHERE slug = $2', [i, desiredOrder[i]]);
+    }
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Cities ordered successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
+
 // Get a single city by slug (Public)
 router.get('/:slug', async (req, res) => {
   try {

@@ -182,9 +182,19 @@ app.use(express.static(path.resolve(__dirname, '../dist'), { index: false }));
 
 app.get('*', async (req, res) => {
   const userAgent = req.headers['user-agent'] || '';
-  const isBot = /WhatsApp|Twitterbot|facebookexternalhit|LinkedInBot|discordbot|Slackbot|TelegramBot|Googlebot|Bingbot|YandexBot|DuckDuckBot|Baiduspider|Slurp/i.test(userAgent);
+  const isBot = /WhatsApp|Twitterbot|facebookexternalhit|LinkedInBot|discordbot|Slackbot|TelegramBot|Googlebot|Google-Site-Verification|Bingbot|YandexBot|DuckDuckBot|Baiduspider|Slurp/i.test(userAgent);
   
   const indexPath = path.resolve(__dirname, '../dist/index.html');
+  
+  let siteVerification = '';
+  try {
+    const genRes = await pool.query("SELECT value FROM settings WHERE key = 'general'");
+    if (genRes.rows.length > 0 && genRes.rows[0].value.googleSiteVerification) {
+      siteVerification = `<meta name="google-site-verification" content="${genRes.rows[0].value.googleSiteVerification}" />`;
+    }
+  } catch (e) {
+    console.error('Failed to fetch SEO settings', e);
+  }
   
   if (isBot) {
     try {
@@ -330,6 +340,7 @@ app.get('*', async (req, res) => {
   <meta name="twitter:description" content="${safeDesc}">
   <meta name="twitter:image" content="${safeImage}">
   <meta name="twitter:url" content="${safeUrl}">
+  ${siteVerification}
   ${geoTags}`;
       
       const finalHtml = baseHtml.replace('</head>', `${headInjection}\n</head>`);
@@ -342,6 +353,15 @@ app.get('*', async (req, res) => {
 
   // Normal Users: Return the React SPA index.html
   if (fs.existsSync(indexPath)) {
+    if (siteVerification) {
+      try {
+        let html = await fs.promises.readFile(indexPath, 'utf-8');
+        html = html.replace('</head>', `  ${siteVerification}\n</head>`);
+        return res.send(html);
+      } catch (err) {
+        return res.sendFile(indexPath);
+      }
+    }
     res.sendFile(indexPath);
   } else {
     // If running in dev mode where dist doesn't exist, just send a basic response or let Vite handle it

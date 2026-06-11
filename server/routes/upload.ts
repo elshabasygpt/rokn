@@ -33,12 +33,12 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (_req, file, cb) => {
-    const allowedExts = /jpeg|jpg|png|gif|webp|svg/;
+    const allowedExts = /jpeg|jpg|png|gif|webp|svg|pdf/;
     const extName = path.extname(file.originalname).toLowerCase();
     const ext = allowedExts.test(extName) || extName === ''; // allow if no extension
-    const mime = file.mimetype.startsWith('image/') || file.mimetype === 'application/octet-stream';
+    const mime = file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf' || file.mimetype === 'application/octet-stream';
     if (ext && mime) cb(null, true);
-    else cb(new Error(`Only images are allowed. Received: ${file.originalname} (${file.mimetype})`));
+    else cb(new Error(`Only images and PDFs are allowed. Received: ${file.originalname} (${file.mimetype})`));
   }
 });
 

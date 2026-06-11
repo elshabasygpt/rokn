@@ -14,6 +14,7 @@ const router = express.Router();
 
 // ⚠️ ALL tables in the database — order matters for foreign key safety
 const ALL_TABLES = [
+  'admin',
   'settings',
   'services',
   'gallery',
@@ -21,8 +22,15 @@ const ALL_TABLES = [
   'testimonials',
   'partners',
   'faqs',
+  'cities',
+  'industries',
+  'case_studies',
+  'redirects',
+  'dynamic_pages',
+  'jobs',
+  'job_applications',
   'bookings',
-  'admin',
+  'lead_activities'
 ];
 
 const uploadsPath = path.resolve(__dirname, '../../public/uploads');
@@ -159,9 +167,19 @@ router.get('/info', authMiddleware, async (_req, res) => {
     let uploadsCount = 0;
     let uploadsSizeMB = 0;
     if (fs.existsSync(uploadsPath)) {
-      const files = fs.readdirSync(uploadsPath).filter(f => fs.statSync(path.join(uploadsPath, f)).isFile());
-      uploadsCount = files.length;
-      uploadsSizeMB = Math.round(files.reduce((sum, f) => sum + fs.statSync(path.join(uploadsPath, f)).size, 0) / 1024 / 1024 * 100) / 100;
+      const getStatsRecursively = (dir: string) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            getStatsRecursively(fullPath);
+          } else {
+            uploadsCount++;
+            uploadsSizeMB += fs.statSync(fullPath).size;
+          }
+        }
+      };
+      getStatsRecursively(uploadsPath);
+      uploadsSizeMB = Math.round(uploadsSizeMB / 1024 / 1024 * 100) / 100;
     }
 
     res.json({ tables: tableStats, uploads: { count: uploadsCount, sizeMB: uploadsSizeMB } });
@@ -269,11 +287,14 @@ router.post('/import', authMiddleware, upload.single('file'), async (req, res) =
       const zipEntries = zip.getEntries();
       for (const entry of zipEntries) {
         if (entry.entryName.startsWith('uploads/') && !entry.isDirectory) {
-          const filename = path.basename(entry.entryName);
-          if (filename) {
-            fs.writeFileSync(path.join(uploadsPath, filename), entry.getData());
-            uploadedFilesCount++;
+          const relativePath = entry.entryName.replace('uploads/', '');
+          const targetPath = path.join(uploadsPath, relativePath);
+          const targetDir = path.dirname(targetPath);
+          if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
           }
+          fs.writeFileSync(targetPath, entry.getData());
+          uploadedFilesCount++;
         }
       }
     } catch (uploadErr) {

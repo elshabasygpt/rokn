@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Truck, ThermometerSnowflake, ShieldCheck, MapPin, Wind, Zap, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -32,36 +32,61 @@ const VehicleDisplay = ({ vehicle, isReversed, title, desc, capacity, vIcon, i18
         initial={{ opacity: 0, x: isReversed ? 50 : -50 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
-        className="lg:w-1/2 flex flex-col gap-6"
+        className="lg:w-1/2 flex flex-col gap-4 w-full"
       >
-        <div className="relative">
-          <div className="absolute -inset-4 bg-amber-500/10 rounded-[2.5rem] transform rotate-3 blur-lg"></div>
-          <img 
-            src={activeImage} 
-            alt={title} 
-            className="rounded-[2rem] shadow-2xl object-contain bg-white h-[350px] md:h-[450px] w-full relative z-10 transition-opacity duration-300 p-2"
-          />
-          <div className="absolute top-6 end-6 bg-white p-3 rounded-2xl shadow-xl z-20">
+        <div className="relative w-full h-[350px] md:h-[450px] rounded-[2rem] bg-slate-50 overflow-hidden group border border-slate-200 shadow-2xl flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/5 via-transparent to-transparent z-0"></div>
+          
+          <AnimatePresence mode="wait">
+            <motion.img 
+              key={activeImage}
+              initial={{ opacity: 0, scale: 0.95, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, scale: 1.05, filter: 'blur(4px)' }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              src={activeImage} 
+              alt={title} 
+              className="w-full h-full object-contain relative z-10 p-6 drop-shadow-xl"
+            />
+          </AnimatePresence>
+
+          <div className="absolute top-4 end-4 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-white/50 z-20 transition-transform group-hover:scale-110">
             {vIcon}
           </div>
         </div>
         
         {vehicle.images && vehicle.images.length > 0 && (
-          <div className="flex gap-4 overflow-x-auto pb-2 z-10 scrollbar-hide">
-            <img 
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-2 z-10 scrollbar-hide px-1">
+            <button
               onClick={() => setActiveImage(vehicle.image)}
-              src={vehicle.image}
-              alt={`${title} - رئيسية`}
-              className={`w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-md border-2 cursor-pointer flex-shrink-0 transition-all duration-200 ${activeImage === vehicle.image ? 'border-amber-500 scale-105 opacity-100' : 'border-white opacity-60 hover:opacity-100'}`}
-            />
-            {vehicle.images.map((img: string, i: number) => (
+              className={`relative rounded-xl overflow-hidden h-20 md:h-24 aspect-[4/3] flex-shrink-0 transition-all duration-300 border-2 ${
+                activeImage === vehicle.image 
+                  ? 'border-amber-500 shadow-md shadow-amber-500/20 scale-105' 
+                  : 'border-transparent hover:border-amber-500/50 opacity-70 hover:opacity-100'
+              }`}
+            >
               <img 
+                src={vehicle.image}
+                alt={`${title} - رئيسية`}
+                className="w-full h-full object-cover"
+              />
+            </button>
+            {vehicle.images.map((img: string, i: number) => (
+              <button
                 key={i}
                 onClick={() => setActiveImage(img)}
-                src={img}
-                alt={`${title} - إضافية ${i + 1}`}
-                className={`w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-md border-2 cursor-pointer flex-shrink-0 transition-all duration-200 ${activeImage === img ? 'border-amber-500 scale-105 opacity-100' : 'border-white opacity-60 hover:opacity-100'}`}
-              />
+                className={`relative rounded-xl overflow-hidden h-20 md:h-24 aspect-[4/3] flex-shrink-0 transition-all duration-300 border-2 ${
+                  activeImage === img 
+                    ? 'border-amber-500 shadow-md shadow-amber-500/20 scale-105' 
+                    : 'border-transparent hover:border-amber-500/50 opacity-70 hover:opacity-100'
+                }`}
+              >
+                <img 
+                  src={img}
+                  alt={`${title} - إضافية ${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
             ))}
           </div>
         )}

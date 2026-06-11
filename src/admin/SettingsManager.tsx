@@ -126,7 +126,8 @@ export default function SettingsManager() {
     try {
       setBackupProgress('downloading');
       const token = localStorage.getItem('admin_token');
-      const downloadUrl = `/api/backup/export?token=${encodeURIComponent(token || '')}`;
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const downloadUrl = `${API_URL}/api/backup/export?token=${encodeURIComponent(token || '')}`;
 
       // Open in new tab — Chrome downloads the file (Content-Disposition: attachment)
       // and auto-closes the blank tab
@@ -160,7 +161,8 @@ export default function SettingsManager() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/backup/import', {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/backup/import`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -187,7 +189,8 @@ export default function SettingsManager() {
 
       // 1. Download the backup ZIP in a new tab
       const token = localStorage.getItem('admin_token');
-      const downloadUrl = `/api/backup/export?token=${encodeURIComponent(token || '')}`;
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const downloadUrl = `${API_URL}/api/backup/export?token=${encodeURIComponent(token || '')}`;
       window.open(downloadUrl, '_blank');
 
       // 2. Open Google Drive after a short delay to let download start
@@ -387,6 +390,35 @@ export default function SettingsManager() {
               />
               <span className="font-bold text-slate-700">إظهار زر تحميل الملف التعريفي (Download Company Profile)</span>
             </label>
+            {settings.general?.profile_download_enabled !== false && (
+              <div className="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50 ml-8 rtl:mr-8 rtl:ml-0">
+                <label className="block text-sm font-bold text-slate-700 mb-2">الملف التعريفي (Company Profile PDF)</label>
+                <div className="flex items-center gap-4">
+                  <label className="bg-white border border-slate-300 hover:border-amber-500 hover:text-amber-600 px-4 py-2 rounded-lg cursor-pointer transition-colors text-sm font-bold flex items-center gap-2">
+                    <Upload className="w-4 h-4" /> اختر ملف PDF
+                    <input type="file" accept=".pdf" className="hidden" onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setSaving(true);
+                      try {
+                        const result = await api.upload(file);
+                        update('general', 'company_profile_url', result.url);
+                      } catch (err) {
+                        console.error('Upload failed', err);
+                        alert('فشل رفع الملف. تأكد أن حجمه أقل من 10 ميجابايت وأنه بصيغة PDF.');
+                      }
+                      setSaving(false);
+                    }} />
+                  </label>
+                  {settings.general?.company_profile_url && (
+                    <a href={settings.general.company_profile_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                      <FileText className="w-4 h-4" /> عرض الملف الحالي
+                    </a>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 mt-2">بعد رفع الملف، لا تنسى الضغط على "حفظ الأقسام" بالأسفل.</p>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex items-center gap-3">
             <button onClick={() => saveSection('general')} disabled={saving}
@@ -545,6 +577,34 @@ export default function SettingsManager() {
               </div>
             </div>
 
+            {/* Navigation Menus Images */}
+            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 lg:col-span-2 mt-4">
+              <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">صور القوائم المنسدلة (Navigation Menus)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-2">صورة قائمة "القطاعات"</label>
+                  <label className="relative flex items-center justify-center h-32 bg-white rounded-lg border border-slate-200 cursor-pointer overflow-hidden hover:border-amber-500 transition-colors">
+                    {settings.general?.nav_industry_bg ? <img src={settings.general.nav_industry_bg} className="w-full h-full object-cover" /> : <span className="text-xs text-slate-400">رفع صورة</span>}
+                    <input type="file" onChange={e => handleSpecificLogoUpload('nav_industry_bg', e)} className="hidden" />
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-2">صورة قائمة "التغطية/المدن"</label>
+                  <label className="relative flex items-center justify-center h-32 bg-white rounded-lg border border-slate-200 cursor-pointer overflow-hidden hover:border-amber-500 transition-colors">
+                    {settings.general?.nav_city_bg ? <img src={settings.general.nav_city_bg} className="w-full h-full object-cover" /> : <span className="text-xs text-slate-400">رفع صورة</span>}
+                    <input type="file" onChange={e => handleSpecificLogoUpload('nav_city_bg', e)} className="hidden" />
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-2">صورة قائمة "الشركة"</label>
+                  <label className="relative flex items-center justify-center h-32 bg-white rounded-lg border border-slate-200 cursor-pointer overflow-hidden hover:border-amber-500 transition-colors">
+                    {settings.general?.nav_company_bg ? <img src={settings.general.nav_company_bg} className="w-full h-full object-cover" /> : <span className="text-xs text-slate-400">رفع صورة</span>}
+                    <input type="file" onChange={e => handleSpecificLogoUpload('nav_company_bg', e)} className="hidden" />
+                  </label>
+                </div>
+              </div>
+            </div>
+
           </div>
           <div className="mt-4 flex items-center gap-3">
             <button onClick={() => saveSection('general')} disabled={saving}
@@ -663,9 +723,22 @@ export default function SettingsManager() {
                     className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="+966500000000" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-slate-700 mb-2">رابط خرائط جوجل (Google Maps URL / Embed)</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">رابط خرائط جوجل (Google Maps URL) - لزر الاتجاهات</label>
                   <input value={settings.company_info?.map_url || ''} onChange={e => update('company_info', 'map_url', e.target.value)} dir="ltr"
-                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="https://maps.google.com/..." />
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="https://maps.app.goo.gl/..." />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">رابط التضمين (Google Maps Embed URL) - للخريطة المعروضة (اختياري)</label>
+                  <input value={settings.company_info?.map_embed_url || ''} onChange={e => {
+                    let val = e.target.value;
+                    if (val.includes('<iframe') && val.includes('src="')) {
+                      const match = val.match(/src="([^"]+)"/);
+                      if (match) val = match[1];
+                    }
+                    update('company_info', 'map_embed_url', val);
+                  }} dir="ltr"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500" placeholder="https://www.google.com/maps/embed?pb=..." />
+                  <p className="text-xs text-slate-500 mt-2">انسخ هذا الرابط من خيار "تضمين الخريطة" (Embed a map) في خرائط جوجل. (يمكنك لصق كود iframe كاملاً وسنقوم باستخراج الرابط تلقائياً).</p>
                 </div>
               </div>
             </div>
@@ -1774,6 +1847,28 @@ export default function SettingsManager() {
                 <input placeholder="Title (EN)" dir="ltr" value={settings.contactMeta?.title_en || ''} onChange={e => update('contactMeta', 'title_en', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500" />
                 <textarea placeholder="الوصف (عربي)" value={settings.contactMeta?.desc_ar || ''} onChange={e => update('contactMeta', 'desc_ar', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500 h-20" />
                 <textarea placeholder="Description (EN)" dir="ltr" value={settings.contactMeta?.desc_en || ''} onChange={e => update('contactMeta', 'desc_en', e.target.value)} className="w-full border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-amber-500 h-20" />
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">صورة الغلاف (Hero Image)</label>
+                  <div className="flex items-center gap-4">
+                    {settings.contactMeta?.hero_image && (
+                      <img src={settings.contactMeta.hero_image} className="w-32 h-16 object-cover rounded-lg border border-slate-200" alt="Hero" />
+                    )}
+                    <label className="px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg cursor-pointer hover:bg-slate-200 transition-colors">
+                      رفع صورة
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        if (e.target.files?.[0]) {
+                          try {
+                            const res = await api.upload(e.target.files[0]);
+                            update('contactMeta', 'hero_image', res.url);
+                          } catch (err: any) {
+                            alert('فشل رفع الصورة: ' + (err.message || ''));
+                          }
+                        }
+                      }} />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 

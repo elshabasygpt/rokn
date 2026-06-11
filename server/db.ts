@@ -2,11 +2,11 @@ import { Pool } from 'pg';
 import 'dotenv/config';
 
 const PG_CONFIG = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'Rokn Elryan',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASS || 'postgres',
+  host: process.env.DB_HOST || process.env.PGHOST || '127.0.0.1',
+  port: parseInt(process.env.DB_PORT || process.env.PGPORT || '5432'),
+  database: process.env.DB_NAME || process.env.PGDATABASE || 'Rokn Elryan',
+  user: process.env.DB_USER || process.env.PGUSER || 'postgres',
+  password: process.env.DB_PASS || process.env.PGPASSWORD || 'postgres',
 };
 
 const pool = new Pool(PG_CONFIG);

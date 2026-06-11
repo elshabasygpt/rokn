@@ -22,7 +22,9 @@ const Terms = lazy(() => import('./pages/Terms'));
 const EnterpriseQuote = lazy(() => import('./pages/EnterpriseQuote'));
 const Fleet = lazy(() => import('./pages/Fleet'));
 const Careers = lazy(() => import('./pages/Careers'));
+const Locations = lazy(() => import('./pages/Locations'));
 const CityPage = lazy(() => import('./pages/CityPage'));
+const Industries = lazy(() => import('./pages/Industries'));
 const IndustryPage = lazy(() => import('./pages/IndustryPage'));
 const PayloadCalculator = lazy(() => import('./pages/PayloadCalculator'));
 const OperationalStandards = lazy(() => import('./pages/OperationalStandards'));
@@ -125,7 +127,9 @@ export default function App() {
               <Route path="enterprise-quote" element={<EnterpriseQuote />} />
               <Route path="fleet" element={<Fleet />} />
               <Route path="careers" element={<Careers />} />
+              <Route path="locations" element={<Locations />} />
               <Route path="locations/:city" element={<CityPage />} />
+              <Route path="industries" element={<Industries />} />
               <Route path="industries/:industry" element={<IndustryPage />} />
               <Route path="calculator" element={<PayloadCalculator />} />
               <Route path="compliance" element={<OperationalStandards />} />
@@ -148,7 +152,9 @@ export default function App() {
               <Route path="enterprise-quote" element={<EnterpriseQuote />} />
               <Route path="fleet" element={<Fleet />} />
               <Route path="careers" element={<Careers />} />
+              <Route path="locations" element={<Locations />} />
               <Route path="locations/:city" element={<CityPage />} />
+              <Route path="industries" element={<Industries />} />
               <Route path="industries/:industry" element={<IndustryPage />} />
               <Route path="calculator" element={<PayloadCalculator />} />
               <Route path="compliance" element={<OperationalStandards />} />
