@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
+import bcrypt from 'bcryptjs';
 
 const PG_CONFIG = {
   host: process.env.DB_HOST || process.env.PGHOST || '127.0.0.1',
@@ -328,13 +329,19 @@ export async function initDB() {
     }
 
     // Insert default admin if none exists
-    const adminCheck = await pool.query('SELECT id FROM admin WHERE username = $1', ['admin']);
+    const adminCheck = await pool.query('SELECT id, password FROM admin WHERE username = $1', ['admin']);
     if (adminCheck.rows.length === 0) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
       await pool.query(
         'INSERT INTO admin (username, password, permissions) VALUES ($1, $2, $3)',
-        ['admin', 'admin123', '["all"]']
+        ['admin', hashedPassword, '["all"]']
       );
       console.log('✅ Default admin user created');
+    } else if (adminCheck.rows[0].password === 'admin123') {
+      // Fix for databases that accidentally got the plain text password
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await pool.query('UPDATE admin SET password = $1 WHERE username = $2', [hashedPassword, 'admin']);
+      console.log('✅ Default admin password hash fixed');
     }
 
     console.log('✅ Database tables initialized successfully');
