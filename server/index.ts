@@ -37,6 +37,19 @@ app.use(cors({ origin: true, credentials: true, exposedHeaders: ['Content-Dispos
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
+let isDbInitialized = false;
+app.use(async (req, res, next) => {
+  if (!isDbInitialized && req.path.startsWith('/api/')) {
+    try {
+      await initDB();
+      isDbInitialized = true;
+    } catch (err) {
+      console.error('Failed to init DB on Vercel:', err);
+    }
+  }
+  next();
+});
+
 // Serve uploaded files
 app.use('/uploads', express.static(path.resolve(__dirname, '../public/uploads')));
 
@@ -386,9 +399,6 @@ async function start() {
 
 if (!process.env.VERCEL) {
   start();
-} else {
-  // On Vercel, we don't start the server, but we MUST initialize the database!
-  initDB().catch(console.error);
 }
 
 export default app;
