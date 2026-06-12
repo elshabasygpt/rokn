@@ -400,8 +400,18 @@ async function start() {
   }
 }
 
-if (!process.env.VERCEL) {
+const isVercel = process.env.VERCEL || process.env.VERCEL_ENV || process.env.NOW_REGION;
+if (!isVercel) {
   start();
 }
+
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('EXPRESS GLOBAL ERROR:', err);
+  res.status(err.status || 500).json({
+    error: 'EXPRESS GLOBAL ERROR: ' + (err.message || 'Unknown Error'),
+    stack: err.stack
+  });
+});
 
 export default app;

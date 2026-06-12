@@ -11,8 +11,15 @@ const PG_CONFIG = {
 };
 
 const pool = process.env.DATABASE_URL || process.env.POSTGRES_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } })
-  : new Pool(PG_CONFIG);
+  ? new Pool({ 
+      connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL, 
+      ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 3000 // Throw error instead of hanging
+    })
+  : new Pool({
+      ...PG_CONFIG,
+      connectionTimeoutMillis: 3000 // Throw error instead of hanging
+    });
 
 export default pool;
 
