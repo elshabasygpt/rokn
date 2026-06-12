@@ -33,7 +33,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
     const result = await pool.query(
       `INSERT INTO services (icon, title_ar, title_en, desc_ar, desc_en, features_ar, features_en, images, sort_order)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [icon || 'Truck', title_ar, title_en, desc_ar, desc_en, features_ar || [], features_en || [], images || [], sort_order || 0]
+      [icon || 'Truck', title_ar, title_en, desc_ar, desc_en, JSON.stringify(features_ar || []), JSON.stringify(features_en || []), JSON.stringify(images || []), sort_order || 0]
     );
     return res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -51,7 +51,7 @@ router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
       `UPDATE services SET icon=$1, title_ar=$2, title_en=$3, desc_ar=$4, desc_en=$5,
        features_ar=$6, features_en=$7, images=$8, sort_order=$9, active=$10, updated_at=CURRENT_TIMESTAMP
        WHERE id=$11 RETURNING *`,
-      [icon, title_ar, title_en, desc_ar, desc_en, features_ar, features_en, images, sort_order, active, id]
+      [icon, title_ar, title_en, desc_ar, desc_en, JSON.stringify(features_ar || []), JSON.stringify(features_en || []), JSON.stringify(images || []), sort_order, active, id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
     return res.json(result.rows[0]);

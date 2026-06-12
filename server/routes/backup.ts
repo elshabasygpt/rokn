@@ -229,6 +229,9 @@ router.post('/import', authMiddleware, upload.single('file'), async (req, res) =
     const restoredTables: string[] = [];
     const skippedTables: string[] = [];
 
+    console.log('📦 Starting restore process...');
+    console.log('Tables in backup:', Object.keys(data));
+
     for (const table of ALL_TABLES) {
       if (!data[table] || !Array.isArray(data[table])) {
         skippedTables.push(table);
@@ -263,6 +266,7 @@ router.post('/import', authMiddleware, upload.single('file'), async (req, res) =
               }
             }
           }
+          console.log(`✅ Restored ${rows.length} rows to ${table}`);
         }
 
         // Reset PostgreSQL sequence to prevent ID conflicts on future inserts

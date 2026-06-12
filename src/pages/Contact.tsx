@@ -134,7 +134,7 @@ export default function Contact() {
               {tLang('title', 'contact.title')}
             </h1>
             <p className="text-lg md:text-2xl text-slate-300 leading-relaxed font-medium max-w-2xl mx-auto drop-shadow-md">
-              {tLang('desc', 'contact.desc')}
+              {tLang('contact_desc', 'نحن هنا للإجابة على استفساراتكم وتلبية احتياجاتكم في النقل المبرد.')}
             </p>
           </motion.div>
         </div>
