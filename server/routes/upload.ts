@@ -6,12 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs/promises';
 import { authMiddleware } from '../middleware/auth';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Use process.cwd() instead of __dirname
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.resolve(__dirname, '../../public/uploads'));
+    cb(null, path.resolve(process.cwd(), 'public/uploads'));
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -21,7 +20,7 @@ const storage = multer.diskStorage({
 
 const docStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.resolve(__dirname, '../../public/uploads'));
+    cb(null, path.resolve(process.cwd(), 'public/uploads'));
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -96,7 +95,7 @@ router.post('/multiple', authMiddleware, (req, res, next) => {
 // GET /api/upload/library (admin)
 router.get('/library', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const uploadsDir = path.resolve(__dirname, '../../public/uploads');
+    const uploadsDir = path.resolve(process.cwd(), 'public/uploads');
     const files = await fs.readdir(uploadsDir);
     
     const mediaFiles = await Promise.all(
@@ -132,7 +131,7 @@ router.delete('/:filename', authMiddleware, async (req: Request, res: Response) 
       return res.status(400).json({ error: 'Invalid filename' });
     }
     
-    const filePath = path.resolve(__dirname, '../../public/uploads', filename);
+    const filePath = path.resolve(process.cwd(), 'public/uploads', filename);
     await fs.unlink(filePath);
     return res.json({ success: true, message: 'File deleted' });
   } catch (err: any) {

@@ -7,8 +7,7 @@ import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Use process.cwd() instead of __dirname
 
 const router = express.Router();
 
@@ -33,7 +32,7 @@ const ALL_TABLES = [
   'lead_activities'
 ];
 
-const uploadsPath = path.resolve(__dirname, '../../public/uploads');
+const uploadsPath = path.resolve(process.cwd(), 'public/uploads');
 
 // Helper: recursively delete directory contents
 function clearDirectory(dirPath: string) {
@@ -117,7 +116,7 @@ router.get('/export', (req, res, next) => {
     }
 
     // 5. Add any other static assets from /public that are NOT in /uploads
-    const publicPath = path.resolve(__dirname, '../../public');
+    const publicPath = path.resolve(process.cwd(), 'public');
     for (const entry of fs.readdirSync(publicPath, { withFileTypes: true })) {
       if (entry.name === 'uploads') continue; // Already handled above
       const fullPath = path.join(publicPath, entry.name);
@@ -308,7 +307,7 @@ router.post('/import', authMiddleware, upload.single('file'), async (req, res) =
     // 5. Restore public_assets if present (logo, partners, etc.)
     let publicAssetsCount = 0;
     try {
-      const publicPath = path.resolve(__dirname, '../../public');
+      const publicPath = path.resolve(process.cwd(), 'public');
       const zipEntries = zip.getEntries();
       for (const entry of zipEntries) {
         if (entry.entryName.startsWith('public_assets/') && !entry.isDirectory) {

@@ -7,8 +7,7 @@ import { fileURLToPath } from 'url';
 import { initDB } from './db';
 import pool from './db';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Removed __dirname declaration to use process.cwd() instead
 
 import authRoutes from './routes/auth';
 import servicesRoutes from './routes/services';
@@ -51,7 +50,7 @@ app.use(async (req, res, next) => {
 });
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.resolve(__dirname, '../public/uploads')));
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'public/uploads')));
 
 // API Routes (mounted with and without /api prefix for Vercel compatibility)
 const apiRouter = express.Router();
@@ -195,13 +194,13 @@ app.use(async (req, res, next) => {
 });
 
 // Serve frontend static files in production for SSR OpenGraph
-app.use(express.static(path.resolve(__dirname, '../dist'), { index: false }));
+app.use(express.static(path.resolve(process.cwd(), 'dist'), { index: false }));
 
 app.get('*', async (req, res) => {
   const userAgent = req.headers['user-agent'] || '';
   const isBot = /WhatsApp|Twitterbot|facebookexternalhit|LinkedInBot|discordbot|Slackbot|TelegramBot|Googlebot|Google-Site-Verification|Bingbot|YandexBot|DuckDuckBot|Baiduspider|Slurp/i.test(userAgent);
   
-  const indexPath = path.resolve(__dirname, '../dist/index.html');
+  const indexPath = path.resolve(process.cwd(), 'dist/index.html');
   
   let siteVerification = '';
   try {
