@@ -9,7 +9,7 @@ interface Admin {
 interface AuthContextType {
   admin: Admin | null;
   token: string | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{success: boolean, error?: string}>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -17,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   admin: null,
   token: null,
-  login: async () => false,
+  login: async () => ({ success: false }),
   logout: () => {},
   isLoading: true,
 });
@@ -52,21 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<{success: boolean, error?: string}> => {
     try {
       const res = await fetch(`${API}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      if (!res.ok) return false;
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (!res.ok) return { success: false, error: data?.error || `HTTP ${res.status} Error` };
+      
       setToken(data.token);
       setAdmin(data.admin);
       localStorage.setItem('admin_token', data.token);
-      return true;
-    } catch {
-      return false;
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Network error' };
     }
   };
 

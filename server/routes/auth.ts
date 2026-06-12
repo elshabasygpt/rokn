@@ -33,9 +33,9 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const token = generateToken({ id: admin.id, username: admin.username, permissions });
     return res.json({ token, admin: { id: admin.id, username: admin.username, permissions } });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Login error:', err);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Database/Server Error: ' + err.message });
   }
 });
 

@@ -30,8 +30,10 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const success = await login(username, password);
-    if (!success) setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+    const result = await login(username, password);
+    if (!result.success) {
+      setError(result.error || 'اسم المستخدم أو كلمة المرور غير صحيحة');
+    }
     setLoading(false);
   };
 
