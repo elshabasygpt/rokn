@@ -39,7 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 let isDbInitialized = false;
 app.use(async (req, res, next) => {
-  if (!isDbInitialized && req.path.startsWith('/api/')) {
+  if (!isDbInitialized) {
     try {
       await initDB();
       isDbInitialized = true;
