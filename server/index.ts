@@ -53,25 +53,29 @@ app.use(async (req, res, next) => {
 // Serve uploaded files
 app.use('/uploads', express.static(path.resolve(__dirname, '../public/uploads')));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/services', servicesRoutes);
-app.use('/api/gallery', galleryRoutes);
-app.use('/api/testimonials', testimonialsRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/bookings', bookingsRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/partners', partnersRouter);
-app.use('/api/faqs', faqsRouter);
-app.use('/api/articles', articlesRoutes);
-app.use('/api/backup', backupRoutes);
-app.use('/api/careers', careersRoutes);
-app.use('/api/pages', pagesRoutes);
-app.use('/api/cities', citiesRoutes);
-app.use('/api/industries', industriesRoutes);
-app.use('/api/case-studies', caseStudiesRoutes);
-app.use('/api/redirects', redirectsRoutes);
-app.use('/api/company', companyRoutes);
+// API Routes (mounted with and without /api prefix for Vercel compatibility)
+const apiRouter = express.Router();
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/services', servicesRoutes);
+apiRouter.use('/gallery', galleryRoutes);
+apiRouter.use('/testimonials', testimonialsRoutes);
+apiRouter.use('/settings', settingsRoutes);
+apiRouter.use('/bookings', bookingsRoutes);
+apiRouter.use('/upload', uploadRoutes);
+apiRouter.use('/partners', partnersRouter);
+apiRouter.use('/faqs', faqsRouter);
+apiRouter.use('/articles', articlesRoutes);
+apiRouter.use('/backup', backupRoutes);
+apiRouter.use('/careers', careersRoutes);
+apiRouter.use('/pages', pagesRoutes);
+apiRouter.use('/cities', citiesRoutes);
+apiRouter.use('/industries', industriesRoutes);
+apiRouter.use('/case-studies', caseStudiesRoutes);
+apiRouter.use('/redirects', redirectsRoutes);
+apiRouter.use('/company', companyRoutes);
+
+app.use('/api', apiRouter);
+app.use('/', apiRouter); // Fallback if Vercel strips /api
 
 // Health check
 app.get('/api/health', (_req, res) => {
