@@ -1,7 +1,6 @@
 import pool from '../server/db';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../server/middleware/auth';
-import app from '../server/index';
 
 export default async function(req: any, res: any) {
   // CORS headers
@@ -16,7 +15,7 @@ export default async function(req: any, res: any) {
   }
 
   // Pure Serverless Login
-  if (req.url === '/api/auth/login' || req.url === '/auth/login') {
+  if (req.url === '/api/auth/login' || req.url === '/auth/login' || req.url.includes('/login')) {
     try {
       let body = req.body;
       if (typeof body === 'string') body = JSON.parse(body);
@@ -45,10 +44,6 @@ export default async function(req: any, res: any) {
     }
   }
 
-  // Fallback to Express for everything else
-  try {
-    return app(req, res);
-  } catch (err: any) {
-    return res.status(500).json({ error: 'EXPRESS_CRASH: ' + err.message });
-  }
+  // Return 404 for anything else so we know it hit this function
+  return res.status(404).json({ error: 'API route not found: ' + req.url });
 }
