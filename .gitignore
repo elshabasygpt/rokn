@@ -19,3 +19,4 @@ local_pg_data/
 # Uploads
 public/uploads/*
 !public/uploads/.gitkeep
+roknelryan_cpanel_deploy.zip

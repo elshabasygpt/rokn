@@ -10,7 +10,9 @@ const PG_CONFIG = {
   password: process.env.DB_PASS || process.env.PGPASSWORD || 'postgres',
 };
 
-const pool = new Pool(PG_CONFIG);
+const pool = process.env.DATABASE_URL || process.env.POSTGRES_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } })
+  : new Pool(PG_CONFIG);
 
 export default pool;
 
