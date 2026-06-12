@@ -386,6 +386,9 @@ async function start() {
 
 if (!process.env.VERCEL) {
   start();
+} else {
+  // On Vercel, we don't start the server, but we MUST initialize the database!
+  initDB().catch(console.error);
 }
 
 export default app;
