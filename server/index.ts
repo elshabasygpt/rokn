@@ -385,33 +385,18 @@ app.get('*', async (req, res) => {
   }
 });
 
-// Start server
-async function start() {
-  try {
-    await initDB();
+// Start server locally (Only outside of Vercel production)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  initDB().then(() => {
     app.listen(PORT, () => {
       console.log(`\n🚀 Rokn Elryan API Server running on http://localhost:${PORT}`);
       console.log(`📦 API endpoints available at http://localhost:${PORT}/api`);
       console.log(`🔐 Default admin: admin / admin123\n`);
     });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  }
-}
-
-const isVercel = process.env.VERCEL || process.env.VERCEL_ENV || process.env.NOW_REGION;
-if (!isVercel) {
-  start();
-}
-
-// Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('EXPRESS GLOBAL ERROR:', err);
-  res.status(err.status || 500).json({
-    error: 'EXPRESS GLOBAL ERROR: ' + (err.message || 'Unknown Error'),
-    stack: err.stack
+  }).catch(err => {
+    console.error('Failed to start local server:', err);
   });
-});
+}
 
 export default app;
