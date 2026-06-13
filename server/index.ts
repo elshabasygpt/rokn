@@ -29,7 +29,7 @@ import redirectsRoutes from './routes/redirects';
 import companyRoutes from './routes/company';
 
 const app = express();
-const PORT = process.env.API_PORT || 3001;
+const PORT = process.env.API_PORT || 5000;
 
 // Middleware
 app.use(cors({ origin: true, credentials: true, exposedHeaders: ['Content-Disposition'] }));
@@ -386,8 +386,7 @@ app.get('*', async (req, res) => {
 });
 
 // Start server locally (Only outside of Vercel production)
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
+if (!process.env.VERCEL) {
   initDB().then(() => {
     app.listen(PORT, () => {
       console.log(`\n🚀 Rokn Elryan API Server running on http://localhost:${PORT}`);
